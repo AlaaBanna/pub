@@ -1,0 +1,677 @@
+{
+    "description": "Windows Arabic Layout & macOS Shortcuts",
+    "manipulators": [
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: ] -> v (ر)",
+            "from": { "key_code": "close_bracket" },
+            "to": [{ "key_code": "v" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: v -> n (ى)",
+            "from": { "key_code": "v" },
+            "to": [{ "key_code": "n" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: m -> ] (ة)",
+            "from": { "key_code": "m" },
+            "to": [{ "key_code": "close_bracket" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: ` -> c (ؤ)",
+            "from": { "key_code": "grave_accent_and_tilde" },
+            "to": [{ "key_code": "c" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: z -> Shift+c (أ)",
+            "from": { "key_code": "z" },
+            "to": [
+                {
+                    "key_code": "c",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: , -> m (،)",
+            "from": { "key_code": "comma" },
+            "to": [{ "key_code": "m" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: m -> , (،)",
+            "from": { "key_code": "m" },
+            "to": [{ "key_code": "comma" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: x -> Shift+v (إ)",
+            "from": { "key_code": "x" },
+            "to": [
+                {
+                    "key_code": "v",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: ' -> x (ط)",
+            "from": { "key_code": "quote" },
+            "to": [{ "key_code": "x" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: / -> z (ظ)",
+            "from": { "key_code": "slash" },
+            "to": [{ "key_code": "z" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: . -> b (ز)",
+            "from": { "key_code": "period" },
+            "to": [{ "key_code": "b" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: n -> Shift+d (ً)",
+            "from": { "key_code": "n" },
+            "to": [
+                {
+                    "key_code": "d",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: c -> Shift+m (ٌ)",
+            "from": { "key_code": "c" },
+            "to": [
+                {
+                    "key_code": "m",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+n -> Shift+h (ٰ)",
+            "from": {
+                "key_code": "n",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "h",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+. -> .",
+            "from": {
+                "key_code": "period",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [{ "key_code": "period" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+h -> Shift+b (ۥ)",
+            "from": {
+                "key_code": "h",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "b",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+y -> Shift+n (ﺱ)",
+            "from": {
+                "key_code": "y",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "n",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+k -> ,",
+            "from": {
+                "key_code": "k",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [{ "key_code": "comma" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+f -> Shift+a (ٍ)",
+            "from": {
+                "key_code": "f",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "a",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+d -> Shift+s (ٌ)",
+            "from": {
+                "key_code": "d",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "s",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+a -> Shift+e (َ)",
+            "from": {
+                "key_code": "a",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "e",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+s -> Shift+r (ُ)",
+            "from": {
+                "key_code": "s",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "r",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+e -> Shift+t (ِ)",
+            "from": {
+                "key_code": "e",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "t",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+r -> Shift+y (ّ)",
+            "from": {
+                "key_code": "r",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "y",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+x -> Shift+u (ْ)",
+            "from": {
+                "key_code": "x",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "u",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+l -> / (؟)",
+            "from": {
+                "key_code": "l",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [{ "key_code": "slash" }],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+` -> Shift+i (ـ)",
+            "from": {
+                "key_code": "grave_accent_and_tilde",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "i",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+i -> Shift+. (؟)",
+            "from": {
+                "key_code": "i",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "period",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "input_sources": [{ "language": "ar" }],
+                    "type": "input_source_if"
+                }
+            ],
+            "description": "AR: Shift+u -> Shift+, ( < )",
+            "from": {
+                "key_code": "u",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "comma",
+                    "modifiers": ["shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "description": "Sys: Map Cmd+Shift+S to Screenshot Portion (Cmd+Shift+4)",
+            "from": {
+                "key_code": "s",
+                "modifiers": {
+                    "mandatory": ["command", "shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "4",
+                    "modifiers": ["command", "shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "description": "Sys: Map Option+D to Select URL Bar (Cmd+L)",
+            "from": {
+                "key_code": "d",
+                "modifiers": {
+                    "mandatory": ["option"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "l",
+                    "modifiers": ["command"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "description": "Nav: Map Home key to Beginning of Line (Cmd+Left)",
+            "from": {
+                "key_code": "home",
+                "modifiers": { "optional": ["any"] }
+            },
+            "to": [
+                {
+                    "key_code": "left_arrow",
+                    "modifiers": ["command"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "description": "Nav: Map End key to End of Line (Cmd+Right)",
+            "from": {
+                "key_code": "end",
+                "modifiers": { "optional": ["any"] }
+            },
+            "to": [
+                {
+                    "key_code": "right_arrow",
+                    "modifiers": ["command"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "description": "Nav: Map Shift+Home to Select to Beginning of Line (Cmd+Shift+Left)",
+            "from": {
+                "key_code": "home",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "left_arrow",
+                    "modifiers": ["command", "shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "description": "Nav: Map Shift+End to Select to End of Line (Cmd+Shift+Right)",
+            "from": {
+                "key_code": "end",
+                "modifiers": {
+                    "mandatory": ["shift"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "right_arrow",
+                    "modifiers": ["command", "shift"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "description": "Edit: Map Option+Backspace to Forward Delete",
+            "from": {
+                "key_code": "delete_or_backspace",
+                "modifiers": {
+                    "mandatory": ["option"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [{ "key_code": "delete_forward" }],
+            "type": "basic"
+        },
+        {
+            "description": "Sys: Map Cmd+L to Lock Screen (Ctrl+Cmd+Q)",
+            "from": {
+                "key_code": "l",
+                "modifiers": {
+                    "mandatory": ["command"],
+                    "optional": ["any"]
+                }
+            },
+            "to": [
+                {
+                    "key_code": "q",
+                    "modifiers": ["command", "control"]
+                }
+            ],
+            "type": "basic"
+        },
+        {
+            "conditions": [
+                {
+                    "bundle_identifiers": [
+                        "^com\\.apple\\.finder$"
+                    ],
+                    "type": "frontmost_application_if"
+                }
+            ],
+            "description": "Finder: Map F2 to Rename File (Enter)",
+            "from": {
+                "key_code": "f2",
+                "modifiers": { "optional": ["any"] }
+            },
+            "to": [{ "key_code": "return_or_enter" }],
+            "type": "basic"
+        }
+    ],
+    "title": "Windows Arabic Layout & macOS Shortcuts"
+}

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Evolution Simulator v4 (Controls)</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            /* Use flexbox for overall layout */
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+            font-size: 12px;
+        }
+        #simulation-area {
+             flex-grow: 1; /* Canvas takes remaining space */
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             position: relative; /* Needed for absolute positioning of canvas */
+        }
+        canvas {
+            border: 1px solid black;
+            background-color: #ffffff;
+            /* Removed absolute positioning from here */
+        }
+         #controls-and-info {
+             /* Container for controls and info bar */
+             display: flex;
+             flex-direction: column;
+             padding: 10px;
+             width: 230px; /* Fixed width for the sidebar */
+             height: 100vh; /* Full height */
+             box-sizing: border-box; /* Include padding in width/height */
+             background-color: #e9e9e9;
+             overflow-y: auto; /* Scroll if content overflows */
+         }
+         #controls {
+             padding-bottom: 10px;
+             margin-bottom: 10px;
+             border-bottom: 1px solid #ccc;
+         }
+         #controls button {
+             display: block; /* Stack buttons vertically */
+             width: 100%;
+             padding: 8px;
+             margin-bottom: 5px;
+             font-size: 14px;
+             cursor: pointer;
+         }
+         #controls button:disabled {
+             cursor: not-allowed;
+             opacity: 0.6;
+         }
+
+        #info-container {
+            /* Removed absolute positioning and background */
+            padding: 0; /* Reset padding as parent handles it */
+            box-shadow: none;
+            max-height: none; /* Remove max-height as parent scrolls */
+            overflow-y: visible; /* Let parent handle scroll */
+        }
+        /* Styles for info blocks remain the same */
+        .info-block { margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #ddd;}
+        .info-block:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .info-block span, #global-info span { display: block; margin-bottom: 2px; }
+        .info-block b, #global-info b { min-width: 70px; display: inline-block; }
+        .species-title { font-weight: bold; font-size: 1.1em; margin-bottom: 4px; color: #333;}
+    </style>
+</head>
+<body>
+    <div id="controls-and-info">
+        <div id="controls">
+            <button id="startButton">Start</button>
+            <button id="stopButton" disabled>Stop</button> <button id="resetButton">Reset</button>
+        </div>
+        <div id="info-container">
+            <div id="global-info">
+                 <span id="info-gen"><b>Gen:</b> 0</span>
+                 <span id="info-pop"><b>Total Pop:</b> 0</span>
+                 <span id="info-food"><b>Food:</b> 0</span>
+            </div>
+            <hr style="border: none; border-top: 1px solid #ccc; margin: 10px 0;">
+            <div id="species-info">
+                </div>
+        </div>
+    </div>
+
+    <div id="simulation-area">
+        <canvas id="simulationCanvas"></canvas>
+    </div>
+
+
+    <script>
+        // --- Simulation Parameters ---
+        const STARTING_CREATURES = 50;
+        const MIN_FOOD = 50;
+        const MAX_FOOD = 150;
+        const FOOD_SPAWN_RATE = 2;
+        const ENERGY_PER_FOOD = 50;
+        const REPRODUCTION_ENERGY_THRESHOLD = 100;
+        const ENERGY_COST_PER_SECOND = 2;
+        const ENERGY_COST_PER_MOVE_FACTOR = 0.05;
+        const MUTATION_RATE = 0.1;
+        const MAX_CREATURES = 250;
+        const FRAMES_PER_GENERATION = 500;
+
+        // --- Species Definition ---
+        const SPEED_BINS = { Slow: 1.5, Medium: 3.0, Fast: Infinity };
+        const SIZE_BINS = { Small: 8, Medium: 16, Large: Infinity };
+        function getSpeciesCategory(genes) {
+            let speedCat = 'Fast'; for (const [n, t] of Object.entries(SPEED_BINS)) if (genes.speed < t) { speedCat = n; break; }
+            let sizeCat = 'Large'; for (const [n, t] of Object.entries(SIZE_BINS)) if (genes.size < t) { sizeCat = n; break; }
+            return `${speedCat}-${sizeCat}`;
+        }
+
+        // --- Canvas Setup ---
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        const simulationArea = document.getElementById('simulation-area');
+
+        // --- Control Elements ---
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const resetButton = document.getElementById('resetButton');
+
+        // --- Info Bar Elements ---
+        const globalInfoDiv = document.getElementById('global-info');
+        const speciesInfoDiv = document.getElementById('species-info');
+        const infoGen = document.getElementById('info-gen');
+        const infoPop = document.getElementById('info-pop');
+        const infoFood = document.getElementById('info-food');
+
+        // --- Canvas Sizing ---
+        function resizeCanvas() {
+            // Make canvas fit the simulation-area div
+            const dpi = window.devicePixelRatio || 1;
+            const styleWidth = simulationArea.clientWidth;
+            const styleHeight = simulationArea.clientHeight;
+            canvas.width = styleWidth * dpi;
+            canvas.height = styleHeight * dpi;
+            canvas.style.width = `${styleWidth}px`;
+            canvas.style.height = `${styleHeight}px`;
+            ctx.scale(dpi, dpi); // Scale context for HiDPI displays
+             // Redraw immediately if simulation is paused after resize
+             if (!isRunning && creatures.length > 0) {
+                 drawFrame();
+             }
+        }
+
+        // --- Utility Functions ---
+        function random(min, max) { return Math.random() * (max - min) + min; }
+        function distance(x1, y1, x2, y2) { const dx = x1 - x2; const dy = y1 - y2; return Math.sqrt(dx * dx + dy * dy); }
+        function lerp(a, b, t) { return a + (b - a) * t; }
+
+        // --- Food ---
+        let food = [];
+        function spawnFood() { /* ... (same as before) ... */
+             if (food.length < MAX_FOOD) {
+                for (let i = 0; i < FOOD_SPAWN_RATE; i++) {
+                     if(food.length < MIN_FOOD || Math.random() < 0.1) {
+                        food.push({ x: random(0, canvas.width / (window.devicePixelRatio||1)), y: random(0, canvas.height / (window.devicePixelRatio||1)), size: 3 });
+                     }
+                }
+            }
+        }
+        function drawFood() { /* ... (same as before) ... */
+             ctx.fillStyle = 'rgb(60, 180, 60)';
+             food.forEach(f => { ctx.beginPath(); ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2); ctx.fill(); });
+         }
+
+        // --- Creature Class ---
+        // (Creature class is exactly the same as v3 - no changes needed here)
+        class Creature {
+             constructor(x, y, energy, genes) {
+                this.x = x; this.y = y; this.energy = energy;
+                this.genes = {
+                    speed: Math.max(0.1, Math.min(genes?.speed ?? random(0.5, 2.5), 5)),
+                    size: Math.max(3, Math.min(genes?.size ?? random(5, 15), 25))
+                };
+                this.vx = random(-1, 1) * this.genes.speed; this.vy = random(-1, 1) * this.genes.speed;
+                const speedRatio = Math.min(1, Math.max(0, (this.genes.speed - 0.1) / 4.9));
+                const red = Math.floor(lerp(0, 255, speedRatio)); const blue = Math.floor(lerp(255, 0, speedRatio));
+                this.color = `rgb(${red}, 50, ${blue})`;
+                this.speciesCategory = getSpeciesCategory(this.genes);
+            }
+            update(deltaTime) {
+                 // --- Movement (Simplified logic from v2)---
+                this.x += this.vx * deltaTime * 50; this.y += this.vy * deltaTime * 50;
+                if (Math.random() < 0.05) {
+                    const angleChange = random(-0.5, 0.5); const cos = Math.cos(angleChange); const sin = Math.sin(angleChange);
+                    const currentSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy) || 1;
+                    const targetSpeed = this.genes.speed * (this.energy > REPRODUCTION_ENERGY_THRESHOLD * 1.5 ? 0.8 : 1.0);
+                    const newVx = (this.vx / currentSpeed) * cos - (this.vy / currentSpeed) * sin;
+                    const newVy = (this.vx / currentSpeed) * sin + (this.vy / currentSpeed) * cos;
+                    this.vx = newVx * targetSpeed; this.vy = newVy * targetSpeed;
+                }
+                 // --- Boundaries (use scaled canvas dimensions) ---
+                 const effectiveWidth = canvas.width / (window.devicePixelRatio||1);
+                 const effectiveHeight = canvas.height / (window.devicePixelRatio||1);
+                if (this.x < 0) this.x = effectiveWidth; if (this.x > effectiveWidth) this.x = 0;
+                if (this.y < 0) this.y = effectiveHeight; if (this.y > effectiveHeight) this.y = 0;
+                // --- Energy Cost ---
+                const moveCost = (Math.abs(this.vx) + Math.abs(this.vy)) * this.genes.size * ENERGY_COST_PER_MOVE_FACTOR;
+                this.energy -= (ENERGY_COST_PER_SECOND + moveCost) * deltaTime;
+                // --- Eating ---
+                for (let i = food.length - 1; i >= 0; i--) {
+                    const f = food[i]; const dx = this.x - f.x; const dy = this.y - f.y; const distSq = dx*dx + dy*dy;
+                    const radiiSum = this.genes.size + f.size;
+                    if (distSq < radiiSum * radiiSum) { this.energy += ENERGY_PER_FOOD; food.splice(i, 1); break; }
+                }
+            }
+            reproduce() {
+                if (creatures.length >= MAX_CREATURES) return null;
+                this.energy *= 0.5; const offspringEnergy = this.energy;
+                const offspringGenes = {};
+                for (const gene in this.genes) {
+                    const mutationAmount = random(-MUTATION_RATE, MUTATION_RATE) * this.genes[gene];
+                    if (gene === 'speed') offspringGenes[gene] = Math.max(0.1, Math.min(this.genes[gene] + mutationAmount, 5));
+                    else if (gene === 'size') offspringGenes[gene] = Math.max(3, Math.min(this.genes[gene] + mutationAmount, 25));
+                    else offspringGenes[gene] = this.genes[gene] + mutationAmount;
+                }
+                const angle = random(0, Math.PI * 2);
+                const offspringSize = offspringGenes.size ?? this.genes.size;
+                const offsetX = Math.cos(angle) * (this.genes.size + offspringSize + 2);
+                const offsetY = Math.sin(angle) * (this.genes.size + offspringSize + 2);
+                 // Use scaled canvas dimensions for spawn position calculation if needed, though offset should be okay
+                return new Creature(this.x + offsetX, this.y + offsetY, offspringEnergy, offspringGenes);
+            }
+             draw() {
+                // Body
+                ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.genes.size, 0, Math.PI * 2); ctx.fill();
+                // Eye
+                const eyeSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy) || 1;
+                const eyeOffsetX = (this.vx / eyeSpeed) * this.genes.size * 0.6;
+                const eyeOffsetY = (this.vy / eyeSpeed) * this.genes.size * 0.6;
+                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.x + eyeOffsetX, this.y + eyeOffsetY, this.genes.size * 0.2, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        // --- Simulation State ---
+        let creatures = [];
+        let lastTimestamp = 0;
+        let generation = 0;
+        let frameCount = 0;
+        let isRunning = false; // Start paused
+        let animationFrameId = null; // To store the request ID
+
+        // --- Initialization ---
+        function init() {
+            console.log("Initializing simulation...");
+             // Use scaled canvas dimensions for initial spawn
+             const effectiveWidth = canvas.width / (window.devicePixelRatio||1);
+             const effectiveHeight = canvas.height / (window.devicePixelRatio||1);
+
+            creatures = []; food = []; generation = 0; frameCount = 0;
+            for (let i = 0; i < STARTING_CREATURES; i++) {
+                creatures.push(new Creature(random(0, effectiveWidth), random(0, effectiveHeight), random(80, 120), null));
+            }
+            for(let i = 0; i < (MIN_FOOD + MAX_FOOD)/2; i++) { spawnFood(); }
+
+            // Reset info display immediately
+            updateInfoDisplay();
+            // Draw initial state
+             drawFrame();
+
+             // Reset button states
+             startButton.disabled = false;
+             stopButton.disabled = true;
+             isRunning = false; // Ensure it's marked as not running
+        }
+
+        // --- Core Drawing Function ---
+        function drawFrame() {
+            // Use scaled dimensions for clearing
+            const effectiveWidth = canvas.width / (window.devicePixelRatio||1);
+            const effectiveHeight = canvas.height / (window.devicePixelRatio||1);
+            ctx.clearRect(0, 0, effectiveWidth, effectiveHeight);
+            drawFood();
+            creatures.forEach(creature => creature.draw());
+        }
+
+        // --- Information Display Update ---
+         function updateInfoDisplay() {
+              // Aggregate stats first
+              const speciesStats = new Map();
+              let totalPop = creatures.length;
+
+              creatures.forEach(creature => {
+                  const category = creature.speciesCategory;
+                  if (!speciesStats.has(category)) {
+                      speciesStats.set(category, { count: 0, totalSpeed: 0, totalSize: 0, totalEnergy: 0 });
+                  }
+                  const stats = speciesStats.get(category);
+                  stats.count++;
+                  stats.totalSpeed += creature.genes.speed;
+                  stats.totalSize += creature.genes.size;
+                  stats.totalEnergy += creature.energy;
+              });
+
+              // Update Global Info
+              infoGen.innerHTML = `<b>Gen:</b> ${generation}`;
+              infoPop.innerHTML = `<b>Total Pop:</b> ${totalPop}`;
+              infoFood.innerHTML = `<b>Food:</b> ${food.length}`;
+
+              // Update Species Info
+              speciesInfoDiv.innerHTML = ''; // Clear previous species info
+              const sortedSpecies = Array.from(speciesStats.entries()).sort(([, a], [, b]) => b.count - a.count);
+
+              for (const [category, stats] of sortedSpecies) {
+                  if (stats.count === 0) continue;
+                  const avgSpeed = (stats.totalSpeed / stats.count).toFixed(2);
+                  const avgSize = (stats.totalSize / stats.count).toFixed(2);
+                  const avgEnergy = (stats.totalEnergy / stats.count).toFixed(0);
+                  const percentage = totalPop > 0 ? ((stats.count / totalPop) * 100).toFixed(1) : 0;
+
+                  const speciesBlock = document.createElement('div');
+                  speciesBlock.className = 'info-block';
+                  speciesBlock.innerHTML = `
+                      <div class="species-title">${category}</div>
+                      <span><b>Count:</b> ${stats.count} (${percentage}%)</span>
+                      <span><b>Avg Speed:</b> ${avgSpeed}</span>
+                      <span><b>Avg Size:</b> ${avgSize}</span>
+                      <span><b>Avg Energy:</b> ${avgEnergy}</span>
+                  `;
+                  speciesInfoDiv.appendChild(speciesBlock);
+              }
+         }
+
+
+        // --- Main Simulation Loop ---
+        function gameLoop(timestamp) {
+            if (!isRunning) {
+                 animationFrameId = null; // Mark as stopped
+                 return; // Stop the loop if not running
+             }
+
+            const deltaTime = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
+            lastTimestamp = timestamp;
+
+            // --- Update Logic ---
+            frameCount++;
+            if (frameCount >= FRAMES_PER_GENERATION) { generation++; frameCount = 0; }
+
+            spawnFood();
+
+            const newCreatures = [];
+            for (let i = creatures.length - 1; i >= 0; i--) {
+                const creature = creatures[i];
+                creature.update(deltaTime);
+                if (creature.energy <= 0) { creatures.splice(i, 1); continue; }
+                if (creature.energy > REPRODUCTION_ENERGY_THRESHOLD) {
+                    const offspring = creature.reproduce();
+                    if(offspring) newCreatures.push(offspring);
+                }
+            }
+            creatures = creatures.concat(newCreatures);
+
+            // --- Draw ---
+            drawFrame();
+
+            // --- Update Info Display ---
+             // (Moved aggregation to updateInfoDisplay for clarity, call it here)
+             updateInfoDisplay();
+
+            // Request next frame
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // --- Control Functions ---
+        function startGame() {
+            if (!isRunning) {
+                console.log("Starting simulation...");
+                isRunning = true;
+                lastTimestamp = performance.now(); // Reset timestamp to avoid jump
+                startButton.disabled = true;
+                stopButton.disabled = false;
+                if (!animationFrameId) { // Only request if not already requested
+                    animationFrameId = requestAnimationFrame(gameLoop);
+                }
+            }
+        }
+
+        function stopGame() {
+            if (isRunning) {
+                console.log("Stopping simulation...");
+                isRunning = false;
+                // No need to explicitly cancel frame here, the check in gameLoop handles it
+                // if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+                startButton.disabled = false;
+                stopButton.disabled = true;
+            }
+        }
+
+        function resetGame() {
+            console.log("Resetting simulation...");
+            stopGame(); // Stop the loop if it's running
+             // Clear any pending frame just in case
+             if (animationFrameId) {
+                 cancelAnimationFrame(animationFrameId);
+                 animationFrameId = null;
+             }
+            init(); // Re-initialize everything
+        }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startGame);
+        stopButton.addEventListener('click', stopGame);
+        resetButton.addEventListener('click', resetGame);
+        window.addEventListener('resize', resizeCanvas); // Use the resize function
+
+        // --- Initial Setup ---
+         resizeCanvas(); // Size canvas initially
+         init(); // Setup initial state (paused)
+
+        console.log("Simulator initialized. Press Start.");
+
+    </script>
+</body>
+</html>

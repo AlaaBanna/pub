@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Fikra - Pale Blue Dot Project Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #030712; /* slate-950 */
+        }
+        .mono-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 3px;
+        }
+        .glitch-border {
+            position: relative;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+        .glitch-border:hover {
+            border-color: rgba(16, 185, 129, 0.6);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+        .active-row {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            border-right: 4px solid #10b981;
+        }
+    </style>
+</head>
+<body class="text-slate-300 min-h-screen custom-scrollbar pb-16">
+
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 px-4 py-3 md:px-8">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500 flex items-center justify-center animate-pulse">
+                    <span class="mono-font text-emerald-400 font-bold text-lg">MF</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-wide mono-font">META_FIKRA // PROJECT_PBD</h1>
+                    <p class="text-xs text-emerald-500 tracking-wider mono-font">// NARRATED BY ALAA // PRODUCED BY BAHAA</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded bg-slate-800 text-xs text-slate-400 border border-slate-700">FUS'HA VERSION</span>
+                <span class="px-3 py-1 rounded bg-emerald-500/10 text-xs text-emerald-400 border border-emerald-500/20 mono-font">STATUS: STAGED_TO_PROD</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 md:px-8 mt-8 space-y-8">
+
+        <section class="glitch-border bg-slate-900/40 rounded-xl p-6 backdrop-blur-sm">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-slate-800 pb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-gauge-high"></i> مُحاكي إيقاع الفيديو التفاعلي (Live Simulator)
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">اضغط تشغيل لمزامنة الصوت مع اللقطات وتوقيت الإلقاء المقترح بالثواني</p>
+                </div>
+                <div class="flex items-center gap-4 w-full md:w-auto justify-end">
+                    <span id="timer-display" class="mono-font text-2xl text-emerald-400 bg-black/60 px-4 py-2 rounded-lg border border-slate-800">00:00</span>
+                    <button id="sim-btn" onclick="toggleSimulation()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition duration-200 flex items-center gap-2 text-sm font-semibold shadow-lg shadow-emerald-900/30">
+                        <i id="btn-icon" class="fa-solid fa-play"></i> <span id="btn-text">بدء المحاكاة</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timeline visual tracks -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Track: Mini Screen Visual Simulator -->
+                <div class="lg:col-span-4 bg-black rounded-lg border border-slate-800 p-4 flex flex-col justify-between h-72">
+                    <div class="flex justify-between items-center text-[10px] text-slate-500 mono-font">
+                        <span>LIVE_RENDERER</span>
+                        <span id="screen-status" class="text-red-500 animate-pulse">● STANDBY</span>
+                    </div>
+                    <div class="flex-grow flex flex-col justify-center items-center text-center p-4">
+                        <div id="screen-viewport" class="w-full h-full rounded bg-slate-950 flex flex-col justify-center items-center transition-all duration-500 border border-slate-900 relative overflow-hidden">
+                            <!-- Visual Dynamic representation will render here -->
+                            <i id="screen-icon" class="fa-solid fa-globe text-emerald-500/20 text-6xl mb-4 transition-all duration-500"></i>
+                            <p id="screen-text" class="text-sm text-slate-400 max-w-xs px-2 select-none">شاشة المعاينة الحية. ابدأ تشغيل المحاكي لمشاهدة التحولات اللونية والرموز البصرية.</p>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-slate-500 flex justify-between mono-font border-t border-slate-900 pt-2">
+                        <span>SYS_ENERGY: 0.0001%</span>
+                        <span>HUMAN_ERR_PROB: HIGH</span>
+                    </div>
+                </div>
+
+                <!-- Right Track: Highlightable Rows -->
+                <div class="lg:col-span-8 overflow-y-auto max-h-72 custom-scrollbar pr-2 space-y-2 text-xs md:text-sm" id="timeline-list">
+                    <!-- Dashboard Chunk -->
+                    <div id="chunk-dashboard" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>00-05 ثانية</span>
+                            <span class="mono-font text-emerald-500">[INTRO_DASHBOARD]</span>
+                        </div>
+                        <p class="text-slate-400 text-xs">عرض لوحة البيانات التقنية بمؤثر طنين كوني هادئ في الخلفية لتأسيس هوية القناة.</p>
+                    </div>
+                    <!-- PBD Original Chunk -->
+                    <div id="chunk-intro" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>05-25 ثانية</span>
+                            <span class="mono-font text-blue-400">[COSMIC_PBD_ORIGINAL]</span>
+                        </div>
+                        <p class="text-slate-200">"أنتَ هنا: صورةٌ لكوكبِ الأرضِ كما تُرى من بعد 6.1 مليار كيلو متر، تظهرُ كنقطةٍ زرقاءَ باهتةٍ تائهةٍ..."</p>
+                    </div>
+                    <!-- Pause Chunk -->
+                    <div id="chunk-pause" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>25-30 ثانية</span>
+                            <span class="mono-font text-amber-500">[DRAMATIC_PAUSE]</span>
+                        </div>
+                        <p class="text-amber-300 font-semibold">"أعِد النظرَ لتلك النقطة: إنها هنا! إنها الوطن! إنها نحن!" (وقفة صمت تليها نبرة صوت قوية ومحببة)</p>
+                    </div>
+                    <!-- Chaos Chunk -->
+                    <div id="chunk-chaos" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>30-80 ثانية</span>
+                            <span class="mono-font text-red-400">[HUMAN_CHAOS_STILLS]</span>
+                        </div>
+                        <p class="text-slate-200">"فعليها: كلُّ من تحب.. كلُّهم عاشوا هناك.. على ذرةٍ من غبار، عالقةٍ في شعاعٍ شمسي." (أحمر للجشع، أخضر للمال)</p>
+                    </div>
+                    <!-- Zoom & Static Chunk -->
+                    <div id="chunk-static" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>80-110 ثانية</span>
+                            <span class="mono-font text-pink-400">[ZOOM_OUT_STATIC]</span>
+                        </div>
+                        <p class="text-slate-200">"ما الأرضُ سوى بقعةٍ صغيرةٍ للغاية.. كم كان جهلُهُم، وسوءُ فهمِهم للآخر؟! كم كان غرورهم؟!" (بدء الشوشرة والتشويش البصري)</p>
+                    </div>
+                    <!-- Deep Space Chunk -->
+                    <div id="chunk-deep" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>110-140 ثانية</span>
+                            <span class="mono-font text-indigo-400">[DEEP_SPACE_VOID]</span>
+                        </div>
+                        <p class="text-slate-200">"إنَّ تَصنُّعَنا، وتوهُّمَ أهميتِنا.. كلُّ تلك الخيالاتِ تعترضُها بقوةٍ.. نقطةُ الضوءِ الباهتةِ تلك..."</p>
+                    </div>
+                    <!-- Final Fate Chunk -->
+                    <div id="chunk-fate" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>140-160 ثانية</span>
+                            <span class="mono-font text-teal-400">[FINAL_PERSPECTIVE]</span>
+                        </div>
+                        <p class="text-teal-300">"سواءٌ أعجبتك الفكرةُ أم لا؛ هذا الكوكبُ هو مصيرُنا.. وأن نحمي، ونحافظ على النقطة الزرقاء..."</p>
+                    </div>
+                    <!-- Credits Chunk -->
+                    <div id="chunk-credits" class="p-3 bg-slate-900/20 border border-slate-800/60 rounded-lg transition-all duration-300">
+                        <div class="flex justify-between font-bold text-slate-400 mb-1">
+                            <span>160-170 ثانية</span>
+                            <span class="mono-font text-white">[CREDITS_LOG]</span>
+                        </div>
+                        <p class="text-slate-400">صمت مطلق. عرض تفاصيل الإنتاج مع الدعابة الوجودية.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Left Column: Intro Dashboard & Credits Design -->
+            <div class="space-y-8">
+                <!-- Intro Dashboard Code Block -->
+                <div class="glitch-border bg-slate-900/40 rounded-xl p-6 backdrop-blur-sm flex flex-col justify-between h-[450px]">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-md font-bold text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-terminal"></i> لوحة بيانات المقدمة (Intro Dashboard)
+                            </h3>
+                            <button onclick="copyToClipboard('intro-code-text')" class="text-xs text-slate-400 hover:text-emerald-400 transition bg-slate-800 px-2.5 py-1 rounded border border-slate-700 flex items-center gap-1">
+                                <i class="fa-regular fa-copy"></i> نسخ الكود
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3">ستظهر في أول 5 ثوانٍ بتأثير طباعة حرف بحرف (Typewriter) على شاشة سوداء تماماً مع طنين منخفض التردد.</p>
+                    </div>
+                    <div class="bg-black/80 rounded-lg border border-slate-800 p-4 font-mono text-xs text-emerald-400 overflow-auto flex-grow custom-scrollbar" id="intro-code-text">
+[ SYSTEM_INIT: META_FIKRA ]
+----------------------------------
+CATEGORY    : EXISTENTIAL_PHILOSOPHY
+LANGUAGE    : ARABIC (FUS'HA)
+DEPTH       : 4/5 ▮▮▮▮▯
+GEEK_LEVEL  : 5/5 ▮▮▮▮▮
+CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
+----------------------------------
+[ STATUS: READY_TO_CONTEMPLATE ]</div>
+                </div>
+
+                <!-- Ending Credits Card -->
+                <div class="glitch-border bg-slate-900/40 rounded-xl p-6 backdrop-blur-sm flex flex-col justify-between h-[450px]">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-md font-bold text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-scroll"></i> لوحة الخاتمة والمزحة التقنية (Credits)
+                            </h3>
+                            <button onclick="copyToClipboard('credits-text')" class="text-xs text-slate-400 hover:text-emerald-400 transition bg-slate-800 px-2.5 py-1 rounded border border-slate-700 flex items-center gap-1">
+                                <i class="fa-regular fa-copy"></i> نسخ الحقوق
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3">تظهر في الثواني العشرة الأخيرة بالتدريج (Fade-In) بخط أبيض ناصع مع خلفية سوداء صامتة تماماً.</p>
+                    </div>
+                    <div class="bg-black/80 rounded-lg border border-slate-800 p-6 text-center space-y-4 text-xs md:text-sm text-slate-300 flex-grow overflow-auto custom-scrollbar" id="credits-text">
+                        <p class="font-bold text-lg text-white">"Pale Blue Dot"</p>
+                        <p class="italic text-slate-400">From the book "Pale Blue Dot" by Carl Sagan</p>
+                        <hr class="border-slate-800 max-w-xs mx-auto">
+                        <p><span class="text-emerald-400 font-semibold">Narrated by:</span> Alaa Banna</p>
+                        <p><span class="text-emerald-400 font-semibold">Production, Visuals & Editing:</span> Bahaa Banna</p>
+                        <p><span class="text-emerald-400 font-semibold">Concept by:</span> Meta Fikra</p>
+                        <hr class="border-slate-800 max-w-xs mx-auto">
+                        <div class="text-[11px] font-mono text-slate-500 space-y-1 text-right max-w-xs mx-auto">
+                            <p>// REPORT:</p>
+                            <p>User: Human | Performance: Sub-optimal</p>
+                            <p>Root Cause: Did not read the "Cosmic Manual"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Corrected Arabic VO Text with pauses -->
+            <div class="glitch-border bg-slate-900/40 rounded-xl p-6 backdrop-blur-sm flex flex-col justify-between h-[932px]">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-md font-bold text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-microphone-lines"></i> النص النهائي المدقق والمصحح (Voiceover Script)
+                        </h3>
+                        <button onclick="copyToClipboard('vo-script-content')" class="text-xs text-slate-400 hover:text-emerald-400 transition bg-slate-800 px-2.5 py-1 rounded border border-slate-700 flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> نسخ النص الكامل
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4">تم تدقيق النص لتجنب تكرار الكلمات، واستخدام لغة فصحى قوية تناسب النبرة الهادئة والتأملية.</p>
+                </div>
+                
+                <div class="bg-black/40 rounded-lg border border-slate-800/80 p-6 overflow-y-auto text-base md:text-md leading-relaxed space-y-6 text-slate-200 text-justify flex-grow custom-scrollbar" id="vo-script-content">
+                    <p class="border-r-2 border-slate-700 pr-3 italic text-xs text-slate-500">
+                        [توطئة - 05 ثوانٍ صمت ثم بداية ممهدة]
+                    </p>
+                    <p>
+                        "أنتَ هنا: صورةٌ لكوكبِ الأرضِ كما تُرى من بعد <strong class="text-emerald-400">6.1 مليار</strong> كيلو متر، تظهرُ كنقطةٍ زرقاءَ باهتةٍ تائهةٍ في الفضاء الكبير؛ أُخذت سنة 1990 عبر رحلةِ المسبارِ الفضائي (فوياجر 1) خلال رحلتِهِ الكاملةِ حولَ مجموعتِنا الشمسية. والتعليقُ أدناه ترجمةٌ من كتابِ ساغان (نقطةٌ زرقاءُ باهتة) واصفاً الكوكبَ من منظورِهِ الخاص."
+                    </p>
+                    <p>
+                        "من نقطةِ النظرِ البعيدةِ هذه، قد لا تبدو للأرضِ أيّةُ أهميةٍ خاصة؛ ولكن بالنسبةِ لنا، الأمرُ مختلفٌ تماماً."
+                    </p>
+                    <p class="text-amber-400 font-semibold border-r-2 border-amber-500/50 pr-3">
+                        [وقفة صمت درامية - أعد النظر] <br>
+                        "أعِد النظرَ لتلك النقطة: إنها هنا! إنها الوطن! إنها نحن!"
+                    </p>
+                    <p>
+                        "فعليها: كلُّ من تحب، كلُّ من تعرف، كلُّ شخصٍ سمعتَ عنه، كلُّ كائنٍ بشريٍّ وُجد طوالَ التاريخ، عاش حياتَهُ هناك. محصلةُ كلِّ الأفراحِ والأحزان، ألوفُ الأديانِ والنظرياتِ ومذاهبِ الحياة، كلُّ صيادٍ وقاتل، كلُّ بطلٍ وجبان، كلُّ خالقٍ وهادمٍ لحضارة، كلُّ ملكٍ وفلاّح، كلُّ شابين متحابين، كلُّ أمٍّ وأب، طفلٍ ذي أمل، مُخترعٍ ومُكتشف، كلُّ ناشرٍ لخلقٍ حميد، كلُّ سياسيٍّ فاسد، كلُّ نجمٍ سينمائي، كلُّ قائدٍ عظيم، كلُّ مُتدينٍ ومُذنبٍ في تاريخِ وجودِ كائنِنا البشريّ؛ كلُّهم عاشوا هناك.. على ذرةٍ من غبار، عالقةٍ في شعاعٍ شمسي."
+                    </p>
+                    <p>
+                        "ما الأرضُ سوى بقعةٍ صغيرةٍ للغاية، في مسرحٍ كونيٍّ عظيم! تفكّر لوهلةٍ في أنهارِ الدماءِ التي أراقها جنرالاتُ الحربِ وأباطرتُها, لينتصروا ويصبحوا أسياداً لحظيينَ على جزءٍ عشريٍّ من نقطة. تفكّر لوهلةٍ بالقسوةِ التي ملأت قلبَ شعبٍ عاش على إحدى زوايا هذه النقطة، ليغورَ ويتغلبَ على شعبٍ آخرَ عاش على زاويةٍ أخرى منها، بالكادِ نستطيعُ التمييزَ بينهما. كم كان جهلُهُم، وسوءُ فهمِهم للآخر؟! كم كان غرورهم، ليقتلَ أحدُهم الآخر؟! كم كانت كراهيتُهم الشديدةُ وبغضُهم لبعضِهم البعض?!"
+                    </p>
+                    <p>
+                        "إنَّ تَصنُّعَنا، وتوهُّمَ أهميتِنا، والاعتقادَ بأنَّ لنا مكانةً مميزةً في هذا الكون؛ كلُّ تلك <strong class="text-emerald-400">الخيالاتِ</strong> تعترضُها بقوةٍ.. نقطةُ الضوءِ الباهتةِ تلك. كوكبُنا هو ومضةٌ وحيدةٌ في فراغٍ كونيٍّ مظلم. خلال وجودِنا في هذا الظلامِ الهائل، لا نمتلكُ أيَّ دليلٍ بأن مساعدةً ستأتي يوماً من الخارج لإنقاذنا من أنفسِنا."
+                    </p>
+                    <p>
+                        "للآن، الأرضُ هي الكوكبُ الوحيدُ الذي يمكنه احتضانُ الحياة، ولا يوجد أيُّ مكانٍ –على الأقل خلال الفترة القريبة هذه– يمكننا الرحيل إليه. ربما يمكننا زيارةُ الخارج، أما البقاءُ خارجَ الأرضِ فليس بممكنٍ بعد. سواءٌ أعجبتك الفكرةُ أم لا؛ هذا الكوكبُ هو مصيرُنا."
+                    </p>
+                    <p>
+                        "يُقال: إنَّ دراسةَ الفضاءِ تُعلِّمُ التواضعَ، وتبني صورةً إنسانيةً في دارسِها. بالنسبة لي، لا توجد أيّةُ طريقةٍ لإسقاطِ الصورةِ الوهميةِ المرتبطةِ بنا كبشر، أفضلُ من النظرِ إلى هذه الصورة البعيدةِ لكوكبِنا الأرض. بالنسبة لي، أن نتعاملَ بشكلٍ أكثرَ مودةً واحتراماً لبعضِنا البعض، لهو مسألةٌ تتجاوزُ جميعَ المسؤوليات، وأن نحميَ ونحافظَ على “النقطةِ الزرقاءِ الباهتة”، الوطنِ الوحيدِ الذي عرفناه."
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECTION: Prompt Engineering Center -->
+        <section class="glitch-border bg-slate-900/40 rounded-xl p-6 backdrop-blur-sm">
+            <h3 class="text-lg font-bold text-emerald-400 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> مركز أوامر الذكاء الاصطناعي لـ "بهاء" (AI Prompt Center)
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Politician Prompt -->
+                <div class="bg-slate-950/80 rounded-lg p-5 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs text-red-400 font-semibold uppercase tracking-wider">// 01_POLITICIAN</span>
+                            <button onclick="copyToClipboard('prompt-politician')" class="text-[10px] text-slate-500 hover:text-emerald-400 transition bg-slate-900 px-2 py-0.5 rounded border border-slate-800">نسخ</button>
+                        </div>
+                        <h4 class="text-sm font-semibold text-white mb-2">أمر توليد صورة السياسي</h4>
+                        <p id="prompt-politician" class="text-xs text-slate-400 font-mono bg-black/40 p-3 rounded border border-slate-900 max-h-32 overflow-y-auto custom-scrollbar">"Cinematic full-body shot of a politician in a sharp black suit and a minimalist black mask, standing in a pure white void. High contrast, harsh lighting. The politician's hands are visibly stained with deep, vibrant crimson red paint, leaving faint red traces in the air. Minimalist, symbolic art style, 8k resolution."</p>
+                    </div>
+                </div>
+
+                <!-- Capitalist Prompt -->
+                <div class="bg-slate-950/80 rounded-lg p-5 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs text-emerald-400 font-semibold uppercase tracking-wider">// 02_CAPITALIST</span>
+                            <button onclick="copyToClipboard('prompt-capitalist')" class="text-[10px] text-slate-500 hover:text-emerald-400 transition bg-slate-900 px-2 py-0.5 rounded border border-slate-800">نسخ</button>
+                        </div>
+                        <h4 class="text-sm font-semibold text-white mb-2">أمر توليد صورة الرأسمالي</h4>
+                        <p id="prompt-capitalist" class="text-xs text-slate-400 font-mono bg-black/40 p-3 rounded border border-slate-900 max-h-32 overflow-y-auto custom-scrollbar">"Cinematic shot of a cold, predatory businessman in a high-end black suit, standing in a pure white void. He is clutching a stack of banknotes that glow with a neon green light, casting a neon green reflection on his face and hands. Sharp details, minimalist style, 8k resolution."</p>
+                    </div>
+                </div>
+
+                <!-- Cosmic Prompt -->
+                <div class="bg-slate-950/80 rounded-lg p-5 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs text-blue-400 font-semibold uppercase tracking-wider">// 03_COSMIC_VOID</span>
+                            <button onclick="copyToClipboard('prompt-cosmic')" class="text-[10px] text-slate-500 hover:text-emerald-400 transition bg-slate-900 px-2 py-0.5 rounded border border-slate-800">نسخ</button>
+                        </div>
+                        <h4 class="text-sm font-semibold text-white mb-2">أمر الفضاء والنقطة الزرقاء</h4>
+                        <p id="prompt-cosmic" class="text-xs text-slate-400 font-mono bg-black/40 p-3 rounded border border-slate-900 max-h-32 overflow-y-auto custom-scrollbar">"A symbolic long shot of a tiny, lone blue marble (Earth) floating in the vast, infinite, pitch-black darkness of space. Faint nostalgic film grain and slight VHS-style digital static noise. Minimalist, profound, cinematic cosmic art."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Instagram Caption -->
+        <section class="glitch-border bg-slate-900/40 rounded-xl p-6 backdrop-blur-sm">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                        <i class="fa-brands fa-instagram"></i> كابشن الإنستغرام المرافق (Instagram Caption)
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1">منسق ومهيأ بالهاشتاغات لتوفير أفضل تفاعل وخوارزميات إنستغرام</p>
+                </div>
+                <button onclick="copyToClipboard('caption-content')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-700 transition flex items-center gap-2 text-xs font-semibold shadow-md">
+                    <i class="fa-regular fa-copy"></i> نسخ كابشن إنستغرام
+                </button>
+            </div>
+
+            <div id="caption-content" class="bg-black/60 rounded-lg p-6 border border-slate-800 text-slate-300 leading-relaxed text-sm md:text-base space-y-4 text-justify">
+                <p class="font-bold text-emerald-400 text-lg">ذرة غبار عالقة في شعاع شمسي. 🌍✨</p>
+                <p>من بعد 6.1 مليار كيلومتر، تبدو أرضنا مجرد نقطة زرقاء باهتة. ومن هذا المنظور، تتلاشى كل صراعاتنا، طموحاتنا، وحروبنا في الفراغ الكوني.</p>
+                <p>في هذا المقطع، أعدنا في "ميتا فكرة" قراءة نص كارل سيغان الشهير برؤية بصرية تحاول تجسيد "الوهم البشري" الذي نعيشه، ومحاولة العودة للتواضع الذي تفرضه علينا عظمة الكون.</p>
+                <p>هذا العمل هو نتاج تعاوننا المشترك، حيث دمجنا بين الرؤية الفلسفية، الإخراج، وتقنيات الذكاء الاصطناعي لنترجم هذه الكلمات إلى واقع بصري رمزي.</p>
+                <p>شاركونا رأيكم: هل ما زلنا كبشر "نستهلك" وقتنا في الصراعات، بينما ندور في هذا الفراغ المظلم دون وجهة؟</p>
+                <hr class="border-slate-850 my-4">
+                <p class="text-emerald-500 font-mono text-xs">
+                    #ميتا_فكرة #كارل_سيغان #فلسفة #وجودية #نقطة_زرقاء_باهتة #تكنولوجيا #ذكاء_اصطناعي #تأمل #PaleBlueDot #CarlSagan
+                </p>
+            </div>
+        </section>
+
+        <!-- Notification Toast -->
+        <div id="copy-toast" class="fixed bottom-6 left-6 bg-emerald-600 text-white px-5 py-3 rounded-xl shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toast-msg">تم نسخ النص بنجاح!</span>
+        </div>
+
+    </main>
+
+    <script>
+        // Copy to clipboard helper that uses fallback for iframe compatibility
+        function copyToClipboard(elementId) {
+            const content = document.getElementById(elementId).innerText || document.getElementById(elementId).textContent;
+            const el = document.createElement('textarea');
+            el.value = content;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            // Show custom elegant notification
+            const toast = document.getElementById('copy-toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // Live Simulator State Management
+        let simInterval = null;
+        let simSeconds = 0;
+        const maxSeconds = 170;
+
+        function toggleSimulation() {
+            const btnIcon = document.getElementById('btn-icon');
+            const btnText = document.getElementById('btn-text');
+            const simBtn = document.getElementById('sim-btn');
+            
+            if (simInterval) {
+                // Pause simulation
+                clearInterval(simInterval);
+                simInterval = null;
+                btnIcon.className = "fa-solid fa-play";
+                btnText.textContent = "استئناف المحاكاة";
+                simBtn.classList.remove('bg-amber-600', 'hover:bg-amber-500');
+                simBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+                document.getElementById('screen-status').className = "text-amber-500 animate-pulse";
+                document.getElementById('screen-status').innerText = "● PAUSED";
+            } else {
+                // Start/Resume simulation
+                btnIcon.className = "fa-solid fa-pause";
+                btnText.textContent = "إيقاف مؤقت";
+                simBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
+                simBtn.classList.add('bg-amber-600', 'hover:bg-amber-500');
+                document.getElementById('screen-status').className = "text-green-500 animate-pulse";
+                document.getElementById('screen-status').innerText = "● SIMULATING";
+                
+                simInterval = setInterval(updateSimulation, 1000);
+            }
+        }
+
+        // Updating simulation step-by-step
+        function updateSimulation() {
+            if (simSeconds >= maxSeconds) {
+                clearInterval(simInterval);
+                simInterval = null;
+                simSeconds = 0;
+                document.getElementById('sim-btn').className = "px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition duration-200 flex items-center gap-2 text-sm font-semibold shadow-lg shadow-emerald-900/30";
+                document.getElementById('btn-icon').className = "fa-solid fa-rotate-right";
+                document.getElementById('btn-text').textContent = "إعادة تشغيل";
+                document.getElementById('screen-status').className = "text-red-500 animate-pulse";
+                document.getElementById('screen-status').innerText = "● FINISHED";
+                return;
+            }
+
+            simSeconds++;
+            
+            // Format time display
+            const mins = Math.floor(simSeconds / 60);
+            const secs = simSeconds % 60;
+            document.getElementById('timer-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            // Update highlighted chunk & screen viewport visuals based on current timeline seconds
+            clearHighlights();
+            const viewport = document.getElementById('screen-viewport');
+            const screenText = document.getElementById('screen-text');
+            const screenIcon = document.getElementById('screen-icon');
+
+            if (simSeconds <= 5) {
+                highlightChunk('chunk-dashboard');
+                viewport.className = "w-full h-full rounded bg-slate-950 flex flex-col justify-center items-center transition-all duration-500 border border-emerald-900/40 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-terminal text-emerald-400 text-5xl mb-2 transition-all duration-500";
+                screenText.innerHTML = `<span class="mono-font text-[10px] text-emerald-500">INIT SYSTEM...<br>GEEK_LEVEL: 5/5</span>`;
+            } else if (simSeconds > 5 && simSeconds <= 25) {
+                highlightChunk('chunk-intro');
+                viewport.className = "w-full h-full rounded bg-slate-950 flex flex-col justify-center items-center transition-all duration-500 border border-slate-900 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-circle text-blue-500/80 text-xl transition-all duration-500 animate-pulse";
+                screenText.innerHTML = `<span class="text-xs text-slate-400">Earth (PBD Original View)<br>نقطة زرقاء باهتة</span>`;
+            } else if (simSeconds > 25 && simSeconds <= 30) {
+                highlightChunk('chunk-pause');
+                viewport.className = "w-full h-full rounded bg-amber-950/20 flex flex-col justify-center items-center transition-all duration-500 border border-amber-900/40 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-volume-high text-amber-400 text-4xl transition-all duration-500";
+                screenText.innerHTML = `<span class="text-sm font-semibold text-amber-300">وقفة درامية صامتة<br>أعد النظر لتلك النقطة...</span>`;
+            } else if (simSeconds > 30 && simSeconds <= 80) {
+                highlightChunk('chunk-chaos');
+                viewport.className = "w-full h-full rounded bg-white flex flex-col justify-center items-center transition-all duration-500 border border-slate-300 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-mask text-black text-6xl transition-all duration-500";
+                screenText.innerHTML = `<span class="text-xs text-black font-bold">أيدي حمراء ملطخة 🔴<br>عملات خضراء نيون 🟢<br>فراغ أبيض ناصع</span>`;
+            } else if (simSeconds > 80 && simSeconds <= 110) {
+                highlightChunk('chunk-static');
+                viewport.className = "w-full h-full rounded bg-slate-900 flex flex-col justify-center items-center transition-all duration-500 border border-pink-500/20 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-tv text-pink-400 text-5xl animate-bounce transition-all duration-500";
+                screenText.innerHTML = `<span class="text-xs text-pink-400">شوشرة وصوت تشويش<br>أنهار الدماء والغرور</span>`;
+            } else if (simSeconds > 110 && simSeconds <= 140) {
+                highlightChunk('chunk-deep');
+                viewport.className = "w-full h-full rounded bg-black flex flex-col justify-center items-center transition-all duration-500 border border-slate-950 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-space-shuttle text-indigo-500/30 text-4xl transition-all duration-500";
+                screenText.innerHTML = `<span class="text-xs text-slate-500">فراغ كوني مظلم<br>ومضة وحيدة في ظلام هائل</span>`;
+            } else if (simSeconds > 140 && simSeconds <= 160) {
+                highlightChunk('chunk-fate');
+                viewport.className = "w-full h-full rounded bg-slate-950 flex flex-col justify-center items-center transition-all duration-500 border border-teal-500/30 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-globe text-teal-400 text-2xl transition-all duration-500 animate-pulse";
+                screenText.innerHTML = `<span class="text-xs text-teal-400">هذا الكوكب مصيرنا...<br>الوطن الوحيد الذي عرفناه</span>`;
+            } else {
+                highlightChunk('chunk-credits');
+                viewport.className = "w-full h-full rounded bg-black flex flex-col justify-center items-center transition-all duration-500 border border-slate-900 relative overflow-hidden";
+                screenIcon.className = "fa-solid fa-scroll text-white text-4xl transition-all duration-500";
+                screenText.innerHTML = `<span class="text-[10px] text-slate-400">SYS_REPORT:<br>User: Human | Sub-optimal</span>`;
+            }
+        }
+
+        function clearHighlights() {
+            const chunks = ['chunk-dashboard', 'chunk-intro', 'chunk-pause', 'chunk-chaos', 'chunk-static', 'chunk-deep', 'chunk-fate', 'chunk-credits'];
+            chunks.forEach(c => {
+                const element = document.getElementById(c);
+                if (element) {
+                    element.classList.remove('active-row', 'scale-[1.01]', 'bg-slate-800/40');
+                }
+            });
+        }
+
+        function highlightChunk(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.classList.add('active-row', 'scale-[1.01]', 'bg-slate-800/40');
+                element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    </script>
+</body>
+</html>

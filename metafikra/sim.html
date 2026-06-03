@@ -164,6 +164,47 @@
             animate();
         }
 
+        function createEarthTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 256;
+            const context = canvas.getContext('2d');
+            
+            // المحيطات
+            context.fillStyle = '#1e5a8c';
+            context.fillRect(0, 0, 512, 256);
+            
+            // اليابسة العشوائية
+            context.fillStyle = '#3a6634';
+            for (let i = 0; i < 35; i++) {
+                context.beginPath();
+                context.arc(Math.random() * 512, Math.random() * 256, 15 + Math.random() * 30, 0, Math.PI * 2);
+                context.fill();
+            }
+            
+            // سحب خفيفة
+            context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            for (let i = 0; i < 45; i++) {
+                context.beginPath();
+                context.arc(Math.random() * 512, Math.random() * 256, 10 + Math.random() * 25, 0, Math.PI * 2);
+                context.fill();
+            }
+            
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createCosmicEarth(size, x, y, z) {
+            const texture = createEarthTexture();
+            const mat = new THREE.MeshStandardMaterial({ 
+                map: texture,
+                roughness: 0.7 
+            });
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(size, 32, 32), mat);
+            mesh.position.set(x, y, z);
+            sceneCosmic.add(mesh);
+            return mesh;
+        }
+
         function buildCosmicScene() {
             sceneCosmic = new THREE.Scene();
             sceneCosmic.background = new THREE.Color(0x161a25); // خلفية مطابقة لحبيبات الصورة الأصلية
@@ -198,13 +239,15 @@
             sceneCosmic.add(starMesh);
 
             // Planets
-            earth = createCosmicPlanet(1, 0x82bdf5, 0, 0, 0); // Earth (Pale Blue Dot)
+            earth = createCosmicEarth(1, 0, 0, 0); // Earth with custom texture
+            
+            // توزيع الكواكب لتظهر تدريجياً وتخرج من الإطار
             otherPlanets.push(createCosmicPlanet(0.27, 0xaaaaaa, 3, 0.5, 10)); // Moon
-            otherPlanets.push(createCosmicPlanet(0.53, 0xc1440e, -15, -2, 80)); // Mars
-            otherPlanets.push(createCosmicPlanet(11.2, 0xd39c7e, 40, 5, 400)); // Jupiter
+            otherPlanets.push(createCosmicPlanet(0.53, 0xc1440e, -25, -5, 80)); // Mars
+            otherPlanets.push(createCosmicPlanet(11.2, 0xd39c7e, 150, 20, 400)); // Jupiter
             
             // Saturn with Ring
-            const saturn = createCosmicPlanet(9.4, 0xeaddb9, -70, -8, 900);
+            const saturn = createCosmicPlanet(9.4, 0xeaddb9, -250, -30, 900);
             const ringGeo = new THREE.RingGeometry(12, 22, 64);
             const ringMat = new THREE.MeshBasicMaterial({ color: 0xcfc5b0, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
             const ring = new THREE.Mesh(ringGeo, ringMat);
@@ -212,8 +255,8 @@
             saturn.add(ring);
             otherPlanets.push(saturn);
 
-            otherPlanets.push(createCosmicPlanet(4, 0x4b70dd, 120, 15, 1800)); // Uranus
-            otherPlanets.push(createCosmicPlanet(3.8, 0x274687, -150, -20, 2800)); // Neptune
+            otherPlanets.push(createCosmicPlanet(4, 0x4b70dd, 600, 80, 1800)); // Uranus
+            otherPlanets.push(createCosmicPlanet(3.8, 0x274687, -900, -100, 2800)); // Neptune
 
             // Sunbeams (Match the original Pale Blue Dot orientation)
             sunbeam = new THREE.Group();
@@ -377,8 +420,8 @@
             
             camera.lookAt(camera.position.x, camera.position.y, 0);
 
-            // إخفاء الكواكب الأخرى عند الابتعاد لتبقى الأرض وحيدة
-            otherPlanets.forEach(p => p.visible = progress < 0.1);
+            // إخفاء الكواكب الأخرى تدريجياً لتبقى الأرض وحيدة في النهاية
+            otherPlanets.forEach(p => p.visible = progress < 0.15);
 
             if (sunbeam) {
                 if (progress > 0.7) {

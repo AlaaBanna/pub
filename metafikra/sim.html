@@ -9,13 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow: hidden; }
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow: hidden; margin: 0; padding: 0; }
         #stage-container { aspect-ratio: 9 / 16; max-height: 85vh; background-color: #000; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #334155; border-radius: 8px; overflow: hidden; }
         canvas { display: block; width: 100% !important; height: 100% !important; }
         .hide-ui #controls-panel { display: none; }
         .tab-btn.active { background-color: #10b981; color: white; border-color: #10b981; }
         .control-section { display: none; }
         .control-section.active { display: block; }
+        .counter-box { font-family: monospace; font-size: 1.5rem; line-height: 1; text-align: center; }
     </style>
 </head>
 <body class="flex items-center justify-center h-screen w-screen p-4 relative">
@@ -26,20 +27,33 @@
             <p class="text-[10px] text-slate-400">PBD - Meta Fikra</p>
         </div>
 
-        <!-- Scene Tabs -->
         <div class="flex gap-2 p-1 bg-slate-800 rounded-lg">
             <button onclick="switchScene('cosmic')" id="tab-cosmic" class="tab-btn active flex-1 py-1.5 text-xs font-bold text-slate-400 rounded transition border border-transparent">الفضاء الكوني</button>
             <button onclick="switchScene('closeup')" id="tab-closeup" class="tab-btn flex-1 py-1.5 text-xs font-bold text-slate-400 rounded transition border border-transparent">المنظور القريب</button>
         </div>
 
-        <!-- Cosmic Controls Section -->
         <div id="controls-cosmic" class="control-section active space-y-4">
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <div class="bg-slate-800 p-2 rounded border border-slate-700">
+                    <div class="text-[10px] text-slate-400 text-center mb-1">الإطار المرجعي</div>
+                    <div id="frame-counter" class="counter-box text-emerald-400">0000</div>
+                    <div class="text-[9px] text-slate-500 text-center">من 1000</div>
+                </div>
+                <div class="bg-slate-800 p-2 rounded border border-slate-700">
+                    <div class="text-[10px] text-slate-400 text-center mb-1">الوقت</div>
+                    <div id="time-counter" class="counter-box text-blue-400">00.0s</div>
+                    <div id="total-time-display" class="text-[9px] text-slate-500 text-center">إجمالي: --s</div>
+                </div>
+            </div>
+
             <div class="space-y-2">
-                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">مسافة الكاميرا (Z-Axis)</h2>
+                <div class="flex justify-between items-end border-b border-slate-700 pb-1">
+                    <h2 class="text-xs font-semibold text-slate-300">مسافة الكاميرا (Z-Axis)</h2>
+                    <span id="z-value-exact" class="text-[10px] text-emerald-400 font-mono">0.0%</span>
+                </div>
                 <input type="range" id="camera-z" min="0" max="100" value="0" step="0.1" class="w-full accent-emerald-500">
                 <div class="flex justify-between text-[9px] text-slate-500">
                     <span>الأرض</span>
-                    <span id="z-value-display">0%</span>
                     <span>6.1 مليار كم</span>
                 </div>
             </div>
@@ -48,9 +62,12 @@
                 <button onclick="toggleAutoZoom()" id="btn-auto-zoom" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-play"></i> انطلاق المركبة التلقائي
                 </button>
-                <div class="flex items-center gap-2 text-xs">
-                    <label class="text-slate-400">السرعة:</label>
-                    <input type="range" id="zoom-speed" min="0.1" max="5" value="0.5" step="0.1" class="flex-1 accent-indigo-500">
+                <div class="space-y-1">
+                    <div class="flex justify-between text-xs items-center">
+                        <label class="text-slate-400">السرعة:</label>
+                        <span id="speed-value-exact" class="text-[10px] text-indigo-400 font-mono">0.5x</span>
+                    </div>
+                    <input type="range" id="zoom-speed" min="0.1" max="5" value="0.5" step="0.1" class="w-full accent-indigo-500">
                 </div>
             </div>
 
@@ -62,7 +79,6 @@
             </div>
         </div>
 
-        <!-- Close-Up Controls Section -->
         <div id="controls-closeup" class="control-section space-y-4">
             <div class="space-y-2">
                 <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">الشخصية (Placeholder)</h2>
@@ -89,7 +105,10 @@
             </div>
             
             <div class="space-y-2">
-                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">مسافة الكاميرا (تقريب/إبعاد)</h2>
+                <div class="flex justify-between items-end border-b border-slate-700 pb-1">
+                    <h2 class="text-xs font-semibold text-slate-300">مسافة الكاميرا (تقريب/إبعاد)</h2>
+                    <span id="closeup-z-exact" class="text-[10px] text-emerald-400 font-mono">15.0</span>
+                </div>
                 <input type="range" id="closeup-cam-z" min="5" max="30" value="15" step="0.5" class="w-full accent-emerald-500">
             </div>
         </div>
@@ -102,7 +121,6 @@
         </div>
     </div>
 
-    <!-- 9:16 Canvas Container -->
     <div id="stage-container" class="h-full"></div>
 
     <script>
@@ -110,26 +128,50 @@
         let width, height, renderer, camera;
         let sceneCosmic, sceneCloseUp, activeScene;
         
-        // Cosmic specific
         let isAutoZooming = false, autoZoomProgress = 0;
         let sunbeam, earth;
         let otherPlanets = [];
         
-        // Close-up specific
         let characterMesh;
         let animStyle = 'twitch';
-        let charBaseY = 0; // Base position to animate around
+        let charBaseY = 0; 
 
-        // UI Elements
         const sliderZ = document.getElementById('camera-z');
-        const zDisplay = document.getElementById('z-value-display');
         const speedSlider = document.getElementById('zoom-speed');
         const animSelect = document.getElementById('anim-select');
         const uploadInput = document.getElementById('image-upload');
         const closeupCamSlider = document.getElementById('closeup-cam-z');
+        
+        const zValueExact = document.getElementById('z-value-exact');
+        const speedValueExact = document.getElementById('speed-value-exact');
+        const closeupZExact = document.getElementById('closeup-z-exact');
+        
+        const frameCounterDisplay = document.getElementById('frame-counter');
+        const timeCounterDisplay = document.getElementById('time-counter');
+        const totalTimeDisplay = document.getElementById('total-time-display');
+
+        const TOTAL_FRAMES = 1000;
+        
+        function updateEstimations() {
+            const currentSpeed = parseFloat(speedSlider.value);
+            const speedFactor = currentSpeed * 0.05; 
+            const totalFramesNeeded = 100 / speedFactor;
+            
+            const framesPerSecond = 60; 
+            const estimatedTotalSeconds = totalFramesNeeded / framesPerSecond;
+            
+            totalTimeDisplay.textContent = `إجمالي: ${estimatedTotalSeconds.toFixed(1)}s`;
+            
+            const currentSeconds = (autoZoomProgress / 100) * estimatedTotalSeconds;
+            timeCounterDisplay.textContent = currentSeconds.toFixed(1) + 's';
+            
+            const currentFrameRef = Math.floor((autoZoomProgress / 100) * TOTAL_FRAMES);
+            frameCounterDisplay.textContent = currentFrameRef.toString().padStart(4, '0');
+        }
 
         function init() {
-            height = container.clientHeight;
+            if(!container) return;
+            height = container.clientHeight || window.innerHeight * 0.85;
             width = height * (9 / 16);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
@@ -140,27 +182,39 @@
 
             camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50000);
 
-            // Build both scenes
             buildCosmicScene();
             buildCloseUpScene();
 
-            // Set initial state
             activeScene = sceneCosmic;
             
-            // Event Listeners
-            sliderZ.addEventListener('input', (e) => updateCosmicCamera(parseFloat(e.target.value)));
-            closeupCamSlider.addEventListener('input', (e) => {
-                if (activeScene === sceneCloseUp) camera.position.z = parseFloat(e.target.value);
+            sliderZ.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                zValueExact.textContent = val.toFixed(1) + '%';
+                updateCosmicCamera(val);
+                updateEstimations();
             });
+            
+            speedSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                speedValueExact.textContent = val.toFixed(1) + 'x';
+                updateEstimations();
+            });
+
+            closeupCamSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                closeupZExact.textContent = val.toFixed(1);
+                if (activeScene === sceneCloseUp) camera.position.z = val;
+            });
+
             document.getElementById('toggle-sunbeam').addEventListener('change', (e) => sunbeam.visible = e.target.checked);
             animSelect.addEventListener('change', (e) => animStyle = e.target.value);
             
-            // Image Upload Handler
             uploadInput.addEventListener('change', handleImageUpload);
 
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.body.classList.remove('hide-ui'); });
 
+            updateEstimations();
             animate();
         }
 
@@ -170,11 +224,9 @@
             canvas.height = 256;
             const context = canvas.getContext('2d');
             
-            // المحيطات
             context.fillStyle = '#1e5a8c';
             context.fillRect(0, 0, 512, 256);
             
-            // اليابسة العشوائية
             context.fillStyle = '#3a6634';
             for (let i = 0; i < 35; i++) {
                 context.beginPath();
@@ -182,7 +234,6 @@
                 context.fill();
             }
             
-            // سحب خفيفة
             context.fillStyle = 'rgba(255, 255, 255, 0.4)';
             for (let i = 0; i < 45; i++) {
                 context.beginPath();
@@ -195,10 +246,7 @@
 
         function createCosmicEarth(size, x, y, z) {
             const texture = createEarthTexture();
-            const mat = new THREE.MeshStandardMaterial({ 
-                map: texture,
-                roughness: 0.7 
-            });
+            const mat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.7 });
             const mesh = new THREE.Mesh(new THREE.SphereGeometry(size, 32, 32), mat);
             mesh.position.set(x, y, z);
             sceneCosmic.add(mesh);
@@ -207,16 +255,15 @@
 
         function buildCosmicScene() {
             sceneCosmic = new THREE.Scene();
-            sceneCosmic.background = new THREE.Color(0x161a25); // خلفية مطابقة لحبيبات الصورة الأصلية
+            sceneCosmic.background = new THREE.Color(0x161a25);
 
             const ambientLight = new THREE.AmbientLight(0x222222);
             sceneCosmic.add(ambientLight);
 
             const sunLight = new THREE.DirectionalLight(0xffffee, 4);
-            sunLight.position.set(0, 0, 10000); // جعل الشمس خلف الكاميرا لتضيء الأرض كنقطة لامعة كلياً
+            sunLight.position.set(0, 0, 10000);
             sceneCosmic.add(sunLight);
 
-            // Stars
             const starsGeo = new THREE.BufferGeometry();
             const starsCount = 15000;
             const posArray = new Float32Array(starsCount * 3);
@@ -238,15 +285,12 @@
             const starMesh = new THREE.Points(starsGeo, new THREE.PointsMaterial({ size: 2.5, vertexColors: true, transparent: true, opacity: 0.6 }));
             sceneCosmic.add(starMesh);
 
-            // Planets
-            earth = createCosmicEarth(1, 0, 0, 0); // Earth with custom texture
+            earth = createCosmicEarth(1, 0, 0, 0);
             
-            // توزيع الكواكب لتظهر تدريجياً وتخرج من الإطار
-            otherPlanets.push(createCosmicPlanet(0.27, 0xaaaaaa, 3, 0.5, 10)); // Moon
-            otherPlanets.push(createCosmicPlanet(0.53, 0xc1440e, -25, -5, 80)); // Mars
-            otherPlanets.push(createCosmicPlanet(11.2, 0xd39c7e, 150, 20, 400)); // Jupiter
+            otherPlanets.push(createCosmicPlanet(0.27, 0xaaaaaa, 3, 0.5, 10));
+            otherPlanets.push(createCosmicPlanet(0.53, 0xc1440e, -25, -5, 80));
+            otherPlanets.push(createCosmicPlanet(11.2, 0xd39c7e, 150, 20, 400));
             
-            // Saturn with Ring
             const saturn = createCosmicPlanet(9.4, 0xeaddb9, -250, -30, 900);
             const ringGeo = new THREE.RingGeometry(12, 22, 64);
             const ringMat = new THREE.MeshBasicMaterial({ color: 0xcfc5b0, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
@@ -255,24 +299,20 @@
             saturn.add(ring);
             otherPlanets.push(saturn);
 
-            otherPlanets.push(createCosmicPlanet(4, 0x4b70dd, 600, 80, 1800)); // Uranus
-            otherPlanets.push(createCosmicPlanet(3.8, 0x274687, -900, -100, 2800)); // Neptune
+            otherPlanets.push(createCosmicPlanet(4, 0x4b70dd, 600, 80, 1800));
+            otherPlanets.push(createCosmicPlanet(3.8, 0x274687, -900, -100, 2800));
 
-            // Sunbeams (Match the original Pale Blue Dot orientation)
             sunbeam = new THREE.Group();
             const beamGeo = new THREE.PlaneGeometry(350, 20000);
             
-            // Main beam (Brownish/Pinkish) - Earth sits exactly here
             const mat1 = new THREE.MeshBasicMaterial({ color: 0xd1a792, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
             const beam1 = new THREE.Mesh(beamGeo, mat1);
             beam1.position.set(0, 0, 0); 
 
-            // Middle beam (Greenish)
             const mat2 = new THREE.MeshBasicMaterial({ color: 0x5b7b6c, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
             const beam2 = new THREE.Mesh(beamGeo, mat2);
             beam2.position.set(-450, 0, 0);
 
-            // Far left beam (Reddish)
             const mat3 = new THREE.MeshBasicMaterial({ color: 0x6a4b59, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
             const beam3 = new THREE.Mesh(beamGeo, mat3);
             beam3.position.set(-900, 0, 0);
@@ -295,8 +335,8 @@
 
         function buildCloseUpScene() {
             sceneCloseUp = new THREE.Scene();
-            sceneCloseUp.background = new THREE.Color(0xffffff); // Pure White Void
-            sceneCloseUp.fog = new THREE.Fog(0xffffff, 20, 50); // White fog for depth masking
+            sceneCloseUp.background = new THREE.Color(0xffffff);
+            sceneCloseUp.fog = new THREE.Fog(0xffffff, 20, 50);
 
             const ambient = new THREE.AmbientLight(0xffffff, 0.8);
             sceneCloseUp.add(ambient);
@@ -304,18 +344,12 @@
             dirLight.position.set(0, 10, 10);
             sceneCloseUp.add(dirLight);
 
-            // Single Character Mesh (Plane)
             const aspect = 9/16;
             const planeHeight = 12;
             const planeWidth = planeHeight * aspect;
             const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
             
-            // Default material (Red Placeholder)
-            const material = new THREE.MeshBasicMaterial({ 
-                color: 0x880000, 
-                side: THREE.DoubleSide,
-                transparent: true
-            });
+            const material = new THREE.MeshBasicMaterial({ color: 0x880000, side: THREE.DoubleSide, transparent: true });
             
             characterMesh = new THREE.Mesh(geometry, material);
             charBaseY = 0;
@@ -334,19 +368,17 @@
                     const texture = new THREE.Texture(img);
                     texture.needsUpdate = true;
                     
-                    // Adjust plane aspect ratio to match the uploaded image
                     const imgAspect = img.width / img.height;
                     const planeHeight = 12;
                     const planeWidth = planeHeight * imgAspect;
                     
-                    characterMesh.geometry.dispose(); // Clean old geo
+                    characterMesh.geometry.dispose();
                     characterMesh.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
                     
                     characterMesh.material.map = texture;
-                    characterMesh.material.color.setHex(0xffffff); // Remove tint
+                    characterMesh.material.color.setHex(0xffffff);
                     characterMesh.material.needsUpdate = true;
                     
-                    // Auto-switch to closeup scene if image is uploaded
                     switchScene('closeup');
                 }
                 img.src = event.target.result;
@@ -355,15 +387,13 @@
         }
 
         function setPlaceholder(type) {
-            // Remove texture if exists
             characterMesh.material.map = null;
             if (type === 'politician') {
-                characterMesh.material.color.setHex(0x990000); // Dark Red
+                characterMesh.material.color.setHex(0x990000);
             } else {
-                characterMesh.material.color.setHex(0x009900); // Dark Green
+                characterMesh.material.color.setHex(0x009900);
             }
             characterMesh.material.needsUpdate = true;
-            // Reset aspect ratio to default portrait
             const aspect = 9/16;
             const planeHeight = 12;
             characterMesh.geometry.dispose();
@@ -381,7 +411,6 @@
                 tabCosmic.classList.add('active'); tabCloseup.classList.remove('active');
                 ctrlCosmic.classList.add('active'); ctrlCloseup.classList.remove('active');
                 
-                // Reset Camera for Cosmic
                 camera.position.set(0, 0, 5);
                 updateCosmicCamera(parseFloat(sliderZ.value));
             } else {
@@ -389,11 +418,9 @@
                 tabCloseup.classList.add('active'); tabCosmic.classList.remove('active');
                 ctrlCloseup.classList.add('active'); ctrlCosmic.classList.remove('active');
                 
-                // Reset Camera for Close-Up
                 camera.position.set(0, 0, parseFloat(closeupCamSlider.value));
                 camera.lookAt(0, 0, 0);
                 
-                // Reset mesh transforms
                 characterMesh.position.set(0, charBaseY, 0);
                 characterMesh.rotation.set(0, 0, 0);
                 characterMesh.scale.set(1, 1, 1);
@@ -403,32 +430,30 @@
         function updateCosmicCamera(val) {
             if(activeScene !== sceneCosmic) return;
             autoZoomProgress = val;
-            zDisplay.textContent = val.toFixed(1) + "%";
             sliderZ.value = val;
+            zValueExact.textContent = val.toFixed(1) + '%';
 
             const minZ = 5;
             const maxZ = 6000;
             const progress = val / 100;
             const distance = minZ + Math.pow(progress, 3.5) * (maxZ - minZ);
             
-            // معادلة تضمن عدم خروج الأرض من الكادر بربط الإزاحة بالمسافة المعروضة حصراً
             const panProgress = Math.pow(progress, 2);
             
-            camera.position.x = - (distance * 0.122) * panProgress; // الخمس الأخير لليمين
-            camera.position.y = (distance * 0.02) * panProgress;    // الخمس الثالث أسفل المنتصف بقليل
+            camera.position.x = - (distance * 0.122) * panProgress;
+            camera.position.y = (distance * 0.02) * panProgress;
             camera.position.z = distance;
             
             camera.lookAt(camera.position.x, camera.position.y, 0);
 
-            // إخفاء الكواكب الأخرى تدريجياً لتبقى الأرض وحيدة في النهاية
             otherPlanets.forEach(p => p.visible = progress < 0.15);
 
             if (sunbeam) {
                 if (progress > 0.7) {
-                    const beamIntensity = (progress - 0.7) / 0.3; // 0 to 1
-                    sunbeam.children[0].material.opacity = beamIntensity * 0.25; // Main beam (Brown)
-                    sunbeam.children[1].material.opacity = beamIntensity * 0.15; // Greenish beam
-                    sunbeam.children[2].material.opacity = beamIntensity * 0.10; // Reddish beam
+                    const beamIntensity = (progress - 0.7) / 0.3;
+                    sunbeam.children[0].material.opacity = beamIntensity * 0.25;
+                    sunbeam.children[1].material.opacity = beamIntensity * 0.15;
+                    sunbeam.children[2].material.opacity = beamIntensity * 0.10;
                 } else {
                     sunbeam.children.forEach(c => c.material.opacity = 0);
                 }
@@ -451,7 +476,6 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // 1. Cosmic Logic
             if (activeScene === sceneCosmic) {
                 if (isAutoZooming) {
                     const speed = parseFloat(speedSlider.value) * 0.05;
@@ -461,15 +485,14 @@
                         toggleAutoZoom();
                     }
                     updateCosmicCamera(autoZoomProgress);
+                    updateEstimations();
                 }
                 if (earth) earth.rotation.y += 0.005;
             }
 
-            // 2. Close-Up Logic (Character Animations)
             if (activeScene === sceneCloseUp && characterMesh) {
-                const time = performance.now() * 0.001; // Current time in seconds
+                const time = performance.now() * 0.001;
                 
-                // Reset values before applying animation
                 characterMesh.rotation.set(0, 0, 0);
                 characterMesh.scale.set(1, 1, 1);
                 
@@ -508,14 +531,14 @@
 
         function onWindowResize() {
             if (!container) return;
-            height = container.clientHeight;
+            height = container.clientHeight || window.innerHeight * 0.85;
             width = height * (9 / 16);
             renderer.setSize(width, height);
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
         }
 
-        window.onload = init;
+        window.onload = () => setTimeout(init, 100);
     </script>
 </body>
 </html>

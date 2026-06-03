@@ -6,6 +6,7 @@
     <title>PBD Virtual Production Stage</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -17,6 +18,58 @@
         .control-section { display: none; }
         .control-section.active { display: block; }
         .counter-box { font-family: monospace; font-size: 1.5rem; line-height: 1; text-align: center; }
+
+        /* CRT Terminal Effects */
+        #dashboard-overlay {
+            --term-color: #4af626;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(5, 10, 5, 0.9);
+            color: var(--term-color);
+            font-family: 'Share Tech Mono', monospace;
+            padding: 20px;
+            box-sizing: border-box;
+            display: none;
+            flex-direction: column;
+            z-index: 5;
+            text-shadow: 0 0 5px var(--term-color);
+            overflow: hidden;
+            direction: ltr;
+            container-type: inline-size;
+        }
+        #dashboard-overlay.active { display: flex; }
+        
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+        .crt::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.02; }
+            50% { opacity: 0.05; }
+            100% { opacity: 0.02; }
+        }
+        .terminal-text { font-size: clamp(0.65rem, 4.5cqw, 1.1rem); font-weight: bold; line-height: 1.6; margin-bottom: 10px; white-space: pre-wrap; }
+        .terminal-header { font-size: clamp(1.2rem, 7cqw, 1.8rem); font-weight: bold; border-bottom: 2px solid var(--term-color); margin-bottom: 15px; padding-bottom: 5px; text-align: center;}
+        .cursor { display: inline-block; width: clamp(6px, 2cqw, 10px); height: 1em; background-color: var(--term-color); animation: blink 1s step-end infinite; vertical-align: middle; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; border-top: 1px dashed var(--term-color); padding-top: 10px; font-size: clamp(0.6rem, 3.5cqw, 0.9rem); font-weight: bold;}
     </style>
 </head>
 <body class="flex items-center justify-center h-screen w-screen p-4 relative">
@@ -27,9 +80,48 @@
             <p class="text-[10px] text-slate-400">PBD - Meta Fikra</p>
         </div>
 
-        <div class="flex gap-2 p-1 bg-slate-800 rounded-lg">
-            <button onclick="switchScene('cosmic')" id="tab-cosmic" class="tab-btn active flex-1 py-1.5 text-xs font-bold text-slate-400 rounded transition border border-transparent">الفضاء الكوني</button>
-            <button onclick="switchScene('closeup')" id="tab-closeup" class="tab-btn flex-1 py-1.5 text-xs font-bold text-slate-400 rounded transition border border-transparent">المنظور القريب</button>
+        <div class="flex gap-1 p-1 bg-slate-800 rounded-lg">
+            <button onclick="switchScene('dashboard')" id="tab-dashboard" class="tab-btn flex-1 py-1.5 text-[10px] font-bold text-slate-400 rounded transition border border-transparent">الواجهة (Intro)</button>
+            <button onclick="switchScene('cosmic')" id="tab-cosmic" class="tab-btn active flex-1 py-1.5 text-[10px] font-bold text-slate-400 rounded transition border border-transparent">الفضاء الكوني</button>
+            <button onclick="switchScene('closeup')" id="tab-closeup" class="tab-btn flex-1 py-1.5 text-[10px] font-bold text-slate-400 rounded transition border border-transparent">المنظور القريب</button>
+        </div>
+
+        <div id="controls-dashboard" class="control-section space-y-4">
+            <div class="space-y-2">
+                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">تحكم الشاشة التمهيدية</h2>
+                <button onclick="startTerminalSequence()" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-terminal"></i> بدء طباعة الأوامر
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs text-slate-400">إصدار النظام (OS Version):</label>
+                <input type="text" id="os-version-input" value="MTFKRA_OS v2.0" class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded p-2 outline-none text-left" dir="ltr">
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-xs text-slate-400">نمط الشاشة (Theme):</label>
+                <select id="term-theme-select" class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded px-2 py-2 outline-none">
+                    <option value="#4af626">أخضر كلاسيكي (Matrix)</option>
+                    <option value="#ffb000">كهرماني (Phosphor Amber)</option>
+                    <option value="#00ffff">سماوي (Cyberpunk Cyan)</option>
+                    <option value="#ffffff">أبيض (Monochrome)</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs text-slate-400">النص المخصص (للتعديل):</label>
+                <textarea id="terminal-custom-text" class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] rounded p-2 outline-none h-32 text-left" dir="ltr">
+[ SYSTEM_INIT: META_FIKRA ]
+----------------------------------
+CATEGORY    : EXISTENTIAL_PHILOSOPHY
+LANGUAGE    : ARABIC (FUS'HA)
+DEPTH       : 4/5 ▮▮▮▮▯
+GEEK_LEVEL  : 5/5 ▮▮▮▮▮
+CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
+----------------------------------
+[ STATUS: READY_TO_CONTEMPLATE ]</textarea>
+            </div>
         </div>
 
         <div id="controls-cosmic" class="control-section active space-y-4">
@@ -121,12 +213,25 @@
         </div>
     </div>
 
-    <div id="stage-container" class="h-full"></div>
+    <div id="stage-container" class="h-full">
+        <div id="dashboard-overlay" class="crt">
+            <div id="terminal-header-text" class="terminal-header">MTFKRA_OS v2.0</div>
+            <div id="terminal-output" class="terminal-text"></div>
+            <span class="cursor"></span>
+            
+            <div class="sys-grid">
+                <div>MEM: <span id="dash-mem">0</span> KB</div>
+                <div>CPU: <span id="dash-cpu">0</span>%</div>
+                <div>UPLINK: ACTIVE</div>
+                <div>SEC: <span id="dash-time">00:00:00</span></div>
+            </div>
+        </div>
+    </div>
 
     <script>
         const container = document.getElementById('stage-container');
         let width, height, renderer, camera;
-        let sceneCosmic, sceneCloseUp, activeScene;
+        let sceneCosmic, sceneCloseUp, sceneDashboard, activeScene;
         
         let isAutoZooming = false, autoZoomProgress = 0;
         let sunbeam, earth;
@@ -136,11 +241,21 @@
         let animStyle = 'twitch';
         let charBaseY = 0; 
 
+        // Dashboard vars
+        let terminalInterval;
+        let sysInterval;
+
         const sliderZ = document.getElementById('camera-z');
         const speedSlider = document.getElementById('zoom-speed');
         const animSelect = document.getElementById('anim-select');
         const uploadInput = document.getElementById('image-upload');
         const closeupCamSlider = document.getElementById('closeup-cam-z');
+        const overlay = document.getElementById('dashboard-overlay');
+        const termOutput = document.getElementById('terminal-output');
+        const customTextInput = document.getElementById('terminal-custom-text');
+        const osVersionInput = document.getElementById('os-version-input');
+        const termThemeSelect = document.getElementById('term-theme-select');
+        const termHeaderText = document.getElementById('terminal-header-text');
         
         const zValueExact = document.getElementById('z-value-exact');
         const speedValueExact = document.getElementById('speed-value-exact');
@@ -156,7 +271,6 @@
             const currentSpeed = parseFloat(speedSlider.value);
             const speedFactor = currentSpeed * 0.05; 
             const totalFramesNeeded = 100 / speedFactor;
-            
             const framesPerSecond = 60; 
             const estimatedTotalSeconds = totalFramesNeeded / framesPerSecond;
             
@@ -184,6 +298,7 @@
 
             buildCosmicScene();
             buildCloseUpScene();
+            buildDashboardScene(); // Empty scene specifically for background behind overlay
 
             activeScene = sceneCosmic;
             
@@ -208,8 +323,15 @@
 
             document.getElementById('toggle-sunbeam').addEventListener('change', (e) => sunbeam.visible = e.target.checked);
             animSelect.addEventListener('change', (e) => animStyle = e.target.value);
-            
             uploadInput.addEventListener('change', handleImageUpload);
+
+            osVersionInput.addEventListener('input', (e) => {
+                termHeaderText.textContent = e.target.value;
+            });
+            
+            termThemeSelect.addEventListener('change', (e) => {
+                overlay.style.setProperty('--term-color', e.target.value);
+            });
 
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.body.classList.remove('hide-ui'); });
@@ -218,29 +340,63 @@
             animate();
         }
 
+        function buildDashboardScene() {
+            sceneDashboard = new THREE.Scene();
+            sceneDashboard.background = new THREE.Color(0x020502); // Dark green/black
+            
+            // Add a subtle wireframe grid as background
+            const gridHelper = new THREE.GridHelper(100, 20, 0x0a2b0a, 0x0a2b0a);
+            gridHelper.rotation.x = Math.PI / 2;
+            gridHelper.position.z = -10;
+            sceneDashboard.add(gridHelper);
+        }
+
+        function startTerminalSequence() {
+            clearInterval(terminalInterval);
+            termOutput.innerHTML = '';
+            let text = customTextInput.value;
+            let index = 0;
+            
+            terminalInterval = setInterval(() => {
+                if(index < text.length) {
+                    termOutput.innerHTML += text.charAt(index);
+                    index++;
+                } else {
+                    clearInterval(terminalInterval);
+                }
+            }, 10); // Typing speed
+        }
+
+        function updateSysStats() {
+            document.getElementById('dash-mem').innerText = Math.floor(Math.random() * 99999 + 600000);
+            document.getElementById('dash-cpu').innerText = Math.floor(Math.random() * 30 + 10);
+            
+            const now = new Date();
+            document.getElementById('dash-time').innerText = 
+                String(now.getHours()).padStart(2, '0') + ":" + 
+                String(now.getMinutes()).padStart(2, '0') + ":" + 
+                String(now.getSeconds()).padStart(2, '0');
+        }
+
         function createEarthTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 256;
             const context = canvas.getContext('2d');
-            
             context.fillStyle = '#1e5a8c';
             context.fillRect(0, 0, 512, 256);
-            
             context.fillStyle = '#3a6634';
             for (let i = 0; i < 35; i++) {
                 context.beginPath();
                 context.arc(Math.random() * 512, Math.random() * 256, 15 + Math.random() * 30, 0, Math.PI * 2);
                 context.fill();
             }
-            
             context.fillStyle = 'rgba(255, 255, 255, 0.4)';
             for (let i = 0; i < 45; i++) {
                 context.beginPath();
                 context.arc(Math.random() * 512, Math.random() * 256, 10 + Math.random() * 25, 0, Math.PI * 2);
                 context.fill();
             }
-            
             return new THREE.CanvasTexture(canvas);
         }
 
@@ -304,7 +460,6 @@
 
             sunbeam = new THREE.Group();
             const beamGeo = new THREE.PlaneGeometry(350, 20000);
-            
             const mat1 = new THREE.MeshBasicMaterial({ color: 0xd1a792, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
             const beam1 = new THREE.Mesh(beamGeo, mat1);
             beam1.position.set(0, 0, 0); 
@@ -401,22 +556,44 @@
         }
 
         function switchScene(sceneName) {
+            const tabDash = document.getElementById('tab-dashboard');
             const tabCosmic = document.getElementById('tab-cosmic');
             const tabCloseup = document.getElementById('tab-closeup');
+            
+            const ctrlDash = document.getElementById('controls-dashboard');
             const ctrlCosmic = document.getElementById('controls-cosmic');
             const ctrlCloseup = document.getElementById('controls-closeup');
 
-            if (sceneName === 'cosmic') {
+            // Reset tabs & controls
+            [tabDash, tabCosmic, tabCloseup].forEach(t => t.classList.remove('active'));
+            [ctrlDash, ctrlCosmic, ctrlCloseup].forEach(c => c.classList.remove('active'));
+            overlay.classList.remove('active');
+            clearInterval(sysInterval);
+
+            if (sceneName === 'dashboard') {
+                activeScene = sceneDashboard;
+                tabDash.classList.add('active');
+                ctrlDash.classList.add('active');
+                overlay.classList.add('active');
+                
+                camera.position.set(0, 0, 5);
+                camera.lookAt(0, 0, 0);
+                
+                sysInterval = setInterval(updateSysStats, 1000);
+                if(termOutput.innerHTML === '') startTerminalSequence();
+
+            } else if (sceneName === 'cosmic') {
                 activeScene = sceneCosmic;
-                tabCosmic.classList.add('active'); tabCloseup.classList.remove('active');
-                ctrlCosmic.classList.add('active'); ctrlCloseup.classList.remove('active');
+                tabCosmic.classList.add('active');
+                ctrlCosmic.classList.add('active');
                 
                 camera.position.set(0, 0, 5);
                 updateCosmicCamera(parseFloat(sliderZ.value));
+                
             } else {
                 activeScene = sceneCloseUp;
-                tabCloseup.classList.add('active'); tabCosmic.classList.remove('active');
-                ctrlCloseup.classList.add('active'); ctrlCosmic.classList.remove('active');
+                tabCloseup.classList.add('active');
+                ctrlCloseup.classList.add('active');
                 
                 camera.position.set(0, 0, parseFloat(closeupCamSlider.value));
                 camera.lookAt(0, 0, 0);

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PBD Virtual Production Stage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow: hidden; }
+        #stage-container { aspect-ratio: 9 / 16; max-height: 85vh; background-color: #000; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #334155; border-radius: 8px; overflow: hidden; }
+        canvas { display: block; width: 100% !important; height: 100% !important; }
+        .hide-ui #controls-panel { display: none; }
+        .tab-btn.active { background-color: #10b981; color: white; border-color: #10b981; }
+        .control-section { display: none; }
+        .control-section.active { display: block; }
+    </style>
+</head>
+<body class="flex items-center justify-center h-screen w-screen p-4 relative">
+
+    <div id="controls-panel" class="absolute left-4 top-4 bottom-4 w-80 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-xl p-5 flex flex-col gap-5 z-10 overflow-y-auto shadow-2xl">
+        <div>
+            <h1 class="text-xl font-bold text-emerald-400 mb-1"><i class="fa-solid fa-clapperboard"></i> استوديو المحاكاة</h1>
+            <p class="text-[10px] text-slate-400">PBD - Meta Fikra</p>
+        </div>
+
+        <!-- Scene Tabs -->
+        <div class="flex gap-2 p-1 bg-slate-800 rounded-lg">
+            <button onclick="switchScene('cosmic')" id="tab-cosmic" class="tab-btn active flex-1 py-1.5 text-xs font-bold text-slate-400 rounded transition border border-transparent">الفضاء الكوني</button>
+            <button onclick="switchScene('closeup')" id="tab-closeup" class="tab-btn flex-1 py-1.5 text-xs font-bold text-slate-400 rounded transition border border-transparent">المنظور القريب</button>
+        </div>
+
+        <!-- Cosmic Controls Section -->
+        <div id="controls-cosmic" class="control-section active space-y-4">
+            <div class="space-y-2">
+                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">مسافة الكاميرا (Z-Axis)</h2>
+                <input type="range" id="camera-z" min="0" max="100" value="0" step="0.1" class="w-full accent-emerald-500">
+                <div class="flex justify-between text-[9px] text-slate-500">
+                    <span>الأرض</span>
+                    <span id="z-value-display">0%</span>
+                    <span>6.1 مليار كم</span>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <button onclick="toggleAutoZoom()" id="btn-auto-zoom" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> انطلاق المركبة التلقائي
+                </button>
+                <div class="flex items-center gap-2 text-xs">
+                    <label class="text-slate-400">السرعة:</label>
+                    <input type="range" id="zoom-speed" min="0.1" max="5" value="0.5" step="0.1" class="flex-1 accent-indigo-500">
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="flex items-center gap-2 text-xs text-slate-400 cursor-pointer">
+                    <input type="checkbox" id="toggle-sunbeam" checked class="accent-emerald-500">
+                    تأثير الشعاع الشمسي (Sunbeam)
+                </label>
+            </div>
+        </div>
+
+        <!-- Close-Up Controls Section -->
+        <div id="controls-closeup" class="control-section space-y-4">
+            <div class="space-y-2">
+                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">الشخصية (Placeholder)</h2>
+                <div class="flex gap-2">
+                    <button onclick="setPlaceholder('politician')" class="flex-1 py-1.5 bg-red-900/50 hover:bg-red-800 border border-red-700 text-red-200 rounded text-xs transition">السياسي (أحمر)</button>
+                    <button onclick="setPlaceholder('capitalist')" class="flex-1 py-1.5 bg-green-900/50 hover:bg-green-800 border border-green-700 text-green-200 rounded text-xs transition">الرأسمالي (أخضر)</button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">تحميل الصورة (PNG بخلفية شفافة)</h2>
+                <input type="file" id="image-upload" accept="image/png, image/jpeg" class="block w-full text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-500 transition cursor-pointer">
+            </div>
+
+            <div class="space-y-2">
+                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">نمط التحريك (Animation)</h2>
+                <select id="anim-select" class="w-full bg-slate-800 border border-slate-700 text-slate-300 text-xs rounded px-2 py-2 outline-none">
+                    <option value="none">ثابت (بدون حركة)</option>
+                    <option value="breathe">تنفس مضطرب وبطيء</option>
+                    <option value="twitch" selected>تشنج سيكوباثي</option>
+                    <option value="sway">تمايل غريب (رقص)</option>
+                    <option value="zoom">اقتراب بطيء ومريب</option>
+                </select>
+            </div>
+            
+            <div class="space-y-2">
+                <h2 class="text-xs font-semibold text-slate-300 border-b border-slate-700 pb-1">مسافة الكاميرا (تقريب/إبعاد)</h2>
+                <input type="range" id="closeup-cam-z" min="5" max="30" value="15" step="0.5" class="w-full accent-emerald-500">
+            </div>
+        </div>
+
+        <div class="mt-auto pt-4 border-t border-slate-800">
+            <button onclick="document.body.classList.add('hide-ui')" class="w-full py-2 bg-slate-800 border border-slate-600 text-slate-300 hover:text-white hover:bg-slate-700 rounded text-xs transition">
+                <i class="fa-solid fa-expand"></i> وضع التسجيل (إخفاء الواجهة)
+            </button>
+            <p class="text-[9px] text-center text-slate-500 mt-2">اضغط ESC للعودة</p>
+        </div>
+    </div>
+
+    <!-- 9:16 Canvas Container -->
+    <div id="stage-container" class="h-full"></div>
+
+    <script>
+        const container = document.getElementById('stage-container');
+        let width, height, renderer, camera;
+        let sceneCosmic, sceneCloseUp, activeScene;
+        
+        // Cosmic specific
+        let isAutoZooming = false, autoZoomProgress = 0;
+        let sunbeam, earth;
+        
+        // Close-up specific
+        let characterMesh;
+        let animStyle = 'twitch';
+        let charBaseY = 0; // Base position to animate around
+
+        // UI Elements
+        const sliderZ = document.getElementById('camera-z');
+        const zDisplay = document.getElementById('z-value-display');
+        const speedSlider = document.getElementById('zoom-speed');
+        const animSelect = document.getElementById('anim-select');
+        const uploadInput = document.getElementById('image-upload');
+        const closeupCamSlider = document.getElementById('closeup-cam-z');
+
+        function init() {
+            height = container.clientHeight;
+            width = height * (9 / 16);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            container.appendChild(renderer.domElement);
+
+            camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50000);
+
+            // Build both scenes
+            buildCosmicScene();
+            buildCloseUpScene();
+
+            // Set initial state
+            activeScene = sceneCosmic;
+            
+            // Event Listeners
+            sliderZ.addEventListener('input', (e) => updateCosmicCamera(parseFloat(e.target.value)));
+            closeupCamSlider.addEventListener('input', (e) => {
+                if (activeScene === sceneCloseUp) camera.position.z = parseFloat(e.target.value);
+            });
+            document.getElementById('toggle-sunbeam').addEventListener('change', (e) => sunbeam.visible = e.target.checked);
+            animSelect.addEventListener('change', (e) => animStyle = e.target.value);
+            
+            // Image Upload Handler
+            uploadInput.addEventListener('change', handleImageUpload);
+
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.body.classList.remove('hide-ui'); });
+
+            animate();
+        }
+
+        function buildCosmicScene() {
+            sceneCosmic = new THREE.Scene();
+            sceneCosmic.background = new THREE.Color(0x020205);
+
+            const ambientLight = new THREE.AmbientLight(0x111111);
+            sceneCosmic.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffee, 2);
+            sunLight.position.set(-1000, 500, -2000);
+            sceneCosmic.add(sunLight);
+
+            // Stars
+            const starsGeo = new THREE.BufferGeometry();
+            const starsCount = 15000;
+            const posArray = new Float32Array(starsCount * 3);
+            const colorsArray = new Float32Array(starsCount * 3);
+            const spectralColors = [new THREE.Color(0x9db4ff), new THREE.Color(0xffffff), new THREE.Color(0xfff4e8), new THREE.Color(0xffbd6f)];
+
+            for(let i = 0; i < starsCount; i++) {
+                const radius = 5000 + Math.random() * 10000;
+                const theta = 2 * Math.PI * Math.random();
+                const phi = Math.acos(2 * Math.random() - 1) * (Math.random() > 0.3 ? 0.2 : 1); 
+                posArray[i*3] = radius * Math.sin(phi) * Math.cos(theta);
+                posArray[i*3+1] = radius * Math.sin(phi) * Math.sin(theta) + (Math.random() - 0.5) * 2000;
+                posArray[i*3+2] = radius * Math.cos(phi);
+                const color = spectralColors[Math.floor(Math.random() * spectralColors.length)];
+                colorsArray[i*3] = color.r; colorsArray[i*3+1] = color.g; colorsArray[i*3+2] = color.b;
+            }
+            starsGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            starsGeo.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+            const starMesh = new THREE.Points(starsGeo, new THREE.PointsMaterial({ size: 2.5, vertexColors: true, transparent: true, opacity: 0.8 }));
+            sceneCosmic.add(starMesh);
+
+            // Planets
+            earth = createCosmicPlanet(1, 0x4b92db, 0, 0, 0); // Earth
+            createCosmicPlanet(0.27, 0xaaaaaa, 3, 0.5, 10); // Moon
+            createCosmicPlanet(0.53, 0xc1440e, -15, -2, 80); // Mars
+            createCosmicPlanet(11.2, 0xd39c7e, 40, 5, 400); // Jupiter
+            
+            // Saturn with Ring
+            const saturn = createCosmicPlanet(9.4, 0xeaddb9, -70, -8, 900);
+            const ringGeo = new THREE.RingGeometry(12, 22, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xcfc5b0, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2.2;
+            saturn.add(ring);
+
+            createCosmicPlanet(4, 0x4b70dd, 120, 15, 1800); // Uranus
+            createCosmicPlanet(3.8, 0x274687, -150, -20, 2800); // Neptune
+
+            // Sunbeam
+            const beamGeo = new THREE.CylinderGeometry(0.1, 40, 10000, 32, 1, true);
+            const beamMat = new THREE.MeshBasicMaterial({ color: 0xffeebb, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+            sunbeam = new THREE.Mesh(beamGeo, beamMat);
+            sunbeam.rotation.x = Math.PI / 2;
+            sunbeam.rotation.z = -Math.PI / 12;
+            sunbeam.position.set(0, 0, 4000);
+            sceneCosmic.add(sunbeam);
+        }
+
+        function createCosmicPlanet(size, colorHex, x, y, z) {
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(size, 32, 32), new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.7 }));
+            mesh.position.set(x, y, z);
+            sceneCosmic.add(mesh);
+            return mesh;
+        }
+
+        function buildCloseUpScene() {
+            sceneCloseUp = new THREE.Scene();
+            sceneCloseUp.background = new THREE.Color(0xffffff); // Pure White Void
+            sceneCloseUp.fog = new THREE.Fog(0xffffff, 20, 50); // White fog for depth masking
+
+            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+            sceneCloseUp.add(ambient);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            dirLight.position.set(0, 10, 10);
+            sceneCloseUp.add(dirLight);
+
+            // Single Character Mesh (Plane)
+            const aspect = 9/16;
+            const planeHeight = 12;
+            const planeWidth = planeHeight * aspect;
+            const geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+            
+            // Default material (Red Placeholder)
+            const material = new THREE.MeshBasicMaterial({ 
+                color: 0x880000, 
+                side: THREE.DoubleSide,
+                transparent: true
+            });
+            
+            characterMesh = new THREE.Mesh(geometry, material);
+            charBaseY = 0;
+            characterMesh.position.set(0, charBaseY, 0);
+            sceneCloseUp.add(characterMesh);
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const texture = new THREE.Texture(img);
+                    texture.needsUpdate = true;
+                    
+                    // Adjust plane aspect ratio to match the uploaded image
+                    const imgAspect = img.width / img.height;
+                    const planeHeight = 12;
+                    const planeWidth = planeHeight * imgAspect;
+                    
+                    characterMesh.geometry.dispose(); // Clean old geo
+                    characterMesh.geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+                    
+                    characterMesh.material.map = texture;
+                    characterMesh.material.color.setHex(0xffffff); // Remove tint
+                    characterMesh.material.needsUpdate = true;
+                    
+                    // Auto-switch to closeup scene if image is uploaded
+                    switchScene('closeup');
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function setPlaceholder(type) {
+            // Remove texture if exists
+            characterMesh.material.map = null;
+            if (type === 'politician') {
+                characterMesh.material.color.setHex(0x990000); // Dark Red
+            } else {
+                characterMesh.material.color.setHex(0x009900); // Dark Green
+            }
+            characterMesh.material.needsUpdate = true;
+            // Reset aspect ratio to default portrait
+            const aspect = 9/16;
+            const planeHeight = 12;
+            characterMesh.geometry.dispose();
+            characterMesh.geometry = new THREE.PlaneGeometry(planeHeight * aspect, planeHeight);
+        }
+
+        function switchScene(sceneName) {
+            const tabCosmic = document.getElementById('tab-cosmic');
+            const tabCloseup = document.getElementById('tab-closeup');
+            const ctrlCosmic = document.getElementById('controls-cosmic');
+            const ctrlCloseup = document.getElementById('controls-closeup');
+
+            if (sceneName === 'cosmic') {
+                activeScene = sceneCosmic;
+                tabCosmic.classList.add('active'); tabCloseup.classList.remove('active');
+                ctrlCosmic.classList.add('active'); ctrlCloseup.classList.remove('active');
+                
+                // Reset Camera for Cosmic
+                camera.position.set(0, 0, 5);
+                updateCosmicCamera(parseFloat(sliderZ.value));
+            } else {
+                activeScene = sceneCloseUp;
+                tabCloseup.classList.add('active'); tabCosmic.classList.remove('active');
+                ctrlCloseup.classList.add('active'); ctrlCosmic.classList.remove('active');
+                
+                // Reset Camera for Close-Up
+                camera.position.set(0, 0, parseFloat(closeupCamSlider.value));
+                camera.lookAt(0, 0, 0);
+                
+                // Reset mesh transforms
+                characterMesh.position.set(0, charBaseY, 0);
+                characterMesh.rotation.set(0, 0, 0);
+                characterMesh.scale.set(1, 1, 1);
+            }
+        }
+
+        function updateCosmicCamera(val) {
+            if(activeScene !== sceneCosmic) return;
+            autoZoomProgress = val;
+            zDisplay.textContent = val.toFixed(1) + "%";
+            sliderZ.value = val;
+
+            const minZ = 5;
+            const maxZ = 6000;
+            const progress = val / 100;
+            const distance = minZ + Math.pow(progress, 3.5) * (maxZ - minZ);
+            
+            camera.position.z = distance;
+            camera.position.x = Math.sin(progress * Math.PI) * 15;
+            camera.position.y = Math.cos(progress * Math.PI) * 5;
+            camera.lookAt(earth.position);
+
+            if (sunbeam) {
+                if (progress > 0.8) {
+                    sunbeam.material.opacity = Math.min((progress - 0.8) * 1.5, 0.15);
+                } else {
+                    sunbeam.material.opacity = 0;
+                }
+            }
+        }
+
+        function toggleAutoZoom() {
+            const btn = document.getElementById('btn-auto-zoom');
+            isAutoZooming = !isAutoZooming;
+            if (isAutoZooming) {
+                btn.className = "w-full py-2.5 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-bold transition flex items-center justify-center gap-2";
+                btn.innerHTML = '<i class="fa-solid fa-stop"></i> إيقاف';
+                if (autoZoomProgress >= 100) autoZoomProgress = 0;
+            } else {
+                btn.className = "w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold transition flex items-center justify-center gap-2";
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> انطلاق المركبة التلقائي';
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 1. Cosmic Logic
+            if (activeScene === sceneCosmic) {
+                if (isAutoZooming) {
+                    const speed = parseFloat(speedSlider.value) * 0.05;
+                    autoZoomProgress += speed;
+                    if (autoZoomProgress >= 100) {
+                        autoZoomProgress = 100;
+                        toggleAutoZoom();
+                    }
+                    updateCosmicCamera(autoZoomProgress);
+                }
+                if (earth) earth.rotation.y += 0.005;
+            }
+
+            // 2. Close-Up Logic (Character Animations)
+            if (activeScene === sceneCloseUp && characterMesh) {
+                const time = performance.now() * 0.001; // Current time in seconds
+                
+                // Reset values before applying animation
+                characterMesh.rotation.set(0, 0, 0);
+                characterMesh.scale.set(1, 1, 1);
+                
+                switch (animStyle) {
+                    case 'breathe':
+                        // Slow scaling and bobbing
+                        characterMesh.scale.y = 1 + Math.sin(time * 1.5) * 0.02;
+                        characterMesh.position.y = charBaseY + Math.sin(time * 1.5) * 0.1;
+                        characterMesh.position.x = 0;
+                        break;
+                    case 'twitch':
+                        // Fast, erratic random movements (Psychopathic)
+                        if (Math.random() > 0.3) {
+                            characterMesh.rotation.z = (Math.random() - 0.5) * 0.03;
+                            characterMesh.position.x = (Math.random() - 0.5) * 0.08;
+                            characterMesh.position.y = charBaseY + (Math.random() - 0.5) * 0.05;
+                        }
+                        break;
+                    case 'sway':
+                        // Eerie, continuous side-to-side rotation/sway
+                        characterMesh.rotation.z = Math.sin(time * 0.8) * 0.1;
+                        characterMesh.position.x = Math.sin(time * 0.4) * 0.5;
+                        characterMesh.position.y = charBaseY;
+                        break;
+                    case 'zoom':
+                        // Slow creepy forward movement
+                        // We achieve this by scaling up slowly or moving Z
+                        characterMesh.position.z = Math.sin(time * 0.5) * 2; // Moves forward and back slowly
+                        characterMesh.position.y = charBaseY;
+                        characterMesh.position.x = 0;
+                        break;
+                    case 'none':
+                    default:
+                        characterMesh.position.set(0, charBaseY, 0);
+                        break;
+                }
+            }
+
+            renderer.render(activeScene, camera);
+        }
+
+        function onWindowResize() {
+            if (!container) return;
+            height = container.clientHeight;
+            width = height * (9 / 16);
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

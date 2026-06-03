@@ -14,6 +14,8 @@
         #stage-container { aspect-ratio: 9 / 16; max-height: 85vh; background-color: #000; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.8); border: 2px solid #334155; border-radius: 8px; overflow: hidden; }
         canvas { display: block; width: 100% !important; height: 100% !important; }
         .hide-ui #controls-panel { display: none; }
+        .hide-ui { padding: 0 !important; background-color: #000; }
+        .hide-ui #stage-container { max-height: 100vh; height: 100vh; border: none; border-radius: 0; box-shadow: none; }
         .tab-btn.active { background-color: #10b981; color: white; border-color: #10b981; }
         .control-section { display: none; }
         .control-section.active { display: block; }
@@ -206,8 +208,8 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
         </div>
 
         <div class="mt-auto pt-4 border-t border-slate-800">
-            <button onclick="document.body.classList.add('hide-ui')" class="w-full py-2 bg-slate-800 border border-slate-600 text-slate-300 hover:text-white hover:bg-slate-700 rounded text-xs transition">
-                <i class="fa-solid fa-expand"></i> وضع التسجيل (إخفاء الواجهة)
+            <button onclick="requestFullScreen()" class="w-full py-2 bg-slate-800 border border-slate-600 text-slate-300 hover:text-white hover:bg-slate-700 rounded text-xs transition">
+                <i class="fa-solid fa-expand"></i> وضع التسجيل (شاشة كاملة)
             </button>
             <p class="text-[9px] text-center text-slate-500 mt-2">اضغط ESC للعودة</p>
         </div>
@@ -267,6 +269,29 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
 
         const TOTAL_FRAMES = 1000;
         
+        function requestFullScreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+            document.body.classList.add('hide-ui');
+            setTimeout(onWindowResize, 100);
+        }
+
+        function handleFullscreenExit() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                document.body.classList.remove('hide-ui');
+                setTimeout(onWindowResize, 100);
+            }
+        }
+
+        document.addEventListener('fullscreenchange', handleFullscreenExit);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenExit);
+
         function updateEstimations() {
             const currentSpeed = parseFloat(speedSlider.value);
             const speedFactor = currentSpeed * 0.05; 
@@ -298,7 +323,7 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
 
             buildCosmicScene();
             buildCloseUpScene();
-            buildDashboardScene(); // Empty scene specifically for background behind overlay
+            buildDashboardScene(); 
 
             activeScene = sceneCosmic;
             
@@ -334,7 +359,17 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
             });
 
             window.addEventListener('resize', onWindowResize);
-            window.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.body.classList.remove('hide-ui'); });
+            window.addEventListener('keydown', (e) => { 
+                if (e.key === 'Escape') {
+                    document.body.classList.remove('hide-ui');
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch(err => {});
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                    setTimeout(onWindowResize, 100);
+                } 
+            });
 
             updateEstimations();
             animate();
@@ -342,9 +377,8 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
 
         function buildDashboardScene() {
             sceneDashboard = new THREE.Scene();
-            sceneDashboard.background = new THREE.Color(0x020502); // Dark green/black
+            sceneDashboard.background = new THREE.Color(0x020502); 
             
-            // Add a subtle wireframe grid as background
             const gridHelper = new THREE.GridHelper(100, 20, 0x0a2b0a, 0x0a2b0a);
             gridHelper.rotation.x = Math.PI / 2;
             gridHelper.position.z = -10;
@@ -352,6 +386,7 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
         }
 
         function startTerminalSequence() {
+            requestFullScreen();
             clearInterval(terminalInterval);
             termOutput.innerHTML = '';
             let text = customTextInput.value;
@@ -364,7 +399,7 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
                 } else {
                     clearInterval(terminalInterval);
                 }
-            }, 10); // Typing speed
+            }, 10); 
         }
 
         function updateSysStats() {
@@ -564,7 +599,6 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
             const ctrlCosmic = document.getElementById('controls-cosmic');
             const ctrlCloseup = document.getElementById('controls-closeup');
 
-            // Reset tabs & controls
             [tabDash, tabCosmic, tabCloseup].forEach(t => t.classList.remove('active'));
             [ctrlDash, ctrlCosmic, ctrlCloseup].forEach(c => c.classList.remove('active'));
             overlay.classList.remove('active');
@@ -641,6 +675,7 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
             const btn = document.getElementById('btn-auto-zoom');
             isAutoZooming = !isAutoZooming;
             if (isAutoZooming) {
+                requestFullScreen();
                 btn.className = "w-full py-2.5 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-bold transition flex items-center justify-center gap-2";
                 btn.innerHTML = '<i class="fa-solid fa-stop"></i> إيقاف';
                 if (autoZoomProgress >= 100) autoZoomProgress = 0;
@@ -708,8 +743,14 @@ CONTEXT     : CARL_SAGAN_PALE_BLUE_DOT
 
         function onWindowResize() {
             if (!container) return;
-            height = container.clientHeight || window.innerHeight * 0.85;
-            width = height * (9 / 16);
+            const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+            if (isFullscreen) {
+                height = window.innerHeight;
+                width = height * (9 / 16);
+            } else {
+                height = container.clientHeight || window.innerHeight * 0.85;
+                width = height * (9 / 16);
+            }
             renderer.setSize(width, height);
             camera.aspect = width / height;
             camera.updateProjectionMatrix();

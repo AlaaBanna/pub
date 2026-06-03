@@ -113,6 +113,7 @@
         // Cosmic specific
         let isAutoZooming = false, autoZoomProgress = 0;
         let sunbeam, earth;
+        let otherPlanets = [];
         
         // Close-up specific
         let characterMesh;
@@ -165,13 +166,13 @@
 
         function buildCosmicScene() {
             sceneCosmic = new THREE.Scene();
-            sceneCosmic.background = new THREE.Color(0x020205);
+            sceneCosmic.background = new THREE.Color(0x161a25); // خلفية مطابقة لحبيبات الصورة الأصلية
 
-            const ambientLight = new THREE.AmbientLight(0x111111);
+            const ambientLight = new THREE.AmbientLight(0x222222);
             sceneCosmic.add(ambientLight);
 
-            const sunLight = new THREE.DirectionalLight(0xffffee, 2);
-            sunLight.position.set(-1000, 500, -2000);
+            const sunLight = new THREE.DirectionalLight(0xffffee, 4);
+            sunLight.position.set(0, 0, 10000); // جعل الشمس خلف الكاميرا لتضيء الأرض كنقطة لامعة كلياً
             sceneCosmic.add(sunLight);
 
             // Stars
@@ -193,14 +194,14 @@
             }
             starsGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
             starsGeo.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
-            const starMesh = new THREE.Points(starsGeo, new THREE.PointsMaterial({ size: 2.5, vertexColors: true, transparent: true, opacity: 0.8 }));
+            const starMesh = new THREE.Points(starsGeo, new THREE.PointsMaterial({ size: 2.5, vertexColors: true, transparent: true, opacity: 0.6 }));
             sceneCosmic.add(starMesh);
 
             // Planets
-            earth = createCosmicPlanet(1, 0x4b92db, 0, 0, 0); // Earth
-            createCosmicPlanet(0.27, 0xaaaaaa, 3, 0.5, 10); // Moon
-            createCosmicPlanet(0.53, 0xc1440e, -15, -2, 80); // Mars
-            createCosmicPlanet(11.2, 0xd39c7e, 40, 5, 400); // Jupiter
+            earth = createCosmicPlanet(1, 0x82bdf5, 0, 0, 0); // Earth (Pale Blue Dot)
+            otherPlanets.push(createCosmicPlanet(0.27, 0xaaaaaa, 3, 0.5, 10)); // Moon
+            otherPlanets.push(createCosmicPlanet(0.53, 0xc1440e, -15, -2, 80)); // Mars
+            otherPlanets.push(createCosmicPlanet(11.2, 0xd39c7e, 40, 5, 400)); // Jupiter
             
             // Saturn with Ring
             const saturn = createCosmicPlanet(9.4, 0xeaddb9, -70, -8, 900);
@@ -209,17 +210,36 @@
             const ring = new THREE.Mesh(ringGeo, ringMat);
             ring.rotation.x = Math.PI / 2.2;
             saturn.add(ring);
+            otherPlanets.push(saturn);
 
-            createCosmicPlanet(4, 0x4b70dd, 120, 15, 1800); // Uranus
-            createCosmicPlanet(3.8, 0x274687, -150, -20, 2800); // Neptune
+            otherPlanets.push(createCosmicPlanet(4, 0x4b70dd, 120, 15, 1800)); // Uranus
+            otherPlanets.push(createCosmicPlanet(3.8, 0x274687, -150, -20, 2800)); // Neptune
 
-            // Sunbeam
-            const beamGeo = new THREE.CylinderGeometry(0.1, 40, 10000, 32, 1, true);
-            const beamMat = new THREE.MeshBasicMaterial({ color: 0xffeebb, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
-            sunbeam = new THREE.Mesh(beamGeo, beamMat);
-            sunbeam.rotation.x = Math.PI / 2;
-            sunbeam.rotation.z = -Math.PI / 12;
-            sunbeam.position.set(0, 0, 4000);
+            // Sunbeams (Match the original Pale Blue Dot orientation)
+            sunbeam = new THREE.Group();
+            const beamGeo = new THREE.PlaneGeometry(350, 20000);
+            
+            // Main beam (Brownish/Pinkish) - Earth sits exactly here
+            const mat1 = new THREE.MeshBasicMaterial({ color: 0xd1a792, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+            const beam1 = new THREE.Mesh(beamGeo, mat1);
+            beam1.position.set(0, 0, 0); 
+
+            // Middle beam (Greenish)
+            const mat2 = new THREE.MeshBasicMaterial({ color: 0x5b7b6c, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+            const beam2 = new THREE.Mesh(beamGeo, mat2);
+            beam2.position.set(-450, 0, 0);
+
+            // Far left beam (Reddish)
+            const mat3 = new THREE.MeshBasicMaterial({ color: 0x6a4b59, transparent: true, opacity: 0.0, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false });
+            const beam3 = new THREE.Mesh(beamGeo, mat3);
+            beam3.position.set(-900, 0, 0);
+
+            sunbeam.add(beam1);
+            sunbeam.add(beam2);
+            sunbeam.add(beam3);
+
+            sunbeam.rotation.z = -Math.PI / 18; 
+            sunbeam.position.set(0, 0, -500); 
             sceneCosmic.add(sunbeam);
         }
 
@@ -348,16 +368,26 @@
             const progress = val / 100;
             const distance = minZ + Math.pow(progress, 3.5) * (maxZ - minZ);
             
+            // معادلة تضمن عدم خروج الأرض من الكادر بربط الإزاحة بالمسافة المعروضة حصراً
+            const panProgress = Math.pow(progress, 2);
+            
+            camera.position.x = - (distance * 0.122) * panProgress; // الخمس الأخير لليمين
+            camera.position.y = (distance * 0.02) * panProgress;    // الخمس الثالث أسفل المنتصف بقليل
             camera.position.z = distance;
-            camera.position.x = Math.sin(progress * Math.PI) * 15;
-            camera.position.y = Math.cos(progress * Math.PI) * 5;
-            camera.lookAt(earth.position);
+            
+            camera.lookAt(camera.position.x, camera.position.y, 0);
+
+            // إخفاء الكواكب الأخرى عند الابتعاد لتبقى الأرض وحيدة
+            otherPlanets.forEach(p => p.visible = progress < 0.1);
 
             if (sunbeam) {
-                if (progress > 0.8) {
-                    sunbeam.material.opacity = Math.min((progress - 0.8) * 1.5, 0.15);
+                if (progress > 0.7) {
+                    const beamIntensity = (progress - 0.7) / 0.3; // 0 to 1
+                    sunbeam.children[0].material.opacity = beamIntensity * 0.25; // Main beam (Brown)
+                    sunbeam.children[1].material.opacity = beamIntensity * 0.15; // Greenish beam
+                    sunbeam.children[2].material.opacity = beamIntensity * 0.10; // Reddish beam
                 } else {
-                    sunbeam.material.opacity = 0;
+                    sunbeam.children.forEach(c => c.material.opacity = 0);
                 }
             }
         }
@@ -402,13 +432,11 @@
                 
                 switch (animStyle) {
                     case 'breathe':
-                        // Slow scaling and bobbing
                         characterMesh.scale.y = 1 + Math.sin(time * 1.5) * 0.02;
                         characterMesh.position.y = charBaseY + Math.sin(time * 1.5) * 0.1;
                         characterMesh.position.x = 0;
                         break;
                     case 'twitch':
-                        // Fast, erratic random movements (Psychopathic)
                         if (Math.random() > 0.3) {
                             characterMesh.rotation.z = (Math.random() - 0.5) * 0.03;
                             characterMesh.position.x = (Math.random() - 0.5) * 0.08;
@@ -416,15 +444,12 @@
                         }
                         break;
                     case 'sway':
-                        // Eerie, continuous side-to-side rotation/sway
                         characterMesh.rotation.z = Math.sin(time * 0.8) * 0.1;
                         characterMesh.position.x = Math.sin(time * 0.4) * 0.5;
                         characterMesh.position.y = charBaseY;
                         break;
                     case 'zoom':
-                        // Slow creepy forward movement
-                        // We achieve this by scaling up slowly or moving Z
-                        characterMesh.position.z = Math.sin(time * 0.5) * 2; // Moves forward and back slowly
+                        characterMesh.position.z = Math.sin(time * 0.5) * 2;
                         characterMesh.position.y = charBaseY;
                         characterMesh.position.x = 0;
                         break;

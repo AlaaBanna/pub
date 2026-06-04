@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>قارئ النص - Pale Blue Dot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    
+    <style>
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background-color: #0f172a; 
+            color: #e2e8f0; 
+            overflow: hidden; 
+            margin: 0;
+            padding: 0;
+            touch-action: pan-y;
+        }
+        .swiper {
+            width: 100vw;
+            height: 100vh;
+        }
+        .swiper-slide {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        .swiper-slide-active {
+            opacity: 1;
+        }
+        .script-text {
+            font-size: clamp(1.5rem, 6vw, 3.5rem);
+            line-height: 1.6;
+            font-weight: 600;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-width: 900px;
+        }
+        #progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- شريط التقدم -->
+    <div class="absolute top-0 left-0 w-full h-1.5 bg-slate-800 z-50">
+        <div id="progress-bar" class="h-full bg-emerald-500 w-0 shadow-[0_0_10px_#10b981]"></div>
+    </div>
+
+    <!-- العداد والأدوات -->
+    <div class="absolute top-4 right-4 left-4 flex justify-between items-center z-50 opacity-50 hover:opacity-100 transition-opacity">
+        <div class="text-sm font-mono bg-slate-900/80 px-3 py-1 rounded-full border border-slate-700">
+            <span id="current-slide">1</span> / <span id="total-slides">0</span>
+        </div>
+        <div class="text-xs text-slate-400 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-700">
+            <i class="fa-solid fa-arrows-left-right"></i> اسحب للتنقل
+        </div>
+    </div>
+
+    <!-- حاوية السلايدر -->
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper" id="script-container">
+            <!-- سيتم حقن النصوص هنا عبر جافاسكريبت -->
+        </div>
+    </div>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+    <script>
+        // النص مقسم إلى جمل (يمكنك تعديلها)
+        const scriptLines = [
+            "انظر مجدداً إلى تلك النقطة.",
+            "هذا هو وطننا. هؤلاء نحن.",
+            "على هذه النقطة، يوجد كل من تحب، وكل من تعرف، وكل من سمعت عنه.",
+            "كل إنسان عاش في أي وقت مضى، قد أمضى حياته هنا.",
+            "مجموع أفراحنا ومعاناتنا، آلاف الأديان والأيديولوجيات والمذاهب الاقتصادية الواثقة.",
+            "كل صياد وجامع ثمار، كل بطل وجبان، كل صانع ومدمر للحضارات.",
+            "كل ملك وفلاح، كل شاب وشابة متحابين، كل أم وأب، وطفل واعد.",
+            "كل مخترع ومستكشف، كل معلم للأخلاق، كل سياسي فاسد.",
+            "كل 'نجم لامع'، كل 'قائد أعلى'، كل قديس وعاصٍ في تاريخ نوعنا البشري..",
+            "عاشوا هناك.. على ذرة من الغبار معلقة في شعاع شمس."
+        ];
+
+        const container = document.getElementById('script-container');
+        const totalSlidesEl = document.getElementById('total-slides');
+        const currentSlideEl = document.getElementById('current-slide');
+        const progressBar = document.getElementById('progress-bar');
+
+        // بناء الشرائح
+        scriptLines.forEach((line) => {
+            const slide = document.createElement('div');
+            slide.className = 'swiper-slide';
+            slide.innerHTML = `<div class="script-text text-emerald-50">${line}</div>`;
+            container.appendChild(slide);
+        });
+
+        totalSlidesEl.textContent = scriptLines.length;
+
+        // تهيئة Swiper
+        const swiper = new Swiper(".mySwiper", {
+            direction: "horizontal",
+            keyboard: {
+                enabled: true,
+            },
+            mousewheel: true,
+            grabCursor: true,
+            spaceBetween: 50,
+            on: {
+                init: function () {
+                    updateProgress(this);
+                },
+                slideChange: function () {
+                    updateProgress(this);
+                }
+            }
+        });
+
+        function updateProgress(swiperInstance) {
+            const current = swiperInstance.activeIndex + 1;
+            const total = scriptLines.length;
+            
+            currentSlideEl.textContent = current;
+            
+            // حساب نسبة التقدم
+            const progressPercent = (current / total) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+        }
+    </script>
+</body>
+</html>

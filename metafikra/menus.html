@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خيارات القائمة | ميتاـفكرة</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bg: 'var(--color-bg)',       
+                        surface: 'var(--color-surface)',  
+                        surfaceHover: 'var(--color-surface-hover)',
+                        text: 'var(--color-text)',
+                        muted: 'var(--color-muted)',
+                        accent: 'var(--color-accent)',   
+                        line: 'var(--color-line)'
+                    },
+                    fontFamily: {
+                        arabic: ['Tajawal', 'sans-serif'],
+                        code: ['"Fira Code"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            /* Light Mode */
+            --color-bg: #f4f4f4;
+            --color-surface: #e8e8e8;
+            --color-surface-hover: #dcdcdc;
+            --color-text: #404040;
+            --color-muted: #737373;
+            --color-accent: #c28d00;
+            --color-line: #cccccc;
+        }
+
+        .dark {
+            /* Dark Mode */
+            --color-bg: #1e1e1e;
+            --color-surface: #2d2d2d;
+            --color-surface-hover: #3a3a3a;
+            --color-text: #e0e0e0;
+            --color-muted: #888888;
+            --color-accent: #e2b714;
+            --color-line: #444444;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            transition: background-color 0.5s ease;
+        }
+
+        /* --- أنيميشن فقاعة التحكم (الخيار 1) --- */
+        .bubble-menu-wrapper {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bubble-menu-items {
+            clip-path: circle(0% at right center);
+            transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bubble-menu-wrapper.open .bubble-menu-items {
+            clip-path: circle(150% at right center);
+        }
+        .bubble-menu-wrapper.open .menu-icon-line-1 { transform: rotate(45deg) translate(4px, 4px); }
+        .bubble-menu-wrapper.open .menu-icon-line-2 { opacity: 0; }
+        .bubble-menu-wrapper.open .menu-icon-line-3 { transform: rotate(-45deg) translate(4px, -4px); }
+        .menu-icon-line { transition: all 0.3s ease; }
+
+        /* --- الخيار 3 (الشريط المختفي) --- */
+        .minimal-header {
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        .minimal-header.hidden-header {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        
+        /* فقط لأغراض العرض في هذه الصفحة */
+        .concept-section {
+            border: 1px dashed var(--color-line);
+            margin: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+            min-height: 250px;
+            background-color: var(--color-bg);
+            overflow: hidden;
+        }
+        .concept-title {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-family: monospace;
+            color: var(--color-muted);
+            font-size: 12px;
+            background: var(--color-surface);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-text font-arabic min-h-screen py-10">
+
+    <div class="text-center mb-8">
+        <button onclick="toggleTheme()" class="px-4 py-2 rounded-full border border-line hover:border-accent text-sm text-text transition-colors">
+            تبديل المظهر (Light/Dark)
+        </button>
+    </div>
+
+    <!-- ==========================================
+         الخيار 1: فقاعة التحكم العائمة (Floating Control Node)
+         (الأكثر انسجاماً مع الهوية البصرية)
+         ========================================== -->
+    <div class="concept-section flex items-end justify-start">
+        <div class="concept-title">Concept 1: Floating Bubble Menu</div>
+        
+        <!-- الحاوية تطفو في الزاوية السفلية (أو العلوية) -->
+        <div id="bubbleMenu" class="bubble-menu-wrapper relative mb-4 ml-4 flex items-center z-50">
+            
+            <!-- زر الفقاعة الرئيسي -->
+            <button onclick="toggleBubbleMenu()" class="w-14 h-14 bg-surface border-2 border-line hover:border-accent rounded-full flex flex-col items-center justify-center gap-1.5 shadow-lg z-10 transition-all text-muted hover:text-accent group relative overflow-hidden">
+                <!-- تأثير Morph مشابه للفقاعات في الخريطة -->
+                <div class="absolute inset-0 bg-accent opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                
+                <div class="w-5 h-0.5 bg-currentColor rounded-full menu-icon-line menu-icon-line-1"></div>
+                <div class="w-5 h-0.5 bg-currentColor rounded-full menu-icon-line menu-icon-line-2"></div>
+                <div class="w-5 h-0.5 bg-currentColor rounded-full menu-icon-line menu-icon-line-3"></div>
+            </button>
+
+            <!-- العناصر المنبثقة (الأشقاء) -->
+            <div class="bubble-menu-items absolute right-full mr-4 flex gap-3 opacity-0 transition-opacity duration-300" style="pointer-events: none;" id="bubbleItems">
+                <button class="w-12 h-12 bg-surface border border-line rounded-full flex items-center justify-center text-muted hover:text-text hover:border-accent/50 shadow-md transition-all tooltip-trigger" title="عن الموقع">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                </button>
+                <button class="w-12 h-12 bg-surface border border-line rounded-full flex items-center justify-center text-muted hover:text-text hover:border-accent/50 shadow-md transition-all" title="تواصل">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </button>
+                <button class="w-12 h-12 bg-surface border border-line rounded-full flex items-center justify-center text-muted hover:text-text hover:border-accent/50 shadow-md transition-all" title="أفكار (الرئيسية)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         الخيار 2: الدمج ضمن "الجذر" (Root Menu Node)
+         (الموقع كله عبارة عن خريطة)
+         ========================================== -->
+    <div class="concept-section flex items-center justify-center">
+        <div class="concept-title">Concept 2: Root Graph Node</div>
+        
+        <!-- هنا نتخيل أننا في أعلى نقطة في الشجرة -->
+        <div class="relative w-full h-full flex flex-col items-center justify-center">
+            
+            <!-- الأبناء (الصفحات الأساسية) -->
+            <div class="flex gap-16 mb-12">
+                <div class="w-24 h-24 rounded-full border border-line bg-surface flex items-center justify-center text-sm text-muted hover:text-accent hover:border-accent/50 cursor-pointer transition-colors shadow-sm">عن الموقع</div>
+                <div class="w-24 h-24 rounded-full border border-line bg-surface flex items-center justify-center text-sm text-muted hover:text-accent hover:border-accent/50 cursor-pointer transition-colors shadow-sm">تواصل</div>
+            </div>
+
+            <!-- خطوط ربط وهمية (للتوضيح فقط) -->
+            <div class="absolute top-1/2 left-1/2 w-px h-16 bg-line opacity-50 -translate-x-[4rem] -translate-y-10 rotate-45"></div>
+            <div class="absolute top-1/2 left-1/2 w-px h-16 bg-line opacity-50 translate-x-[4rem] -translate-y-10 -rotate-45"></div>
+            <div class="absolute top-1/2 left-1/2 w-px h-16 bg-line opacity-50 -translate-x-1/2 translate-y-6"></div>
+
+            <!-- النقطة المركزية (الجذر المطلق) -->
+            <div class="w-32 h-32 rounded-[40%_60%_70%_30%] border-2 border-accent bg-surface/90 flex flex-col items-center justify-center text-accent font-bold shadow-[0_0_20px_rgba(226,183,20,0.2)] z-10">
+                ميتاـفكرة<span class="text-xs text-text/50 font-mono mt-1 font-normal tracking-widest">المصدر</span>
+            </div>
+
+            <!-- استكمال الشجرة للأسفل -->
+            <div class="mt-12 w-28 h-28 rounded-full border border-line bg-bg/80 flex items-center justify-center text-sm text-text cursor-pointer hover:border-accent transition-colors">المنطق المبسط</div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         الخيار 3: الشريط المخفي/المختصر (Minimal/Hidden Header)
+         (تصميم ويب تقليدي لكنه غير مزعج)
+         ========================================== -->
+    <div class="concept-section bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiM0NDQiIG9wYWNpdHk9IjAuNSIvPjwvc3ZnPg==')]">
+        <div class="concept-title">Concept 3: Auto-Hide Minimal Header</div>
+        
+        <header id="minimalHeader" class="minimal-header absolute top-0 left-0 w-full p-4 flex justify-between items-center backdrop-blur-md bg-bg/70 border-b border-line/50 z-50">
+            <div class="text-lg font-bold text-text">
+                ميتاـفكرة<span class="text-accent">.</span>
+            </div>
+            
+            <nav class="flex gap-6 text-sm text-muted">
+                <button class="hover:text-text transition-colors">عن الموقع</button>
+                <button class="hover:text-text transition-colors">تواصل</button>
+            </nav>
+        </header>
+
+        <div class="mt-20 text-center text-muted/50 text-sm h-full flex flex-col items-center justify-center">
+            <p>عند التمرير أو التنقل في الخريطة...</p>
+            <button onclick="toggleMinimalHeader()" class="mt-4 px-3 py-1.5 bg-surface border border-line rounded text-xs hover:text-accent">محاكاة إخفاء/إظهار القائمة</button>
+        </div>
+    </div>
+
+
+    <script>
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // سكريبت الخيار الأول
+        function toggleBubbleMenu() {
+            const wrapper = document.getElementById('bubbleMenu');
+            const items = document.getElementById('bubbleItems');
+            wrapper.classList.toggle('open');
+            
+            if (wrapper.classList.contains('open')) {
+                items.style.opacity = '1';
+                items.style.pointerEvents = 'auto';
+            } else {
+                items.style.opacity = '0';
+                items.style.pointerEvents = 'none';
+            }
+        }
+
+        // سكريبت الخيار الثالث
+        function toggleMinimalHeader() {
+            const header = document.getElementById('minimalHeader');
+            header.classList.toggle('hidden-header');
+        }
+    </script>
+</body>
+</html>

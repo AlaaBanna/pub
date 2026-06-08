@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ميتاـفكرة | خريطة الأفكار</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bg: 'var(--color-bg)',       
+                        surface: 'var(--color-surface)',  
+                        surfaceHover: 'var(--color-surface-hover)',
+                        text: 'var(--color-text)',
+                        muted: 'var(--color-muted)',
+                        accent: 'var(--color-accent)',   
+                        line: 'var(--color-line)'
+                    },
+                    fontFamily: {
+                        arabic: ['Tajawal', 'sans-serif'],
+                        code: ['"Fira Code"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            /* تدرجات رمادية هادئة للـ Light Mode */
+            --color-bg: #f4f4f4;
+            --color-surface: #e8e8e8;
+            --color-surface-hover: #dcdcdc;
+            --color-text: #404040;
+            --color-muted: #737373;
+            --color-accent: #c28d00;
+            --color-line: #cccccc;
+        }
+
+        .dark {
+            /* الألوان الداكنة الأصلية */
+            --color-bg: #1e1e1e;
+            --color-surface: #2d2d2d;
+            --color-surface-hover: #3a3a3a;
+            --color-text: #e0e0e0;
+            --color-muted: #888888;
+            --color-accent: #e2b714;
+            --color-line: #444444;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            overflow: hidden; 
+            user-select: none; 
+            transition: background-color 0.5s ease; /* انتقال ناعم للون الخلفية */
+        }
+        
+        .node-wrapper {
+            position: absolute;
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: translate(50%, -50%); 
+            animation: float 6s ease-in-out infinite alternate;
+            z-index: 30; 
+        }
+
+        .node-wrapper.center-node {
+            z-index: 40; 
+        }
+
+        .node {
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            animation: morph 8s ease-in-out infinite alternate;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .content-trigger {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 50;
+        }
+        .node:hover .content-trigger {
+            opacity: 1;
+        }
+        .center-node .content-trigger {
+            opacity: 1;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(50%, -50%) translate(0px, 0px); }
+            33% { transform: translate(50%, -50%) translate(5px, -8px); }
+            66% { transform: translate(50%, -50%) translate(-5px, 8px); }
+            100% { transform: translate(50%, -50%) translate(0px, 0px); }
+        }
+
+        @keyframes morph {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+            100% { border-radius: 40% 50% 60% 40% / 70% 40% 50% 60%; }
+        }
+
+        .node-active {
+            box-shadow: 0 0 35px rgba(226, 183, 20, 0.3);
+            border-color: #e2b714;
+        }
+
+        .line-transition {
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        #graph-container {
+            transition: all 0.6s ease-in-out;
+            transform-origin: center;
+        }
+        .zoomed-out #graph-container {
+            transform: scale(1.3);
+            opacity: 0.15;
+            filter: blur(4px);
+        }
+
+        #article-container {
+            transition: all 0.5s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9);
+            user-select: text; 
+            z-index: 60; 
+        }
+        .zoomed-out #article-container {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .code-block { direction: ltr; text-align: left; }
+        
+        #article-content::-webkit-scrollbar { width: 6px; }
+        #article-content::-webkit-scrollbar-track { background: transparent; }
+        #article-content::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px dashed #444444;
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            pointer-events: none;
+            z-index: 10; 
+        }
+        .orbit-level-1 { background: rgba(226, 183, 20, 0.03); border-color: rgba(226, 183, 20, 0.15); }
+        .orbit-level-2 { background: rgba(226, 183, 20, 0.025); border-color: rgba(226, 183, 20, 0.1); }
+        .orbit-level-3 { background: rgba(226, 183, 20, 0.02); border-color: rgba(226, 183, 20, 0.08); }
+    </style>
+</head>
+<body class="text-text font-arabic min-h-screen relative flex items-center justify-center transition-colors duration-500">
+
+    <header class="absolute top-0 w-full p-6 flex justify-between items-center z-50 pointer-events-auto">
+        <div class="text-xl font-bold text-accent tracking-wider">
+            ميتاـفكرة<span class="text-muted text-2xl leading-none inline-block -translate-y-1">.</span>
+        </div>
+        <nav class="flex gap-6 text-sm text-muted items-center">
+            <button class="hover:text-text transition-colors">أفكار</button>
+            <button class="hover:text-text transition-colors">عن الموقع</button>
+            <button class="hover:text-text transition-colors">تواصل</button>
+            
+            <!-- زر تبديل المظهر (الثيم) -->
+            <button onclick="toggleTheme()" class="hover:text-text transition-colors p-2 rounded-full hover:bg-surface border border-transparent hover:border-line mr-2" title="تغيير المظهر">
+                <!-- أيقونة الشمس (تظهر في الوضع الداكن) -->
+                <svg class="hidden dark:block text-muted hover:text-accent transition-colors" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <!-- أيقونة القمر (تظهر في الوضع الفاتح) -->
+                <svg class="block dark:hidden text-muted hover:text-accent transition-colors" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            </button>
+        </nav>
+    </header>
+
+    <div id="graph-container" class="absolute inset-0 w-full h-full">
+        <div id="orbits-layer" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 10;">
+        </div>
+
+        <svg id="svg-lines" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 20;">
+        </svg>
+        
+        <div id="nodes-layer" class="absolute inset-0 w-full h-full" style="z-index: 30;">
+        </div>
+    </div>
+
+    <div id="article-container" class="absolute inset-0 w-full h-full flex items-center justify-center bg-bg/80 backdrop-blur-sm cursor-zoom-out">
+        <div id="article-content" class="relative w-full max-w-3xl max-h-[85vh] overflow-y-auto bg-bg border border-line rounded-2xl p-10 md:p-14 shadow-2xl cursor-auto" onclick="event.stopPropagation()">
+            
+            <button id="close-article" class="absolute top-6 left-6 text-muted hover:text-accent transition-colors flex items-center gap-2 text-sm" onclick="closeArticle()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                تصغير
+            </button>
+
+            <div class="flex justify-between items-center mb-4">
+                <div class="text-accent text-sm font-light" id="article-tag"></div>
+                <!-- مؤشر حالة القراءة داخل المقال -->
+                <div id="article-read-status" class="text-sm"></div>
+            </div>
+
+            <!-- تم تعديل text-white إلى text-text ليتوافق مع المظهرين -->
+            <h1 id="article-title" class="text-3xl md:text-4xl font-bold text-text mb-8 leading-tight"></h1>
+            
+            <div id="article-body" class="space-y-6 text-lg leading-relaxed font-light text-text/90">
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-line text-center flex flex-col items-center gap-3">
+                <p class="text-muted text-sm">انقر في الخلفية أو على زر "تصغير" للعودة للخريطة ورؤية التفرعات</p>
+                <!-- مؤشر تحكم القراءة -->
+                <p class="text-muted/60 text-xs flex items-center justify-center gap-2">
+                    اضغط <kbd class="px-2 py-1 bg-surface rounded border border-line font-code text-text">Enter</kbd> لتحديد المقال كمقروء/غير مقروء
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم السفلية (مؤشرات المفاتيح) -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-60 flex gap-4 text-xs font-mono text-muted backdrop-blur-md bg-bg/60 px-6 py-2 rounded-full border border-line shadow-lg">
+        <span class="flex items-center gap-2"><kbd class="bg-surface px-1.5 rounded text-text">↑↓←→</kbd> للتنقل</span>
+        <span class="w-px h-4 bg-line opacity-50"></span>
+        <span class="flex items-center gap-2"><kbd class="bg-surface px-1.5 rounded text-text">Enter</kbd> للمحتوى</span>
+        <span class="w-px h-4 bg-line opacity-50"></span>
+        <span class="flex items-center gap-2"><kbd class="bg-surface px-1.5 rounded text-text">Esc</kbd> للرجوع</span>
+    </div>
+
+    <script>
+        const nodesData = {
+            1: {
+                id: 1,
+                parentId: null,
+                title: "المنطق المبسط",
+                tag: "الجذر",
+                level: 1, 
+                content: "<p>البداية لكل شيء. المنطق هو محاولة العقل البشري لوضع قواعد للتفكير السليم المانع للوقوع في الخطأ. قبل أن نبدأ في استكشاف الطبيعة أو الوعي، يجب أن نتفق على مبادئ أساسية مثل مبدأ عدم التناقض والسببية.</p><p>في هذا الموقع، نعتبر المنطق هو النقطة المركزية (الصفرية) التي تنبثق منها كافة الأفكار الفلسفية الأخرى.</p>"
+            },
+            2: {
+                id: 2,
+                parentId: 1,
+                title: "الفلسفة الطبيعية",
+                tag: "المنطق المبسط",
+                level: 2, 
+                content: "<p>كيف يمكننا استخدام المنطق لفهم العالم المادي من حولنا؟ الفلسفة الطبيعية هي الجسر بين التجريد المنطقي والواقع الفيزيائي الملموس. هي ما أطلق عليه لاحقاً اسم (العلم).</p><p>من هنا تتفرع أسئلة كبرى حول السببية، المادة، وأخيراً.. الوعي.</p>"
+            },
+            3: {
+                id: 3,
+                parentId: 2,
+                title: "طبيعة الوعي",
+                tag: "الفلسفة الطبيعية",
+                level: 3, 
+                content: `<p>إذا افترضنا أن الدماغ البشري يعمل كآلة تورينج فائقة التعقيد، فإن الوعي قد لا يكون جوهراً ميتافيزيقياً مستقلاً، بل حالة تنبثق (Emergence) عندما يصل تعقيد معالجة المعلومات إلى حد معين.</p>
+                <div class="my-8 rounded-lg overflow-hidden bg-surface border border-line code-block">
+                    <div class="bg-surfaceHover px-4 py-2 border-b border-line flex justify-between items-center text-xs text-muted font-code">
+                        <span>simulation.py</span><span class="text-accent/70">Python</span>
+                    </div>
+                    <pre class="p-4 text-sm font-code text-accent/90 overflow-x-auto"><code>class SimpleEntity:
+    def __init__(self):
+        self.internal_state = 0
+        self.memory = []
+
+    def perceive(self, stimulus):
+        context = sum(self.memory[-3:]) if self.memory else 0
+        self.internal_state = (stimulus * 0.7) + (context * 0.3)
+        self.memory.append(self.internal_state)
+        
+        if self.internal_state > 10:
+            return "Awareness: Self-modifying..."
+        return "Passive processing."</code></pre>
+                </div>
+                <p>متى تتوقف الآلة عن "المعالجة" وتبدأ بـ "الإدراك"؟</p>`
+            },
+            4: {
+                id: 4,
+                parentId: 2,
+                title: "الحتمية والسببية",
+                tag: "الفلسفة الطبيعية",
+                level: 3, 
+                content: "<p>إذا كان كل حدث في الكون هو نتيجة لحدث سابق، وإذا كانت قوانين الفيزياء ثابتة، فهل نحن حقاً نملك إرادة حرة؟ أم أن أفكارنا وقراراتنا هي مجرد نتيجة حتمية لتفاعلات كيميائية فيزيائية بدأت منذ الانفجار العظيم؟</p><p>هذه الفكرة تناقش التعارض الظاهري بين السببية المطلقة والشعور بالحرية.</p>"
+            },
+            5: {
+                id: 5,
+                parentId: 2,
+                title: "طبيعة الزمكان",
+                tag: "الفلسفة الطبيعية",
+                level: 3,
+                content: "<p>هل الزمان والمكان مسرح ثابت تقع فيه الأحداث، أم أنهما نسيج ديناميكي يتأثر بالمادة والطاقة؟</p>"
+            },
+            6: {
+                id: 6,
+                parentId: 2,
+                title: "الوجود والعدم",
+                tag: "الفلسفة الطبيعية",
+                level: 3,
+                content: "<p>لماذا يوجد شيء بدلاً من لا شيء؟ وكيف يمكن للفيزياء الحديثة أن تفسر انبثاق الجسيمات من الفراغ الكمي؟</p>"
+            },
+            7: {
+                id: 7,
+                parentId: 2,
+                title: "النشوء والتعقيد",
+                tag: "الفلسفة الطبيعية",
+                level: 3,
+                content: "<p>كيف تترتب الأنظمة البسيطة لتخلق أنظمة معقدة ذات خصائص جديدة كلياً لا يمكن تفسيرها بمجرد دراسة الأجزاء المكونة لها؟</p>"
+            },
+            8: {
+                id: 8,
+                parentId: 1,
+                title: "فلسفة الأخلاق",
+                tag: "المنطق المبسط",
+                level: 2,
+                content: "<p>فرع من الفلسفة يدرس مفاهيم الصواب والخطأ، الخير والشر. هل الأخلاق موضوعية أم نسبية؟</p>"
+            },
+            9: {
+                id: 9,
+                parentId: 8,
+                title: "الأخلاق المُطلقة",
+                tag: "فلسفة الأخلاق",
+                level: 3,
+                content: "<p>الاعتقاد بأن هناك معايير أخلاقية ثابتة لا تتغير بتغير الزمان أو المكان أو الثقافة.</p>"
+            },
+            10: {
+                id: 10,
+                parentId: 3,
+                title: "الذكاء الاصطناعي العام",
+                tag: "طبيعة الوعي",
+                level: 4,
+                content: "<p>هل يمكن لآلة أن تمتلك وعياً مكافئاً لوعي الإنسان؟ وما هي التداعيات الفلسفية لوجود كيان غير بيولوجي واعٍ؟</p>"
+            },
+            11: {
+                id: 11,
+                parentId: 3,
+                title: "فلسفة العقل",
+                tag: "طبيعة الوعي",
+                level: 4,
+                content: "<p>دراسة طبيعة العقل، والأحداث العقلية، والوظائف العقلية، والخصائص العقلية، والوعي، وعلاقتهم بالجسد الفيزيائي.</p>"
+            },
+            12: {
+                id: 12,
+                parentId: 4,
+                title: "ميكانيكا الكم واللاحتمية",
+                tag: "الحتمية والسببية",
+                level: 4,
+                content: "<p>كيف تتحدى ميكانيكا الكم النظرة الحتمية الكلاسيكية للكون؟ هل العشوائية الكمية تعني وجود إرادة حرة؟</p>"
+            },
+            13: {
+                id: 13,
+                parentId: 10,
+                title: "مشكلة المحاذاة",
+                tag: "الذكاء الاصطناعي العام",
+                level: 5,
+                content: "<p>كيف نضمن أن أهداف الذكاء الاصطناعي الفائق تتوافق مع القيم الإنسانية وبقاء البشرية؟</p>"
+            },
+            14: {
+                id: 14,
+                parentId: 12,
+                title: "تفسير العوالم المتعددة",
+                tag: "ميكانيكا الكم واللاحتمية",
+                level: 5,
+                content: "<p>فرضية تقترح أن كل نتيجة كمية ممكنة تتحقق في كون منفصل، مما يخلق شجرة لانهائية من العوالم المتفرعة.</p>"
+            }
+        };
+
+        let activeNodeId = 2; 
+        const svgContainer = document.getElementById('svg-lines');
+        const nodesContainer = document.getElementById('nodes-layer');
+        const orbitsContainer = document.getElementById('orbits-layer');
+
+        function getChildren(id) {
+            return Object.values(nodesData).filter(n => n.parentId === id);
+        }
+
+        // دالة جديدة للحصول على الأشقاء
+        function getSiblings(id) {
+            const node = nodesData[id];
+            if (!node.parentId) return []; // الجذر ليس له أشقاء
+            return Object.values(nodesData).filter(n => n.parentId === node.parentId && n.id !== id);
+        }
+
+        function renderGraph() {
+            const activeNode = nodesData[activeNodeId];
+            const parentNode = activeNode.parentId ? nodesData[activeNode.parentId] : null;
+            const childNodes = getChildren(activeNodeId);
+            const siblingNodes = getSiblings(activeNodeId);
+
+            svgContainer.innerHTML = ''; 
+            nodesContainer.innerHTML = ''; 
+            orbitsContainer.innerHTML = ''; 
+
+            const centerX = 50, centerY = 50;
+            const parentX = 50, parentY = 85; 
+            const childrenY = 15;
+            // تحديد موقع الأشقاء أفقياً على نفس مستوى المركز
+            const siblingsY = 50; 
+            
+            drawOrbits(activeNode.level);
+
+            if (parentNode) {
+                createNodeDOM(parentNode, parentX, parentY, 'parent');
+                drawCurve(centerX, centerY, parentX, parentY);
+            }
+
+            // رسم الأشقاء (يمين ويسار المركز)
+            const siblingsCount = siblingNodes.length;
+            siblingNodes.forEach((sibling, index) => {
+                // توزيع الأشقاء يميناً ويساراً
+                // إذا كان هناك شقيق واحد، نضعه على اليسار (أو اليمين حسب الرغبة، هنا وضعناه يساراً لتناسب RTL)
+                // إذا كان أكثر من واحد، نوزعهم بالتساوي
+                let siblingX = 20; // الافتراضي يسار
+                
+                if (siblingsCount === 1) {
+                    siblingX = 20; // مسافة ثابتة يسار
+                    drawCurve(parentX, parentY, siblingX, siblingsY, true); // خط باهت من الأب للشقيق
+                } else {
+                    // توزيع معقد قليلاً لتجنب التداخل مع المركز، سنبسطه بوضعهم على الأطراف
+                    const spread = 80; 
+                    const step = spread / (siblingsCount + 1); // +1 لترك مساحة للمركز
+                    // حساب الموقع، مع تخطي منطقة المنتصف (حيث يوجد المركز)
+                    let positionIndex = index;
+                    if (index >= Math.floor(siblingsCount/2)) positionIndex += 1;
+                    siblingX = (50 - spread/2) + ((positionIndex + 1) * step);
+                    
+                    drawCurve(parentX, parentY, siblingX, siblingsY, true); 
+                }
+
+                createNodeDOM(sibling, siblingX, siblingsY, 'sibling');
+            });
+
+
+            const childrenCount = childNodes.length;
+            childNodes.forEach((child, index) => {
+                let childX = 50;
+                if (childrenCount > 1) {
+                    const spread = Math.min(85, childrenCount * 22); 
+                    const step = spread / (childrenCount - 1);
+                    childX = (50 - spread/2) + (index * step);
+                }
+                createNodeDOM(child, childX, childrenY, 'child');
+                drawCurve(centerX, centerY, childX, childrenY);
+            });
+
+            createNodeDOM(activeNode, centerX, centerY, 'center');
+        }
+
+        function drawOrbits(centerLevel) {
+            let baseSize = 300; 
+            if (centerLevel === 2) baseSize = 450;
+            if (centerLevel === 3) baseSize = 600;
+
+            for (let i = 1; i <= 3; i++) {
+                const orbit = document.createElement('div');
+                let levelClass = 'orbit-level-1';
+                if (centerLevel > 1 && i === 1) levelClass = `orbit-level-${centerLevel}`;
+                if (centerLevel > 1 && i > 1) levelClass = `orbit-level-${Math.min(centerLevel + i - 1, 3)}`;
+                
+                orbit.className = `orbit ${levelClass}`;
+                
+                const size = baseSize + (i - 1) * 250;
+                orbit.style.width = `${size}px`;
+                orbit.style.height = `${size}px`;
+                
+                orbitsContainer.appendChild(orbit);
+            }
+        }
+
+        function createNodeDOM(nodeData, xPos, yPos, type) {
+            const wrapperEl = document.createElement('div');
+            wrapperEl.className = `node-wrapper ${type === 'center' ? 'center-node' : ''}`;
+            wrapperEl.style.right = `${xPos}%`;
+            wrapperEl.style.top = `${yPos}%`;
+            
+            wrapperEl.style.animationDuration = `${6 + Math.random() * 4}s`;
+            wrapperEl.style.animationDelay = `-${Math.random() * 5}s`;
+
+            const nodeEl = document.createElement('div');
+            
+            let classes = "node flex items-center justify-center border-2 text-center p-4 backdrop-blur-md ";
+            
+            if (type === 'center') {
+                classes += "w-52 h-52 bg-surface/90 border-accent text-accent node-active shadow-lg text-lg font-bold flex-col gap-2";
+            } else if (type === 'parent') {
+                classes += "w-36 h-36 bg-bg/80 border-line text-muted hover:border-accent/50 hover:text-text text-sm flex-col gap-1";
+            } else {
+                classes += "w-40 h-40 bg-surface/70 border-line text-text/80 hover:bg-surfaceHover hover:border-accent/60 text-sm flex-col gap-1";
+            }
+
+            nodeEl.className = classes;
+            nodeEl.style.animationDuration = `${7 + Math.random() * 5}s`;
+            nodeEl.style.animationDelay = `-${Math.random() * 6}s`;
+            
+            let contentHTML = '';
+            
+            // إضافة أيقونة "تمت القراءة" (Checkmark) في أعلى الفقاعة
+            if (nodeData.isRead) {
+                contentHTML += `<div class="absolute top-3 right-3 text-accent/80 transition-all" title="تمت القراءة">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </div>`;
+            }
+
+            contentHTML += `<span class="px-2 z-10">${nodeData.title}</span>`;
+            
+            contentHTML += `
+                <button class="content-trigger p-2 bg-surfaceHover/80 hover:bg-accent hover:text-bg rounded-full backdrop-blur-sm border border-line/50 hover:border-transparent transition-all" onclick="event.stopPropagation(); openArticle(${nodeData.id});" title="قراءة المحتوى">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            `;
+            
+            nodeEl.innerHTML = contentHTML;
+
+            nodeEl.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                if (nodeData.id !== activeNodeId) {
+                    activeNodeId = nodeData.id;
+                    renderGraph();
+                }
+            });
+
+            wrapperEl.appendChild(nodeEl);
+            nodesContainer.appendChild(wrapperEl);
+        }
+
+        // تحديث دالة رسم الخطوط لتقبل خيار الخط الباهت للأشقاء وتتجاوب مع الثيم
+        function drawCurve(x1, y1, x2, y2, isFaded = false) {
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            
+            const rect = svgContainer.getBoundingClientRect();
+            const px1 = ((100 - x1) / 100) * rect.width;
+            const py1 = (y1 / 100) * rect.height;
+            const px2 = ((100 - x2) / 100) * rect.width;
+            const py2 = (y2 / 100) * rect.height;
+
+            const cy1 = py1 + (py2 - py1) * 0.4;
+            const cy2 = py1 + (py2 - py1) * 0.6;
+
+            const d = `M ${px1} ${py1} C ${px1} ${cy1}, ${px2} ${cy2}, ${px2} ${py2}`;
+
+            path.setAttribute('d', d);
+            
+            // استخدام الألوان الديناميكية للثيم
+            path.style.stroke = 'var(--color-line)'; 
+            path.style.opacity = isFaded ? '0.4' : '1';
+            
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke-width', isFaded ? '1' : '2');
+            path.setAttribute('class', 'line-transition');
+            path.setAttribute('stroke-dasharray', '6 3');
+            
+            svgContainer.appendChild(path);
+        }
+
+        const bodyEl = document.body;
+        
+        // دالة تبديل الثيم
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function openArticle(nodeId) {
+            const nodeData = nodesData[nodeId];
+            document.getElementById('article-title').innerText = nodeData.title;
+            document.getElementById('article-tag').innerText = nodeData.tag;
+            document.getElementById('article-body').innerHTML = nodeData.content;
+            
+            // تحديث حالة الأيقونة والنص داخل المقال نفسه
+            const statusEl = document.getElementById('article-read-status');
+            if (nodeData.isRead) {
+                statusEl.innerHTML = `<span class="text-accent flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> تمت القراءة</span>`;
+            } else {
+                statusEl.innerHTML = `<span class="text-muted flex items-center gap-1 opacity-60"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg> غير مقروء</span>`;
+            }
+
+            bodyEl.classList.add('zoomed-out');
+        }
+
+        function closeArticle() {
+            bodyEl.classList.remove('zoomed-out');
+        }
+
+        document.getElementById('article-container').addEventListener('click', closeArticle);
+
+        // إعداد التنقل عبر لوحة المفاتيح
+        window.addEventListener('keydown', (e) => {
+            const isArticleOpen = bodyEl.classList.contains('zoomed-out');
+
+            // العودة للخلف باستخدام Escape أو Backspace
+            if (e.key === 'Escape' || e.key === 'Backspace') {
+                if (e.key === 'Backspace') {
+                    // منع المتصفح من الرجوع للصفحة السابقة
+                    if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                        e.preventDefault(); 
+                    } else {
+                        return;
+                    }
+                }
+
+                if (isArticleOpen) {
+                    closeArticle();
+                } else {
+                    const activeNode = nodesData[activeNodeId];
+                    if (activeNode.parentId) {
+                        activeNodeId = activeNode.parentId;
+                        renderGraph();
+                    }
+                }
+                return;
+            }
+
+            // إذا كان المقال مفتوحاً
+            if (isArticleOpen) {
+                // تفعيل أو إلغاء "تمت القراءة" بالضغط على Enter داخل المقال
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    nodesData[activeNodeId].isRead = !nodesData[activeNodeId].isRead;
+                    openArticle(activeNodeId); // تحديث واجهة المقال فوراً
+                    renderGraph(); // تحديث الخريطة في الخلفية
+                }
+                return; // نوقف باقي الاختصارات لتصفح المقال بشكل طبيعي
+            }
+
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(e.key)) {
+                e.preventDefault(); // منع تمرير الشاشة
+            }
+
+            if (e.key === 'Enter') {
+                openArticle(activeNodeId);
+                return;
+            }
+
+            const activeNode = nodesData[activeNodeId];
+
+            if (e.key === 'ArrowDown') {
+                // التوجه للأب (للأسفل)
+                if (activeNode.parentId) {
+                    activeNodeId = activeNode.parentId;
+                    renderGraph();
+                }
+            } else if (e.key === 'ArrowUp') {
+                // التوجه للابن الأول دائماً (للأعلى) بدلاً من الابن الأوسط لضمان التسلسل
+                const children = getChildren(activeNodeId);
+                if (children.length > 0) {
+                    activeNodeId = children[0].id;
+                    renderGraph();
+                }
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                // التنقل بين الأشقاء (يمين ويسار)
+                if (activeNode.parentId) {
+                    const siblings = getChildren(activeNode.parentId);
+                    const currentIndex = siblings.findIndex(n => n.id === activeNodeId);
+                    
+                    if (siblings.length > 1) {
+                        // بسبب اتجاه RTL، اليسار يزيد المؤشر واليمين يقلله بصرياً
+                        if (e.key === 'ArrowLeft') {
+                            const nextIndex = (currentIndex + 1) % siblings.length;
+                            activeNodeId = siblings[nextIndex].id;
+                        } else if (e.key === 'ArrowRight') {
+                            const prevIndex = (currentIndex - 1 + siblings.length) % siblings.length;
+                            activeNodeId = siblings[prevIndex].id;
+                        }
+                        renderGraph();
+                    }
+                }
+            }
+        });
+
+        window.onload = () => {
+            renderGraph();
+        };
+
+        window.addEventListener('resize', renderGraph);
+
+    </script>
+</body>
+</html>

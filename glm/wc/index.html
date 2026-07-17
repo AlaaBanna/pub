@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WC 2026 — Path Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>FIFA WORLD CUP 2026</h1>
+      <p>Interactive Path Analyzer — Swap group positions &amp; pick knockout winners to explore scenarios</p>
+    </div>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle theme"><i class="fa-solid fa-sun"></i></button>
+  </header>
+  <div id="errDisplay"></div>
+  <section style="margin-bottom:24px">
+    <div class="sec-title"><i class="fa-solid fa-ranking-star"></i><span>FIFA Top 10 Rankings</span></div>
+    <div class="top10-bar" id="top10bar"></div>
+  </section>
+  <div class="divider"></div>
+  <section style="margin-bottom:24px">
+    <div class="sec-title"><i class="fa-solid fa-layer-group"></i><span>Group Stage — Click Swap to exchange 1st / 2nd place</span></div>
+    <div class="groups-grid" id="groupsGrid"></div>
+  </section>
+  <div class="divider"></div>
+  <section style="margin-bottom:24px">
+    <div class="hdr">
+      <div class="sec-title" style="margin-bottom:0"><i class="fa-solid fa-sitemap"></i><span>Knockout Stage — Click a team to set winner</span></div>
+      <button class="rst" onclick="resetAll()"><i class="fa-solid fa-rotate-left" style="margin-right:4px"></i>Reset</button>
+    </div>
+    <div class="bk-scroll"><div class="bk-wrap" id="bracket"></div></div>
+  </section>
+  <div class="divider"></div>
+  <section style="margin-bottom:40px">
+    <div class="sec-title" id="pathTitle"><i class="fa-solid fa-route"></i><span>Path Analysis</span><div class="ptabs" id="pathTabs"></div></div>
+    <div class="path-row" id="pathRow"></div>
+    <div id="pathEmpty" style="color:var(--muted);font-size:13px;padding:32px 0;text-align:center;display:none">No teams reached this stage yet</div>
+  </section>
+</div>
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

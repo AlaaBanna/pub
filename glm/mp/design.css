@@ -1,0 +1,277 @@
+/* ============================================
+   meta.fikra / ميتا.فكرة — Design Tokens
+   ============================================ */
+
+   :root {
+    --bg: #0a0f0d;
+    --bg-panel: rgba(8, 16, 12, 0.98);
+    --bg-input: rgba(10, 20, 16, 0.97);
+    --bg-textarea: rgba(12, 22, 18, 0.5);
+    --bg-btn: rgba(70, 110, 90, 0.1);
+    --bg-btn-hover: rgba(70, 110, 90, 0.25);
+    --bg-badge-view: rgba(80, 120, 100, 0.08);
+    --bg-badge-edit: rgba(100, 200, 150, 0.12);
+  
+    --border-subtle: rgba(80, 120, 100, 0.15);
+    --border-input: rgba(100, 200, 150, 0.55);
+    --border-textarea: rgba(80, 120, 100, 0.1);
+    --border-textarea-focus: rgba(100, 200, 150, 0.2);
+    --border-btn: rgba(80, 120, 100, 0.15);
+  
+    --text-primary: #e0e8e4;
+    --text-secondary: #b0c8ba;
+    --text-dim: rgba(160, 190, 175, 0.45);
+    --text-label: rgba(100, 160, 130, 0.35);
+    --text-btn: #7a9a8a;
+    --text-btn-hover: #a0c0ae;
+    --text-badge-view: rgba(120, 150, 135, 0.35);
+    --text-badge-edit: rgba(100, 200, 150, 0.6);
+    --text-placeholder: rgba(90, 130, 110, 0.25);
+  
+    --header-color: rgba(160, 190, 175, 0.4);
+    --help-btn-color: rgba(100, 200, 150, 0.3);
+  
+    --font: 'DM Sans', 'Noto Sans Arabic', sans-serif;
+  
+    --header-h: 48px;
+    --panel-w: 320px;
+    --input-h: 34px;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 12px;
+    --transition-fast: 0.15s ease;
+    --transition-panel: 0.22s ease;
+  }
+  
+  /* ============================================
+     Reset & Base
+     ============================================ */
+  
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    overflow: hidden;
+    background: var(--bg);
+    font-family: var(--font);
+    color: var(--text-primary);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none; /* Crucial: Prevents mobile browser gestures like pull-to-refresh */
+  }
+  
+  /* ============================================
+     Header
+     ============================================ */
+  
+  #header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--header-color);
+    letter-spacing: 0.4px;
+    z-index: 10;
+    pointer-events: none; /* Allows clicks to pass through to canvas */
+    gap: 20px;
+  }
+  
+  .help-btn {
+    pointer-events: auto; /* Re-enables clicks just for this button */
+    color: var(--help-btn-color);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast), background var(--transition-fast);
+  }
+  
+  .help-btn:hover {
+    color: rgba(100, 200, 150, 0.7);
+    background: rgba(100, 200, 150, 0.08);
+  }
+  
+  /* ============================================
+     Canvas
+     ============================================ */
+  
+  #canvas {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    width: 100%;
+    height: calc(100vh - var(--header-h));
+    cursor: default; /* Dynamically changed via JS */
+  }
+  
+  /* ============================================
+     Node Input (floating, over canvas)
+     ============================================ */
+  
+  #nodeInput {
+    position: fixed;
+    display: none;
+    background: var(--bg-input);
+    border: 1.5px solid var(--border-input);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 500;
+    padding: 5px 14px;
+    text-align: center;
+    outline: none;
+    min-width: 100px;
+    max-width: 260px;
+    height: var(--input-h);
+    z-index: 20;
+    box-shadow: 0 0 24px rgba(100, 200, 150, 0.08);
+  }
+  
+  /* ============================================
+     Side Panel
+     ============================================ */
+  
+  #panel {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    bottom: 0;
+    width: var(--panel-w);
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    z-index: 15;
+    transform: translateX(-100%);
+    transition: transform var(--transition-panel);
+  }
+  
+  #panel.open {
+    transform: translateX(0);
+  }
+  
+  .panel-section {
+    padding: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  
+  .panel-section + .panel-section {
+    border-top: 1px solid rgba(80, 120, 100, 0.1);
+  }
+  
+  .panel-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    color: var(--text-label);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  
+  .panel-textarea {
+    flex: 1;
+    background: var(--bg-textarea);
+    border: 1px solid var(--border-textarea);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 10px;
+    resize: none;
+    outline: none;
+    min-height: 50px;
+    line-height: 1.55;
+  }
+  
+  .panel-textarea:focus {
+    border-color: var(--border-textarea-focus);
+  }
+  
+  .panel-textarea::placeholder {
+    color: var(--text-placeholder);
+  }
+  
+  .panel-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  
+  .panel-btn {
+    flex: 1;
+    padding: 7px;
+    background: var(--bg-btn);
+    border: 1px solid var(--border-btn);
+    border-radius: var(--radius-md);
+    color: var(--text-btn);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  
+  .panel-btn:hover {
+    background: var(--bg-btn-hover);
+    color: var(--text-btn-hover);
+  }
+  
+  /* ============================================
+     Mode Badge
+     ============================================ */
+  
+  #modeBadge {
+    position: fixed;
+    bottom: 14px;
+    right: 14px;
+    padding: 4px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    z-index: 10;
+    pointer-events: none;
+    transition: all 0.2s ease;
+  }
+  
+  #modeBadge.view {
+    background: var(--bg-badge-view);
+    color: var(--text-badge-view);
+  }
+  
+  #modeBadge.edit {
+    background: var(--bg-badge-edit);
+    color: var(--text-badge-edit);
+  }
+  
+  /* ============================================
+     Mobile / Touch Adjustments
+     ============================================ */
+  
+  @media (max-width: 768px) {
+    /* Hide the edit/view badge on small screens to save space */
+    #modeBadge {
+      display: none;
+    }
+    
+    /* Make panel take full width on mobile if opened */
+    #panel {
+      width: 100%;
+    }
+  }

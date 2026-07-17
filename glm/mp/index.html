@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>meta.fikra / ميتا.فكرة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="design.css">
+</head>
+<body>
+
+  <header id="header">
+    <span>meta.fikra &nbsp;/&nbsp; ميتا.فكرة</span>
+    <span id="helpBtn" class="help-btn" title="Keyboard Shortcuts">?</span>
+  </header>
+
+  <canvas id="canvas"></canvas>
+
+  <input
+    id="nodeInput"
+    type="text"
+    dir="auto"
+    autocomplete="off"
+    spellcheck="false"
+  >
+
+  <aside id="panel">
+    <div class="panel-section">
+      <div class="panel-label">Note</div>
+      <textarea id="noteArea" class="panel-textarea" dir="auto" placeholder="Add note..."></textarea>
+    </div>
+    <div class="panel-section">
+      <div class="panel-label">Markup</div>
+      <textarea id="markupArea" class="panel-textarea" dir="auto" placeholder="Paste markup here..."></textarea>
+      <div class="panel-actions">
+        <button class="panel-btn" id="importBtn">Import</button>
+        <button class="panel-btn" id="copyBtn">Copy All</button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="modeBadge" class="view">VIEW</div>
+
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/actions.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -12,6 +12,7 @@
     rightHtml += '<span class="mf-help" id="' + helpId + '" title="' + helpTitle + '">?</span>';
   }
 
+  //add some random comment.
   var el = document.createElement('div');
   el.className = 'mf-bar';
   el.innerHTML =

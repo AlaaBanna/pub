@@ -19,7 +19,7 @@ function drawBezier(id1, id2, color, alpha = 1.0) {
     ctx.moveTo(x1, y1);
     ctx.bezierCurveTo(x1, y1 + (y2 - y1) * 0.4 + cpOffset, x2, y2 - (y2 - y1) * 0.4 - cpOffset, x2, y2);
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 2.5;
     ctx.stroke();
     ctx.restore();
 }
@@ -41,11 +41,9 @@ function drawNodes(time) {
         const y = a.y + oy;
         const r = a.r;
         const isFoc = id === state.focusedId;
-        const isHov = id === state.hoveredId && !isFoc; // Hover state
+        const isHov = id === state.hoveredId && !isFoc;
 
         ctx.save();
-        
-        // Boost alpha slightly if hovered (unless it's already focused)
         ctx.globalAlpha = isHov ? Math.min(a.ta + 0.3, 1) : a.ta;
 
         if (isFoc) {
@@ -53,7 +51,6 @@ function drawNodes(time) {
             ctx.shadowBlur = 30;
         }
 
-        // Bubbly Shape: Harmonics
         const points = [];
         for (let i = 0; i < seg; i++) {
             const angle = (i / seg) * Math.PI * 2;
@@ -85,10 +82,9 @@ function drawNodes(time) {
         ctx.fill();
         ctx.shadowBlur = 0;
         
-        // Dynamic border based on state
         let borderColor = CONFIG.colors.border;
         if (isFoc) borderColor = CONFIG.colors.selectedBorder;
-        else if (isHov) borderColor = CONFIG.colors.selectedBorder; // Brighten on hover
+        else if (isHov) borderColor = CONFIG.colors.selectedBorder;
         else if (a.ta < 0.5) borderColor = CONFIG.colors.siblingBorder;
         
         ctx.strokeStyle = borderColor;
@@ -105,7 +101,6 @@ function drawNodes(time) {
         ctx.font = `500 ${a.fs}px ${CONFIG.font}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.direction = 'auto';
         
         let text = node.text || '...';
         const maxWidth = r * 1.6; 
@@ -124,15 +119,55 @@ function drawNodes(time) {
     }
 }
 
+function drawNotePreview(time) {
+    if (!state.hoveredId) return;
+    const node = findNode(state.tree, state.hoveredId);
+    if (!node || !node.note) return;
+    
+    const a = state.animNodes[state.hoveredId];
+    if (!a) return;
+    
+    const driftAmount = state.isOverview ? CONFIG.alive.overview : CONFIG.alive.focus;
+    const ox = Math.sin(time * 0.5 + a.ph) * driftAmount;
+    const oy = Math.cos(time * 0.65 + a.ph) * driftAmount * 0.7;
+    const x = a.x + ox;
+    const y = a.y + oy - a.r - 28; // MOVED: Positioned ABOVE the node
+    
+    ctx.save();
+    ctx.font = `400 12px ${CONFIG.font}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    
+    let text = node.note.split('\n')[0]; 
+    const maxW = 200;
+    if (ctx.measureText(text).width > maxW) {
+        while (text.length > 1 && ctx.measureText(text + '…').width > maxW) text = text.slice(0, -1);
+        text += '…';
+    }
+    
+    const tw = ctx.measureText(text).width + 16;
+    const th = 24;
+    
+    ctx.fillStyle = CONFIG.colors.helpBg;
+    ctx.beginPath();
+    ctx.roundRect(x - tw/2, y, tw, th, 4);
+    ctx.fill();
+    
+    ctx.strokeStyle = CONFIG.colors.helpBorder;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    ctx.fillStyle = CONFIG.colors.helpText;
+    ctx.fillText(text, x, y + 5);
+    ctx.restore();
+}
+
 function drawDeleteConfirmation() {
     if (!state.deletePending || !state.animNodes[state.deletePending]) return;
     const a = state.animNodes[state.deletePending];
     const elapsed = (performance.now() - state.deletePendingTime) / 1000;
     
-    if (elapsed > 3.5) {
-        state.deletePending = null;
-        return;
-    }
+    if (elapsed > 3.5) { state.deletePending = null; return; }
     
     const node = findNode(state.tree, state.deletePending);
     const count = getDescendantCount(node);
@@ -140,23 +175,14 @@ function drawDeleteConfirmation() {
     
     ctx.font = `500 12px ${CONFIG.font}`;
     const tw = ctx.measureText(text).width + 24;
-    const pw = Math.max(tw, 140);
-    const ph = 36;
-    const px = a.x - pw / 2;
-    const py = a.y + a.r + 14;
+    const pw = Math.max(tw, 140), ph = 36;
+    const px = a.x - pw / 2, py = a.y + a.r + 14;
 
-    ctx.beginPath();
-    ctx.roundRect(px, py, pw, ph, 6);
-    ctx.fillStyle = CONFIG.colors.deleteBg;
-    ctx.fill();
-    ctx.strokeStyle = CONFIG.colors.deleteBorder;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(px, py, pw, ph, 6);
+    ctx.fillStyle = CONFIG.colors.deleteBg; ctx.fill();
+    ctx.strokeStyle = CONFIG.colors.deleteBorder; ctx.lineWidth = 1; ctx.stroke();
 
-    ctx.fillStyle = CONFIG.colors.deleteText;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.direction = 'ltr';
+    ctx.fillStyle = CONFIG.colors.deleteText; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(text, a.x, py + ph / 2);
 }
 
@@ -165,32 +191,34 @@ function drawHelpOverlay() {
     ctx.fillStyle = 'rgba(5, 10, 8, 0.8)';
     ctx.fillRect(0, 0, cw, ch);
 
-    const boxW = 640, boxH = 420;
+    const boxW = 640, boxH = 340;
     const px = (cw - boxW) / 2, py = (ch - boxH) / 2;
 
-    ctx.beginPath();
-    ctx.roundRect(px, py, boxW, boxH, 12);
-    ctx.fillStyle = CONFIG.colors.helpBg;
-    ctx.fill();
-    ctx.strokeStyle = CONFIG.colors.helpBorder;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(px, py, boxW, boxH, 12);
+    ctx.fillStyle = CONFIG.colors.helpBg; ctx.fill();
+    ctx.strokeStyle = CONFIG.colors.helpBorder; ctx.lineWidth = 1; ctx.stroke();
 
     ctx.font = `600 16px ${CONFIG.font}`;
     ctx.fillStyle = CONFIG.colors.text;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText('Keyboard Shortcuts', cw / 2, py + 24);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('Keyboard Shortcuts', cw / 2, py + 20);
+
+    ctx.beginPath();
+    ctx.moveTo(px + 40, py + 45);
+    ctx.lineTo(px + boxW - 40, py + 45);
+    ctx.strokeStyle = CONFIG.colors.helpBorder;
+    ctx.lineWidth = 1;
+    ctx.stroke();
 
     const cols = 2, rowH = 32, startY = py + 60, colW = boxW / cols;
     const shortcuts = [
         ['Enter', 'Edit label'], ['Tab', 'Create child'],
         ['↑ / ↓', 'Parent / Child*'], ['← / →', 'Prev / Next Sibling'],
-        ['N', 'Open note'], ['V', 'Toggle View/Edit'],
-        ['G', 'Flip layout dir.' ], ['D', 'Reset view (zoom)'],
+        ['N', 'Toggle note (panel)'], ['V', 'Toggle View/Edit'],
+        ['G', 'Flip layout dir.' ], ['R', 'Reset view (zoom)'],
         ['Ctrl+Z / Y', 'Undo / Redo'], ['Ctrl+← / →', 'Reorder sibling'],
         ['Delete', 'Delete leaf node'], ['Shift+Del', 'Delete tree confirm'],
-        ['Ctrl+Shift+M', 'Toggle panel'], ['? / Header Btn', 'Toggle this help']
+        ['Left Icon', 'Toggle markup panel'], ['? / Header Btn', 'Toggle this help']
     ];
 
     ctx.textAlign = 'left';
@@ -212,13 +240,22 @@ function drawHelpOverlay() {
     ctx.font = `400 11px ${CONFIG.font}`;
     ctx.fillStyle = CONFIG.colors.textDim;
     ctx.textAlign = 'center';
-    ctx.fillText('* ↑/↓ matches visual layout. Mobile: Tap to select, Swipe to navigate, Pinch to zoom.', cw / 2, py + boxH - 25);
+    ctx.fillText('* ↑/↓ matches visual layout. Mobile: Tap to select, Swipe to navigate, Pinch to zoom.', cw / 2, py + boxH - 20);
+
+    const closeR = 12, closeX = px + boxW - 24, closeY = py + 20;
+    ctx.beginPath(); ctx.arc(closeX, closeY, closeR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(80, 120, 100, 0.2)'; ctx.fill();
+    ctx.strokeStyle = CONFIG.colors.helpBorder; ctx.lineWidth = 1; ctx.stroke();
+    ctx.font = `500 14px ${CONFIG.font}`; ctx.fillStyle = CONFIG.colors.helpText;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('✕', closeX, closeY + 1);
+
+    state.helpCloseBtn = { x: closeX, y: closeY, r: closeR };
     ctx.restore();
 }
 
-// ── Fixed Bottom Bar ──
 function drawBottomBar() {
-    if (state.isHelpOpen || state.isMobile) return; // HIDE ON MOBILE
+    if (state.isHelpOpen || state.isMobile) return;
     
     const barH = 32;
     const y = ch - barH;
@@ -228,16 +265,13 @@ function drawBottomBar() {
     
     ctx.strokeStyle = CONFIG.colors.barBorder;
     ctx.lineWidth = 1;
-    ctx.beginPath(); 
-    ctx.moveTo(0, y); 
-    ctx.lineTo(cw, y); 
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cw, y); ctx.stroke();
     
     ctx.font = `400 11px ${CONFIG.font}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = CONFIG.colors.barText;
     
-    const text = "↑↓ Navigate  |  ←→ Siblings  |  Enter Edit  |  Tab Add Child  |  N Note  |  V Mode  |  G Flip  |  ? Help  |  Esc Close";
+    const text = "↑↓ Navigate  |  ←→ Siblings  |  Enter Edit  |  Tab Add Child  |  N Note  |  V Mode  |  G Flip  |  R Reset";
     ctx.fillText(text, cw / 2, y + barH / 2);
 }

@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>meta.fikra / ميتا.فكرة</title>
+  <title>meta.fikra: Mind Map Builder</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="design.css">
+  <link rel="stylesheet" href="../meta.css">
 </head>
-<body>
+<body class="dark-mode">
 
-  <header id="header">
-    <span>meta.fikra &nbsp;/&nbsp; ميتا.فكرة</span>
-    <span id="helpBtn" class="help-btn" title="Keyboard Shortcuts">?</span>
-  </header>
+  <!-- Updated icon for left menu -->
+  <div id="panelToggle" class="panel-toggle" title="Markup Panel">
+    <i class="fa-solid fa-file-code"></i>
+  </div>
 
   <canvas id="canvas"></canvas>
-
+  
   <input
     id="nodeInput"
     type="text"
@@ -27,11 +28,13 @@
   >
 
   <aside id="panel">
-    <div class="panel-section">
+    <!-- ADDED: id="noteSection" so JS can hide/show it separately -->
+    <div class="panel-section" id="noteSection">
       <div class="panel-label">Note</div>
       <textarea id="noteArea" class="panel-textarea" dir="auto" placeholder="Add note..."></textarea>
     </div>
-    <div class="panel-section">
+    <!-- ADDED: id="markupSection" so JS can hide/show it separately -->
+    <div class="panel-section" id="markupSection">
       <div class="panel-label">Markup</div>
       <textarea id="markupArea" class="panel-textarea" dir="auto" placeholder="Paste markup here..."></textarea>
       <div class="panel-actions">
@@ -43,6 +46,10 @@
 
   <div id="modeBadge" class="view">VIEW</div>
 
+  <!-- meta.js loads first to build the header -->
+  <script src="../meta.js" data-project="Mind Map Builder" data-home="../" data-help="Keyboard Shortcuts" data-help-id="helpBtn"></script>
+  
+  <!-- Our files load second -->
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/layout.js"></script>

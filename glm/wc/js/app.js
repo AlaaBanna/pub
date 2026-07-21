@@ -36,14 +36,6 @@ function resetAll(){
   toast('All results reset to original');safeRender();
 }
 
-/* ===== Theme toggle ===== */
-function toggleTheme(){
-  document.body.classList.toggle('light');
-  var isL=document.body.classList.contains('light');
-  document.getElementById('themeBtn').innerHTML=isL?'<i class="fa-solid fa-moon"></i>':'<i class="fa-solid fa-sun"></i>';
-  try{localStorage.setItem('wc26-t',isL?'l':'d')}catch(e){}
-}
-
 /* ===== Toast notification ===== */
 function toast(msg){
   var ex=document.querySelector('.toast');if(ex)ex.remove();
@@ -57,5 +49,4 @@ function toast(msg){
 results=JSON.parse(JSON.stringify(INIT));
 var gl2=['A','B','C','D','E','F','G','H','I','J','K','L'];
 for(var i=0;i<gl2.length;i++)swaps[gl2[i]]=false;
-try{if(localStorage.getItem('wc26-t')==='l'){document.body.classList.add('light');document.getElementById('themeBtn').innerHTML='<i class="fa-solid fa-moon"></i>'}}catch(e){}
 safeRender();

@@ -1,117 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GLM Projects — Alaa Banna</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root{--bg:#08080f;--surface:#111119;--surface2:#1a1a26;--border:#252538;--gold:#c9a227;--gold-light:#e8c84a;--gold-dim:rgba(201,162,39,0.15);--text:#e4e4ee;--muted:#7a7a94;--green:#10b981;--blue:#3b82f6;--purple:#a855f7;--pink:#ec4899}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse at 50% 0%,rgba(201,162,39,0.06) 0%,transparent 60%)}
-h1,h2,h3{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em}
-.wrap{max-width:1000px;margin:0 auto;padding:60px 24px 40px}
-.hero{text-align:center;margin-bottom:60px}
-.hero h1{font-size:64px;color:var(--gold);line-height:1;margin-bottom:12px}
-.hero p{color:var(--muted);font-size:16px;max-width:520px;margin:0 auto 24px;line-height:1.6}
-.hero .tags{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-.hero .tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);font-size:12px;color:var(--muted)}
-.hero .tag i{color:var(--gold);font-size:11px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:60px}
-@media(max-width:768px){.grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.grid{grid-template-columns:1fr}.hero h1{font-size:48px}}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;transition:border-color .3s,transform .3s,box-shadow .3s;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold);opacity:0;transition:opacity .3s}
-.card:hover{border-color:rgba(201,162,39,0.4);transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.3)}
-.card:hover::before{opacity:1}
-.card-icon{width:44px;height:44px;border-radius:10px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:18px;color:var(--gold)}
-.card h3{font-size:22px;color:var(--text);margin-bottom:8px}
-.card p{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:16px;flex:1}
-.card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:20px}
-.card-tags span{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.card-tags .t-html{background:rgba(239,68,68,0.12);color:#f87171}
-.card-tags .t-css{background:rgba(59,130,246,0.12);color:#60a5fa}
-.card-tags .t-js{background:rgba(234,179,8,0.12);color:#fbbf24}
-.card-tags .t-svg{background:rgba(168,85,247,0.12);color:#c084fc}
-.card-tags .t-ai{background:rgba(16,185,129,0.12);color:#34d399}
-.card-link{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;background:var(--gold);color:#000;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif;align-self:flex-start}
-.card-link:hover{background:var(--gold-light);transform:translateX(4px)}
-.card-link i{font-size:11px;transition:transform .2s}
-.card-link:hover i{transform:translateX(3px)}
-.footer{border-top:1px solid var(--border);padding-top:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-.footer-left{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
-.footer-left .glm-badge{background:var(--gold-dim);color:var(--gold);padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.04em}
-.footer-right{display:flex;gap:16px}
-.footer-right a{color:var(--muted);font-size:18px;transition:color .2s;text-decoration:none}
-.footer-right a:hover{color:var(--gold)}
-.section-label{display:flex;align-items:center;gap:10px;margin-bottom:24px}
-.section-label h2{font-size:28px;color:var(--gold)}
-.section-label .line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>meta.fikra — GLM Projects</title>
+  <link rel="stylesheet" href="landing.css">
 </head>
-<body>
-<div class="wrap">
-  <div class="hero">
-    <h1>GLM PROJECTS</h1>
-    <p>Interactive web tools built through AI-human collaboration. Concept & direction by <strong style="color:var(--text)">Alaa Banna</strong>, code by <strong style="color:var(--gold)">GLM</strong>.</p>
-    <div class="tags">
-      <span class="tag"><i class="fa-solid fa-microchip"></i> AI-Assisted Development</span>
-      <span class="tag"><i class="fa-solid fa-code"></i> Pure Frontend</span>
-      <span class="tag"><i class="fa-solid fa-bolt"></i> Zero Backend</span>
-      <span class="tag"><i class="fa-solid fa-globe"></i> Static HTML</span>
+<body class="landing">
+  <div class="wrap">
+    <div class="hero">
+      <h1><span class="brand">meta.fikra projects</span></h1>
+      <p>Interactive web tools built through AI–human collaboration.</p>
+      <div class="tags">
+        <span class="tag"><i class="fa-solid fa-microchip"></i> AI-Assisted Development</span>
+        <span class="tag"><i class="fa-solid fa-code"></i> Pure Frontend</span>
+        <span class="tag"><i class="fa-solid fa-bolt"></i> Zero Backend</span>
+        <span class="tag"><i class="fa-solid fa-globe"></i> Static HTML</span>
+      </div>
+    </div>
+    <div class="section-label"><h2>PROJECTS</h2><span class="line"></span></div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-trophy"></i></div>
+        <h3>World Cup 2026 Analyzer</h3>
+        <p>Interactive knockout bracket with path strength analysis. Swap group positions, pick winners, and see which teams had easy vs hard routes to the finals.</p>
+        <div class="card-tags"><span class="t-html">HTML</span><span class="t-css">CSS</span><span class="t-js">JS</span><span class="t-ai">GLM</span></div>
+        <a href="wc/" class="card-link">Open Project <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fa-solid fa-diagram-project"></i></div>
+        <h3>Mind Map Builder</h3>
+        <p>Build and interact with mind maps using a custom markup language. Upload, visualize, and navigate structured thoughts with ease.</p>
+        <div class="card-tags"><span class="t-html">HTML</span><span class="t-css">CSS</span><span class="t-js">JS</span><span class="t-svg">SVG</span><span class="t-ai">GLM</span></div>
+        <a href="mp/" class="card-link">Open Project <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="footer-left">
+        <span>Concept & Direction: <strong>Alaa Banna</strong>, coded by <span class="glm-badge">GLM</span></span>
+      </div>
+      <div class="footer-right">
+        <a href="https://github.com/AlaaBanna" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        <a href="https://fb.me/Banna" target="_blank" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
+      </div>
     </div>
   </div>
-
-  <div class="section-label"><h2>PROJECTS</h2><span class="line"></span></div>
-
-  <div class="grid">
-    <!-- WC 2026 -->
-    <div class="card">
-      <div class="card-icon"><i class="fa-solid fa-trophy"></i></div>
-      <h3>World Cup 2026 Analyzer</h3>
-      <p>Interactive knockout bracket with path strength analysis. Swap group positions, pick winners, and see which teams had easy vs hard routes to the finals.</p>
-      <div class="card-tags">
-        <span class="t-html">HTML</span><span class="t-css">CSS</span><span class="t-js">JS</span><span class="t-ai">GLM</span>
-      </div>
-      <a href="wc/index.html" class="card-link">Open Project <i class="fa-solid fa-arrow-right"></i></a>
-    </div>
-
-    <!-- Mind Map -->
-    <div class="card">
-      <div class="card-icon"><i class="fa-solid fa-diagram-project"></i></div>
-      <h3>Mind Map Builder</h3>
-      <p>Build and interact with mind maps using a custom markup language. Upload, visualize, and navigate structured thoughts with ease.</p>
-      <div class="card-tags">
-        <span class="t-html">HTML</span><span class="t-css">CSS</span><span class="t-js">JS</span><span class="t-svg">SVG</span><span class="t-ai">GLM</span>
-      </div>
-      <a href="mp/index.html" class="card-link">Open Project <i class="fa-solid fa-arrow-right"></i></a>
-    </div>
-
-    <!-- Placeholder for future project — remove when adding a real one -->
-    <!--
-    <div class="card">
-      <div class="card-icon"><i class="fa-solid fa-rocket"></i></div>
-      <h3>Project Name</h3>
-      <p>Short description of what this project does and why it's useful.</p>
-      <div class="card-tags">
-        <span class="t-html">HTML</span><span class="t-css">CSS</span><span class="t-js">JS</span>
-      </div>
-      <a href="folder/index.html" class="card-link">Open Project <i class="fa-solid fa-arrow-right"></i></a>
-    </div>
-    -->
-  </div>
-
-  <div class="footer">
-    <div class="footer-left">
-      <span class="glm-badge">GLM</span>
-      <span>Concept & Direction: <strong style="color:var(--text)">Alaa Banna</strong></span>
-    </div>
-    <div class="footer-right">
-      <a href="https://github.com/AlaaBanna" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
-      <a href="https://fb.me/Banna" target="_blank" title="Facebook"><i class="fa-brands fa-facebook"></i></a>
-    </div>
-  </div>
-</div>
 </body>
 </html>

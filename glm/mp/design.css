@@ -1,7 +1,22 @@
 /* ============================================
    meta.fikra / ميتا.فكرة — Design Tokens
    ============================================ */
-
+   .mf-bar {
+    --mf-h: 48px;
+    --mf-bg: rgba(8, 16, 12, 0.98);
+    --mf-border: rgba(80, 120, 100, 0.15);
+    --mf-logo-color: rgba(100, 200, 150, 0.6);
+    --mf-dot-color: rgba(100, 200, 150, 0.6);
+    --mf-title-color: rgba(160, 190, 175, 0.4);
+    --mf-theme-color: rgba(60, 100, 80, 0.35);
+    --mf-theme-hover: rgba(60, 130, 100, 0.6);
+    --mf-gold-dim: rgba(100, 200, 150, 0.1);    
+    --mf-help-color: rgba(100, 200, 150, 0.3);
+    --mf-help-hover: rgba(100, 200, 150, 0.7);
+    --mf-help-bg: rgba(100, 200, 150, 0.08);
+    pointer-events: none;
+  }
+  .mf-logo { pointer-events: auto; color: rgba(100, 200, 150, 0.7); }
    :root {
     --bg: #0a0f0d;
     --bg-panel: rgba(8, 16, 12, 0.98);
@@ -64,45 +79,7 @@
     -webkit-user-select: none;
     touch-action: none; /* Crucial: Prevents mobile browser gestures like pull-to-refresh */
   }
-  
-  /* ============================================
-     Header
-     ============================================ */
-  
-  #header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--header-h);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--header-color);
-    letter-spacing: 0.4px;
-    z-index: 10;
-    pointer-events: none; /* Allows clicks to pass through to canvas */
-    gap: 20px;
-  }
-  
-  .help-btn {
-    pointer-events: auto; /* Re-enables clicks just for this button */
-    color: var(--help-btn-color);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 4px 10px;
-    border-radius: var(--radius-sm);
-    transition: color var(--transition-fast), background var(--transition-fast);
-  }
-  
-  .help-btn:hover {
-    color: rgba(100, 200, 150, 0.7);
-    background: rgba(100, 200, 150, 0.08);
-  }
-  
+ 
   /* ============================================
      Canvas
      ============================================ */
@@ -274,4 +251,88 @@
     #panel {
       width: 100%;
     }
+  }
+  /* ============================================
+   Header Actions Container
+   ============================================ */
+.header-actions {
+  position: absolute;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto; /* Allow clicks */
+}
+
+/* ============================================
+   Light Theme Variables (Overrides Dark)
+   ============================================ */
+body.light-mode {
+  --bg: #f0f4f2;
+  --bg-panel: rgba(255, 255, 255, 0.95);
+  --bg-input: rgba(255, 255, 255, 0.98);
+  --bg-textarea: rgba(240, 245, 242, 0.6);
+  --bg-btn: rgba(20, 60, 45, 0.06);
+  --bg-btn-hover: rgba(20, 60, 45, 0.12);
+  --bg-badge-view: rgba(20, 60, 45, 0.06);
+  --bg-badge-edit: rgba(20, 120, 80, 0.1);
+
+  --border-subtle: rgba(20, 60, 45, 0.12);
+  --border-input: rgba(20, 120, 80, 0.5);
+  --border-textarea: rgba(20, 60, 45, 0.15);
+  --border-textarea-focus: rgba(20, 120, 80, 0.4);
+  --border-btn: rgba(20, 60, 45, 0.12);
+
+  --text-primary: #1a2a22;
+  --text-secondary: #3a5a4a;
+  --text-dim: rgba(30, 60, 45, 0.5);
+  --text-label: rgba(20, 80, 60, 0.5);
+  --text-btn: #3a6a55;
+  --text-btn-hover: #1a4a35;
+  --text-badge-view: rgba(30, 80, 60, 0.4);
+  --text-badge-edit: rgba(20, 120, 80, 0.7);
+  --text-placeholder: rgba(60, 100, 80, 0.4);
+
+  --header-color: rgba(30, 70, 55, 0.6);
+  --help-btn-color: rgba(20, 100, 70, 0.4);
+
+  --barBg: 'rgba(255, 255, 255, 0.85)';
+  --barBorder: 'rgba(20, 60, 45, 0.1)';
+  --barText: 'rgba(30, 80, 60, 0.5)';
+}
+/* ============================================
+   Left Panel Toggle Icon
+   ============================================ */
+   .panel-toggle {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 12;
+    background: rgba(10, 18, 14, 0.85);
+    color: rgba(100, 160, 130, 0.5);
+    border: 1px solid rgba(80, 120, 100, 0.15);
+    border-left: none;
+    padding: 10px 6px;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+  }
+  
+  .panel-toggle:hover {
+    background: rgba(20, 40, 30, 0.95);
+    color: rgba(100, 200, 150, 0.8);
+  }
+  
+  body.light-mode .panel-toggle {
+    background: rgba(255, 255, 255, 0.9);
+    color: rgba(20, 80, 60, 0.5);
+    border-color: rgba(40, 80, 65, 0.15);
+  }
+  
+  body.light-mode .panel-toggle:hover {
+    background: rgba(255, 255, 255, 1);
+    color: rgba(20, 120, 80, 0.8);
   }

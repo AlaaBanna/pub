@@ -94,7 +94,7 @@ var TOP10=[
   /* ===== Pre-filled results (sc=score, w=winner code, pn=penalties) ===== */
   var INIT={
     'r32_0':{sc:'0-1',w:'CAN'},'r32_1':{sc:'1-1',w:'MAR',pn:'2-3'},
-    'r32_2':{sc:'1-1',w:'GER',pn:'4-3'},'r32_3':{sc:'3-0',w:'FRA'},
+    'r32_2':{sc:'1-1',w:'PAR',pn:'3-4'},'r32_3':{sc:'3-0',w:'FRA'},
     'r32_4':{sc:'3-0',w:'ESP'},'r32_5':{sc:'2-1',w:'POR'},
     'r32_6':{sc:'3-2',w:'BEL'},'r32_7':{sc:'2-0',w:'USA'},
     'r32_8':{sc:'2-1',w:'BRA'},'r32_9':{sc:'1-2',w:'NOR'},

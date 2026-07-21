@@ -5,14 +5,11 @@ document.addEventListener('keydown', (e) => {
 
     // Note editing state
     if (state.isNoteOpen) {
-        if (e.key === 'Escape') { 
-            e.preventDefault(); 
-            closeNote(); 
-            return; 
-        }
+        if (e.key === 'Escape') { e.preventDefault(); closeNote(); return; }
         
-        // FIX: Intercept bare arrow keys to navigate the tree & refresh the note!
-        // (If user holds Ctrl/Shift/Alt, let it pass to the textarea for text editing)
+        // FIX: Catch 'N' to toggle the note panel closed
+        if (e.key === 'n' || e.key === 'N') { e.preventDefault(); closeNote(); return; }
+        
         if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
             const isBottomUp = state.layoutDir === 'bottom-up';
             const keyChild = isBottomUp ? 'ArrowUp' : 'ArrowDown';
@@ -23,19 +20,18 @@ document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') { e.preventDefault(); navigateSibling(-1); return; }
             if (e.key === 'ArrowRight') { e.preventDefault(); navigateSibling(1); return; }
         }
-        
-        return; // Let all other keys (letters, numbers) go to the textarea normally
+        return; 
     }
 
-    // FIX: If note is closed but panel is open, Escape now closes the panel
+    // If markup panel is open, Escape closes it
     if (e.key === 'Escape' && state.isPanelOpen) {
         e.preventDefault();
-        togglePanel();
+        togglePanelUI();
         return;
     }
 
     if (state.isEditing) {
-        if (e.key === 'Enter') { e.preventDefault(); confirmEditAndCreateChild(); }
+        if (e.key === 'Enter') { e.preventDefault(); hideNodeInput(true); }
         else if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
         else if (e.key === 'Tab') { e.preventDefault(); confirmEditAndCreateChild(); }
         return;
@@ -44,7 +40,7 @@ document.addEventListener('keydown', (e) => {
     // Global
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'M' || e.key === 'm')) { e.preventDefault(); togglePanel(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'M' || e.key === 'm')) { e.preventDefault(); openMarkupPanel(); return; }
 
     const isShift = e.shiftKey;
     const isCtrl = e.ctrlKey || e.metaKey;
@@ -54,7 +50,7 @@ document.addEventListener('keydown', (e) => {
     if (isCtrl && e.key === 'ArrowRight') { e.preventDefault(); reorderNode(1); return; }
 
     if (state.isOverview) {
-        if (e.key === 'd' || e.key === 'D') { e.preventDefault(); resetView(); }
+        if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetView(); }
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
         return;
     }
@@ -72,7 +68,7 @@ document.addEventListener('keydown', (e) => {
         case 'n': case 'N': e.preventDefault(); openNote(); break;
         case 'v': case 'V': e.preventDefault(); toggleMode(); break;
         case 'g': case 'G': e.preventDefault(); toggleLayout(); break;
-        case 'd': case 'D': e.preventDefault(); resetView(); break;
+        case 'r': case 'R': e.preventDefault(); resetView(); break;
         case 'Enter': e.preventDefault(); startEditing(); break;
         case 'Tab': e.preventDefault(); createChild(); break;
     }

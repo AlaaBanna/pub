@@ -37,7 +37,6 @@ function showNodeInput(id) {
         const z = state.targetZoom;
         const screenX = (a.x - cw/2) * z + cw/2;
         const screenY = (a.y - ch/2) * z + ch/2;
-        
         inp.style.left = (screenX - 90) + 'px';
         inp.style.top = (screenY - 18) + 'px';
         inp.style.width = Math.max(160, Math.min(320, a.r * 1.6 * z + 40)) + 'px';
@@ -164,16 +163,41 @@ function toggleLayout() {
     state.treeVersion++;
 }
 
-// ── NOTES ──
+// ── UNLINKED NOTES & PANEL ──
+function togglePanelUI(forceOpen = false) {
+    if (forceOpen && !state.isPanelOpen) state.isPanelOpen = true;
+    else if (!forceOpen) state.isPanelOpen = !state.isPanelOpen;
+    
+    document.getElementById('panel').classList.toggle('open', state.isPanelOpen);
+    if (!state.isPanelOpen) { state.panelView = 'none'; state.isNoteOpen = false; }
+}
+
+function applyPanelView() {
+    const noteSec = document.getElementById('noteSection');
+    const markupSec = document.getElementById('markupSection');
+    if (state.panelView === 'note') { noteSec.style.display = 'flex'; markupSec.style.display = 'none'; }
+    else if (state.panelView === 'markup') { noteSec.style.display = 'none'; markupSec.style.display = 'flex'; }
+}
+
 function openNote() {
     if (state.isEditing) return;
+    if (state.isNoteOpen) { closeNote(); return; } // Toggle: close if open
     
-    // FIX: Auto-open the side panel if it's closed
-    if (!state.isPanelOpen) togglePanel(); 
+    if (!state.isPanelOpen) togglePanelUI(true);
+    state.panelView = 'note';
+    applyPanelView();
     
-    state.isNoteOpen = true; updateNotePanel();
+    state.isNoteOpen = true; 
+    updateNotePanel();
     const na = document.getElementById('noteArea');
-    na.readOnly = state.mode === 'view'; na.focus();
+    na.readOnly = state.mode === 'view'; 
+    na.focus();
+}
+
+function openMarkupPanel() {
+    if (state.isNoteOpen) closeNote(); 
+    if (state.isPanelOpen && state.panelView === 'markup') togglePanelUI();
+    else { if (!state.isPanelOpen) togglePanelUI(true); state.panelView = 'markup'; applyPanelView(); }
 }
 
 function closeNote() {
@@ -184,6 +208,11 @@ function closeNote() {
         if (node && node.note !== na.value) { pushSnapshot(); node.note = na.value; state.treeVersion++; }
     }
     state.isNoteOpen = false; na.blur();
+    
+    // FIX: Close the entire panel when closing the note (so N acts as a true toggle)
+    if (state.isPanelOpen && state.panelView === 'note') {
+        togglePanelUI();
+    }
 }
 
 function updateNotePanel() {

@@ -10,8 +10,11 @@ const state = {
     targetZoom: 0.9,
     deletePending: null, deletePendingTime: 0,
     undoStack: [], redoStack: [], treeVersion: 0, animNodes: {},
-    hoveredId: null, // NEW: Tracks mouse hover
-    isMobile: false  // NEW: Hides bottom bar
+    hoveredId: null, 
+    isMobile: false,
+    helpCloseBtn: null,
+    panelView: 'none',
+    panelHoverLock: false
 };
 
 // ── DEFAULT SAMPLE DATA (Arabic Philosophy) ──
@@ -60,6 +63,26 @@ const DEFAULT_SAMPLE = `1. الفلسفة والعلم
     1. النظريات الجمالية الكلاسيكية
       : الجمال يكمن في التناسب، الانسجام، والاكتمال`;
 
+// ── THEME TOGGLING LOGIC ──
+window.mfToggleTheme = function() {
+    const isLight = document.body.classList.toggle('light-mode');
+    CONFIG.colors = isLight ? THEMES.light : THEMES.dark;
+    document.getElementById('mfThemeBtn').innerHTML = isLight 
+        ? '<i class="fa-solid fa-moon"></i>' 
+        : '<i class="fa-solid fa-sun"></i>';
+    state.treeVersion++;
+    localStorage.setItem('mf_theme', isLight ? 'light' : 'dark');
+};
+
+function applySavedTheme() {
+    const saved = localStorage.getItem('mf_theme');
+    if (saved === 'light') {
+        document.body.classList.add('light-mode');
+        CONFIG.colors = THEMES.light;
+        document.getElementById('mfThemeBtn').innerHTML = '<i class="fa-solid fa-moon"></i>';
+    }
+}
+
 // ── CANVAS SETUP ──
 function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
@@ -67,10 +90,7 @@ function resizeCanvas() {
     cw = rect.width; ch = rect.height;
     canvas.width = cw * dpr; canvas.height = ch * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    
-    // Detect mobile
     state.isMobile = window.innerWidth <= 768;
-    
     state.treeVersion++;
 }
 window.addEventListener('resize', resizeCanvas);
@@ -78,10 +98,7 @@ window.addEventListener('resize', resizeCanvas);
 // ── COORDINATE MATH & HIT TESTING ──
 function screenToWorld(sx, sy) {
     const z = state.targetZoom;
-    return {
-        x: (sx - cw/2) / z + cw/2,
-        y: (sy - ch/2) / z + ch/2
-    };
+    return { x: (sx - cw/2) / z + cw/2, y: (sy - ch/2) / z + ch/2 };
 }
 
 function getNodeAtPos(wx, wy) {
@@ -89,16 +106,17 @@ function getNodeAtPos(wx, wy) {
     for (let i = ids.length - 1; i >= 0; i--) {
         const id = ids[i];
         const a = state.animNodes[id];
-        if (a.ta < 0.2) continue; // Ignore very dim nodes
+        if (a.ta < 0.2) continue; 
         const dist = Math.hypot(wx - a.x, wy - a.y);
-        if (dist <= a.r * 1.1) return id; // 1.1 margin for wobble
+        if (dist <= a.r * 1.1) return id; 
     }
     return null;
 }
 
 // ── MOUSE INTERACTIONS ──
 canvas.addEventListener('mousemove', (e) => {
-    if (state.isEditing || state.isHelpOpen) return;
+    // FIX: Removed 'state.isEditing' block so hover tooltip works while in Edit mode
+    if (state.isHelpOpen || state.isNoteOpen) return;
     const rect = canvas.getBoundingClientRect();
     const sx = e.clientX - rect.left;
     const sy = e.clientY - rect.top;
@@ -114,13 +132,21 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('click', (e) => {
-    if (state.isEditing || state.isHelpOpen || state.isNoteOpen) return;
     const rect = canvas.getBoundingClientRect();
     const sx = e.clientX - rect.left;
     const sy = e.clientY - rect.top;
-    const {x: wx, y: wy} = screenToWorld(sx, sy);
+
+    if (state.isHelpOpen && state.helpCloseBtn) {
+        const btn = state.helpCloseBtn;
+        const dist = Math.hypot(sx - btn.x, sy - btn.y);
+        if (dist <= btn.r) { state.isHelpOpen = false; return; }
+    }
+
+    if (state.isEditing || state.isHelpOpen || state.isNoteOpen) return;
     
+    const {x: wx, y: wy} = screenToWorld(sx, sy);
     const hitId = getNodeAtPos(wx, wy);
+    
     if (hitId && hitId !== state.focusedId) {
         state.focusedId = hitId;
         state.deletePending = null;
@@ -130,10 +156,7 @@ canvas.addEventListener('click', (e) => {
 });
 
 canvas.addEventListener('mouseleave', () => {
-    if (state.hoveredId) {
-        state.hoveredId = null;
-        canvas.style.cursor = 'default';
-    }
+    if (state.hoveredId) { state.hoveredId = null; canvas.style.cursor = 'default'; }
 });
 
 // ── TOUCH INTERACTIONS ──
@@ -148,77 +171,42 @@ function getTouchDist(touches) {
 
 canvas.addEventListener('touchstart', (e) => {
     if (state.isEditing || state.isHelpOpen) return;
-    e.preventDefault(); // Prevent scrolling
-    
+    e.preventDefault(); 
     if (e.touches.length === 1) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-    } else if (e.touches.length === 2) {
-        initialPinchDist = getTouchDist(e.touches);
-    }
+        touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartTime = Date.now();
+    } else if (e.touches.length === 2) { initialPinchDist = getTouchDist(e.touches); }
 }, {passive: false});
 
 canvas.addEventListener('touchmove', (e) => {
     if (state.isEditing || state.isHelpOpen) return;
     e.preventDefault();
-    
     if (e.touches.length === 1) {
-        const dx = e.touches[0].clientX - touchStartX;
-        const dy = e.touches[0].clientY - touchStartY;
-        const absDx = Math.abs(dx);
-        const absDy = Math.abs(dy);
-        const threshold = 50; // Dead zone
-
+        const dx = e.touches[0].clientX - touchStartX, dy = e.touches[0].clientY - touchStartY;
+        const absDx = Math.abs(dx), absDy = Math.abs(dy), threshold = 50; 
         if (absDx > threshold || absDy > threshold) {
             const isBottomUp = state.layoutDir === 'bottom-up';
-            if (absDx > absDy) {
-                navigateSibling(dx > 0 ? -1 : 1);
-            } else {
-                if ((isBottomUp && dy < -threshold) || (!isBottomUp && dy > threshold)) {
-                    navigateChild();
-                } else {
-                    navigateParent();
-                }
-            }
-            // Reset start position so they can swipe again without lifting finger
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
+            if (absDx > absDy) { navigateSibling(dx > 0 ? -1 : 1); }
+            else { ((isBottomUp && dy < -threshold) || (!isBottomUp && dy > threshold)) ? navigateChild() : navigateParent(); }
+            touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
         }
     } else if (e.touches.length === 2 && initialPinchDist) {
         const currentDist = getTouchDist(e.touches);
-        const delta = (currentDist - initialPinchDist) * 0.005;
-        state.targetZoom = clamp(state.targetZoom + delta, 0.35, 1.8);
-        
+        state.targetZoom = clamp(state.targetZoom + (currentDist - initialPinchDist) * 0.005, 0.35, 1.8);
         if (!state.isOverview && state.targetZoom < CONFIG.zoomThreshold) { state.isOverview = true; state.treeVersion++; } 
         else if (state.isOverview && state.targetZoom >= CONFIG.zoomThreshold) { state.isOverview = false; state.treeVersion++; }
-        
         initialPinchDist = currentDist;
     }
 }, {passive: false});
 
 canvas.addEventListener('touchend', (e) => {
     if (state.isEditing || state.isHelpOpen) return;
-    
-    // If touch lasted very short and didn't move much, it's a Tap
     if (e.changedTouches.length === 1) {
-        const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
-        const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
-        const elapsed = Date.now() - touchStartTime;
-        
-        if (dx < 15 && dy < 15 && elapsed < 300) {
+        const dx = Math.abs(e.changedTouches[0].clientX - touchStartX), dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+        if (dx < 15 && dy < 15 && Date.now() - touchStartTime < 300) {
             const rect = canvas.getBoundingClientRect();
-            const sx = e.changedTouches[0].clientX - rect.left;
-            const sy = e.changedTouches[0].clientY - rect.top;
-            const {x: wx, y: wy} = screenToWorld(sx, sy);
-            
+            const {x: wx, y: wy} = screenToWorld(e.changedTouches[0].clientX - rect.left, e.changedTouches[0].clientY - rect.top);
             const hitId = getNodeAtPos(wx, wy);
-            if (hitId && hitId !== state.focusedId) {
-                state.focusedId = hitId;
-                state.deletePending = null;
-                state.treeVersion++;
-                updateNotePanel();
-            }
+            if (hitId && hitId !== state.focusedId) { state.focusedId = hitId; state.deletePending = null; state.treeVersion++; updateNotePanel(); }
         }
     }
     initialPinchDist = null;
@@ -228,18 +216,26 @@ canvas.addEventListener('touchend', (e) => {
 canvas.addEventListener('wheel', (e) => {
     if (state.isHelpOpen) return;
     e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.04 : 0.04;
-    state.targetZoom = clamp(state.targetZoom + delta, 0.35, 1.8);
-    
+    state.targetZoom = clamp(state.targetZoom + (e.deltaY > 0 ? -0.04 : 0.04), 0.35, 1.8);
     if (!state.isOverview && state.targetZoom < CONFIG.zoomThreshold) { state.isOverview = true; state.treeVersion++; } 
     else if (state.isOverview && state.targetZoom >= CONFIG.zoomThreshold) { state.isOverview = false; state.treeVersion++; }
 }, { passive: false });
 
-// ── PANEL MARKUP LOGIC ──
-function togglePanel() {
-    state.isPanelOpen = !state.isPanelOpen;
-    document.getElementById('panel').classList.toggle('open', state.isPanelOpen);
-}
+// ── PANEL & UI LISTENERS ──
+document.getElementById('panelToggle').addEventListener('mouseenter', () => {
+    if (!state.isPanelOpen) { state.panelHoverLock = false; openMarkupPanel(); }
+});
+
+document.getElementById('panelToggle').addEventListener('click', (e) => {
+    e.stopPropagation();
+    state.panelHoverLock = true; 
+    if (state.isPanelOpen && state.panelView === 'markup') togglePanelUI();
+    else openMarkupPanel();
+});
+
+document.getElementById('panel').addEventListener('mouseleave', () => {
+    if (!state.panelHoverLock && !state.isNoteOpen) togglePanelUI();
+});
 
 document.getElementById('importBtn').addEventListener('click', () => {
     const text = document.getElementById('markupArea').value.trim();
@@ -263,18 +259,14 @@ document.getElementById('noteArea').addEventListener('input', (e) => {
     }
 });
 
-// ── HEADER HELP BUTTON LISTENER ──
 document.getElementById('helpBtn').addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent canvas click
+    e.stopPropagation(); 
     state.isHelpOpen = !state.isHelpOpen;
 });
 
-// ── AUTO-FILL MARKUP ON FOCUS ──
 const markupArea = document.getElementById('markupArea');
 markupArea.addEventListener('focus', () => {
-    if (!markupArea.value.trim()) {
-        markupArea.value = serialize(state.tree);
-    }
+    if (!markupArea.value.trim()) markupArea.value = serialize(state.tree);
 });
 
 // ── MAIN RENDER LOOP ──
@@ -331,11 +323,12 @@ function render(timestamp) {
     }
 
     drawNodes(time);
+    drawNotePreview(time); // Hover tooltip
     drawDeleteConfirmation();
-
     ctx.restore();
 
-    drawBottomBar();
+    drawBottomBar(); // RESTORED: Bottom bar with VIEW/EDIT
+    
     if (state.isHelpOpen) drawHelpOverlay();
 
     requestAnimationFrame(render);
@@ -344,16 +337,10 @@ function render(timestamp) {
 // ── INIT ──
 function init() {
     state.isMobile = window.innerWidth <= 768;
-
-    // First-time load injection
     const savedTree = loadFromStorage();
-    if (!savedTree) {
-        state.tree = parseMarkup(DEFAULT_SAMPLE);
-    } else {
-        state.tree = savedTree;
-    }
-    
+    if (!savedTree) { state.tree = parseMarkup(DEFAULT_SAMPLE); } else { state.tree = savedTree; }
     state.focusedId = state.tree.id;
+    applySavedTheme();
     resizeCanvas();
     updateModeBadge();
     requestAnimationFrame(render);

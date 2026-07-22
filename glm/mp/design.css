@@ -1,7 +1,7 @@
 /* ============================================
    meta.fikra / ميتا.فكرة — Design Tokens
    ============================================ */
-   .mf-bar {
+.mf-bar {
     --mf-h: 48px;
     --mf-bg: rgba(8, 16, 12, 0.98);
     --mf-border: rgba(80, 120, 100, 0.15);
@@ -10,14 +10,19 @@
     --mf-title-color: rgba(160, 190, 175, 0.4);
     --mf-theme-color: rgba(60, 100, 80, 0.35);
     --mf-theme-hover: rgba(60, 130, 100, 0.6);
-    --mf-gold-dim: rgba(100, 200, 150, 0.1);    
+    --mf-gold-dim: rgba(100, 200, 150, 0.1);
     --mf-help-color: rgba(100, 200, 150, 0.3);
     --mf-help-hover: rgba(100, 200, 150, 0.7);
     --mf-help-bg: rgba(100, 200, 150, 0.08);
     pointer-events: none;
-  }
-  .mf-logo { pointer-events: auto; color: rgba(100, 200, 150, 0.7); }
-   :root {
+}
+
+.mf-logo {
+    pointer-events: auto;
+    color: rgba(100, 200, 150, 0.7);
+}
+
+:root {
     --bg: #0a0f0d;
     --bg-panel: rgba(8, 16, 12, 0.98);
     --bg-input: rgba(10, 20, 16, 0.97);
@@ -26,13 +31,11 @@
     --bg-btn-hover: rgba(70, 110, 90, 0.25);
     --bg-badge-view: rgba(80, 120, 100, 0.08);
     --bg-badge-edit: rgba(100, 200, 150, 0.12);
-  
     --border-subtle: rgba(80, 120, 100, 0.15);
     --border-input: rgba(100, 200, 150, 0.55);
     --border-textarea: rgba(80, 120, 100, 0.1);
     --border-textarea-focus: rgba(100, 200, 150, 0.2);
     --border-btn: rgba(80, 120, 100, 0.15);
-  
     --text-primary: #e0e8e4;
     --text-secondary: #b0c8ba;
     --text-dim: rgba(160, 190, 175, 0.45);
@@ -42,62 +45,80 @@
     --text-badge-view: rgba(120, 150, 135, 0.35);
     --text-badge-edit: rgba(100, 200, 150, 0.6);
     --text-placeholder: rgba(90, 130, 110, 0.25);
-  
     --header-color: rgba(160, 190, 175, 0.4);
     --help-btn-color: rgba(100, 200, 150, 0.3);
-  
     --font: 'DM Sans', 'Noto Sans Arabic', sans-serif;
-  
     --header-h: 48px;
-    --panel-w: 320px;
     --input-h: 34px;
     --radius-sm: 4px;
     --radius-md: 6px;
     --radius-lg: 12px;
     --transition-fast: 0.15s ease;
     --transition-panel: 0.22s ease;
-  }
-  
-  /* ============================================
-     Reset & Base
-     ============================================ */
-  
-  *,
-  *::before,
-  *::after {
+}
+
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  
-  body {
+}
+
+body {
     overflow: hidden;
     background: var(--bg);
     font-family: var(--font);
     color: var(--text-primary);
     user-select: none;
     -webkit-user-select: none;
-    touch-action: none; /* Crucial: Prevents mobile browser gestures like pull-to-refresh */
-  }
- 
-  /* ============================================
-     Canvas
-     ============================================ */
-  
-  #canvas {
+    touch-action: none;
+}
+
+#header {
     position: fixed;
-    top: var(--header-h);
+    top: 0;
     left: 0;
-    width: 100%;
-    height: calc(100vh - var(--header-h));
-    cursor: default; /* Dynamically changed via JS */
-  }
-  
-  /* ============================================
-     Node Input (floating, over canvas)
-     ============================================ */
-  
-  #nodeInput {
+    right: 0;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--header-color);
+    letter-spacing: 0.4px;
+    z-index: 10;
+    pointer-events: none;
+    gap: 20px;
+}
+
+.help-btn {
+    pointer-events: auto;
+    color: var(--help-btn-color);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.help-btn:hover {
+    color: rgba(100, 200, 150, 0.7);
+    background: rgba(100, 200, 150, 0.08);
+}
+
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    cursor: default;
+}
+
+#nodeInput {
     position: fixed;
     display: none;
     background: var(--bg-input);
@@ -115,195 +136,12 @@
     height: var(--input-h);
     z-index: 20;
     box-shadow: 0 0 24px rgba(100, 200, 150, 0.08);
-  }
-  
-  /* ============================================
-     Side Panel
-     ============================================ */
-  
-  #panel {
-    position: fixed;
-    top: var(--header-h);
-    left: 0;
-    bottom: 0;
-    width: var(--panel-w);
-    background: var(--bg-panel);
-    border-right: 1px solid var(--border-subtle);
-    display: flex;
-    flex-direction: column;
-    z-index: 15;
-    transform: translateX(-100%);
-    transition: transform var(--transition-panel);
-  }
-  
-  #panel.open {
-    transform: translateX(0);
-  }
-  
-  .panel-section {
-    padding: 14px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-  
-  .panel-section + .panel-section {
-    border-top: 1px solid rgba(80, 120, 100, 0.1);
-  }
-  
-  .panel-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1.8px;
-    color: var(--text-label);
-    margin-bottom: 8px;
-    text-transform: uppercase;
-  }
-  
-  .panel-textarea {
-    flex: 1;
-    background: var(--bg-textarea);
-    border: 1px solid var(--border-textarea);
-    border-radius: var(--radius-md);
-    color: var(--text-secondary);
-    font-family: var(--font);
-    font-size: 13px;
-    padding: 10px;
-    resize: none;
-    outline: none;
-    min-height: 50px;
-    line-height: 1.55;
-  }
-  
-  .panel-textarea:focus {
-    border-color: var(--border-textarea-focus);
-  }
-  
-  .panel-textarea::placeholder {
-    color: var(--text-placeholder);
-  }
-  
-  .panel-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-  }
-  
-  .panel-btn {
-    flex: 1;
-    padding: 7px;
-    background: var(--bg-btn);
-    border: 1px solid var(--border-btn);
-    border-radius: var(--radius-md);
-    color: var(--text-btn);
-    font-family: var(--font);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background var(--transition-fast), color var(--transition-fast);
-  }
-  
-  .panel-btn:hover {
-    background: var(--bg-btn-hover);
-    color: var(--text-btn-hover);
-  }
-  
-  /* ============================================
-     Mode Badge
-     ============================================ */
-  
-  #modeBadge {
-    position: fixed;
-    bottom: 14px;
-    right: 14px;
-    padding: 4px 14px;
-    border-radius: var(--radius-sm);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    z-index: 10;
-    pointer-events: none;
-    transition: all 0.2s ease;
-  }
-  
-  #modeBadge.view {
-    background: var(--bg-badge-view);
-    color: var(--text-badge-view);
-  }
-  
-  #modeBadge.edit {
-    background: var(--bg-badge-edit);
-    color: var(--text-badge-edit);
-  }
-  
-  /* ============================================
-     Mobile / Touch Adjustments
-     ============================================ */
-  
-  @media (max-width: 768px) {
-    /* Hide the edit/view badge on small screens to save space */
-    #modeBadge {
-      display: none;
-    }
-    
-    /* Make panel take full width on mobile if opened */
-    #panel {
-      width: 100%;
-    }
-  }
-  /* ============================================
-   Header Actions Container
-   ============================================ */
-.header-actions {
-  position: absolute;
-  right: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  pointer-events: auto; /* Allow clicks */
 }
 
 /* ============================================
-   Light Theme Variables (Overrides Dark)
-   ============================================ */
-body.light-mode {
-  --bg: #f0f4f2;
-  --bg-panel: rgba(255, 255, 255, 0.95);
-  --bg-input: rgba(255, 255, 255, 0.98);
-  --bg-textarea: rgba(240, 245, 242, 0.6);
-  --bg-btn: rgba(20, 60, 45, 0.06);
-  --bg-btn-hover: rgba(20, 60, 45, 0.12);
-  --bg-badge-view: rgba(20, 60, 45, 0.06);
-  --bg-badge-edit: rgba(20, 120, 80, 0.1);
-
-  --border-subtle: rgba(20, 60, 45, 0.12);
-  --border-input: rgba(20, 120, 80, 0.5);
-  --border-textarea: rgba(20, 60, 45, 0.15);
-  --border-textarea-focus: rgba(20, 120, 80, 0.4);
-  --border-btn: rgba(20, 60, 45, 0.12);
-
-  --text-primary: #1a2a22;
-  --text-secondary: #3a5a4a;
-  --text-dim: rgba(30, 60, 45, 0.5);
-  --text-label: rgba(20, 80, 60, 0.5);
-  --text-btn: #3a6a55;
-  --text-btn-hover: #1a4a35;
-  --text-badge-view: rgba(30, 80, 60, 0.4);
-  --text-badge-edit: rgba(20, 120, 80, 0.7);
-  --text-placeholder: rgba(60, 100, 80, 0.4);
-
-  --header-color: rgba(30, 70, 55, 0.6);
-  --help-btn-color: rgba(20, 100, 70, 0.4);
-
-  --barBg: 'rgba(255, 255, 255, 0.85)';
-  --barBorder: 'rgba(20, 60, 45, 0.1)';
-  --barText: 'rgba(30, 80, 60, 0.5)';
-}
-/* ============================================
-   Left Panel Toggle Icon
-   ============================================ */
-   .panel-toggle {
+     Left Context Box
+     ============================================ */
+.panel-toggle {
     position: fixed;
     top: 50%;
     left: 0;
@@ -319,13 +157,238 @@ body.light-mode {
     font-size: 14px;
     transition: all 0.2s ease;
     pointer-events: auto;
-  }
-  
-  .panel-toggle:hover {
+}
+
+.panel-toggle:hover {
     background: rgba(20, 40, 30, 0.95);
     color: rgba(100, 200, 150, 0.8);
-  }
+}
+
+body.light-mode .panel-toggle {
+    background: rgba(255, 255, 255, 0.9);
+    color: rgba(20, 80, 60, 0.5);
+    border-color: rgba(40, 80, 65, 0.15);
+}
+
+body.light-mode .panel-toggle:hover {
+    background: rgba(255, 255, 255, 1);
+    color: rgba(20, 120, 80, 0.8);
+}
+
+.context-box {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%) translateX(-100%);
+    width: 320px;
+    max-height: 70vh;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-subtle);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    z-index: 15;
+    transition: transform var(--transition-panel);
+}
+
+.context-box.open {
+    transform: translateY(-50%) translateX(0);
+}
+
+.cb-header {
+    padding: 14px 14px 10px;
+    border-bottom: 1px solid rgba(80, 120, 100, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cb-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    color: var(--text-label);
+    text-transform: uppercase;
+}
+
+.cb-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.cb-btn {
+    background: var(--bg-btn);
+    border: 1px solid var(--border-btn);
+    border-radius: var(--radius-md);
+    color: var(--text-btn);
+    font-size: 13px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.cb-btn:hover {
+    background: var(--bg-btn-hover);
+    color: var(--text-btn-hover);
+}
+
+.cb-close {
+    margin-left: 4px;
+    color: rgba(200, 100, 100, 0.5);
+}
+
+.cb-close:hover {
+    color: rgba(200, 100, 100, 0.9);
+    background: rgba(200, 60, 60, 0.15);
+}
+
+.cb-textarea {
+    flex: 1;
+    margin: 10px 14px 14px;
+    background: var(--bg-textarea);
+    border: 1px solid var(--border-textarea);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 10px;
+    resize: none;
+    outline: none;
+    line-height: 1.55;
+    min-height: 0;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.cb-textarea:focus {
+    border-color: var(--border-textarea-focus);
+}
+
+.cb-textarea.cb-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.cb-textarea::placeholder {
+    color: var(--text-placeholder);
+}
+
+/* ============================================
+     Floating Note Post-It
+     ============================================ */
+.floating-note {
+    position: fixed;
+    display: none;
+    width: 220px;
+    min-height: 80px;
+    max-height: 200px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-secondary);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 8px 10px;
+    resize: none;
+    outline: none;
+    z-index: 20;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform: translateY(5px);
+    opacity: 0;
+}
+
+.floating-note.visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.floating-note::placeholder {
+    color: var(--text-placeholder);
+}
+
+/* ============================================
+     Mode Badge
+     ============================================ */
+#modeBadge {
+    position: fixed;
+    bottom: 14px;
+    right: 14px;
+    padding: 4px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    z-index: 10;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+#modeBadge.view {
+    background: var(--bg-badge-view);
+    color: var(--text-badge-view);
+}
+
+#modeBadge.edit {
+    background: var(--bg-badge-edit);
+    color: var(--text-badge-edit);
+}
+
+/* ============================================
+     Mobile / Touch Adjustments
+     ============================================ */
+@media (max-width: 768px) {
+    #modeBadge {
+        display: none;
+    }
+
+    .context-box {
+        width: 280px;
+    }
+}
+/* ============================================
+   Light Theme Variables (Overrides Dark)
+   ============================================ */
+   body.light-mode {
+    --bg: #f0f4f2;
+    --bg-panel: rgba(255, 255, 255, 0.95);
+    --bg-input: rgba(255, 255, 255, 0.98);
+    --bg-textarea: rgba(240, 245, 242, 0.6);
+    --bg-btn: rgba(20, 60, 45, 0.06);
+    --bg-btn-hover: rgba(20, 60, 45, 0.12);
+    --bg-badge-view: rgba(20, 60, 45, 0.06);
+    --bg-badge-edit: rgba(20, 120, 80, 0.1);
   
+    --border-subtle: rgba(20, 60, 45, 0.12);
+    --border-input: rgba(20, 120, 80, 0.5);
+    --border-textarea: rgba(20, 60, 45, 0.15);
+    --border-textarea-focus: rgba(20, 120, 80, 0.4);
+    --border-btn: rgba(20, 60, 45, 0.12);
+  
+    --text-primary: #1a2a22;
+    --text-secondary: #3a5a4a;
+    --text-dim: rgba(30, 60, 45, 0.5);
+    --text-label: rgba(20, 80, 60, 0.5);
+    --text-btn: #3a6a55;
+    --text-btn-hover: #1a4a35;
+    --text-badge-view: rgba(30, 80, 60, 0.4);
+    --text-badge-edit: rgba(20, 120, 80, 0.7);
+    --text-placeholder: rgba(60, 100, 80, 0.4);
+  
+    --header-color: rgba(30, 70, 55, 0.6);
+    --help-btn-color: rgba(20, 100, 70, 0.4);
+  
+    --barBg: 'rgba(255, 255, 255, 0.85)';
+    --barBorder: 'rgba(20, 60, 45, 0.1)';
+    --barText: 'rgba(30, 80, 60, 0.5)';
+  }
   body.light-mode .panel-toggle {
     background: rgba(255, 255, 255, 0.9);
     color: rgba(20, 80, 60, 0.5);

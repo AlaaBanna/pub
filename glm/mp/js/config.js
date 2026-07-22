@@ -28,8 +28,8 @@ const THEMES = {
     },
     light: {
       bg: '#f0f4f2',
-      bgGlow: 'rgba(200, 220, 210, 0.4)',
-      nodeFill: 'rgba(255, 255, 255, 0.9)',
+      bgGlow: 'rgba(200, 225, 215, 0.45)',
+      nodeFill: 'rgba(255, 255, 255, 0.92)',
       border: 'rgba(40, 80, 65, 0.2)',
       selectedBorder: 'rgba(20, 120, 80, 0.7)',
       selectedGlow: 'rgba(20, 120, 80, 0.15)',
@@ -55,14 +55,14 @@ const THEMES = {
   };
   
   const CONFIG = {
-      maxVisibleChildren: 8,
+      maxVisibleChildren: 10,
       zoomThreshold: 0.8,
-      nodeRadius: { focused: 150, parent: 75, child: 95 },
-      alive: { focus: 2.0, overview: 0.3, intensity: 1.0 },
+      nodeRadius: { focused: 62, parent: 42, child: 48 },
+      alive: { focus: 1.5, overview: 0.3, intensity: 0.8 },
       lerpSpeed: 10,
-      layout: { focusVGap: 340, focusHGap: 330, ovVGap: 180, ovHGap: 160 },
+      layout: { focusVGap: 200, focusHGap: 180, ovVGap: 130, ovHGap: 140 },
       undoMaxStates: 200,
       colors: THEMES.dark, // Default starting theme
       font: "'DM Sans', 'Noto Sans Arabic', sans-serif",
-      fontSize: { focused: 15, child: 13, parent: 12, ovFocused: 14, ovChild: 11, ovGrandchild: 10 }
+      fontSize: { focused: 14, child: 12, parent: 11, ovFocused: 13, ovChild: 11, ovGrandchild: 10 }
   };

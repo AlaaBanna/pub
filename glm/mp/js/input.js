@@ -1,61 +1,84 @@
 document.addEventListener('keydown', (e) => {
-    // Help toggle overrides everything
-    if (e.key === '?') { e.preventDefault(); state.isHelpOpen = !state.isHelpOpen; return; }
-    if (state.isHelpOpen) { if (e.key === 'Escape') { e.preventDefault(); state.isHelpOpen = false; } return; }
+    const activeEl = document.activeElement;
+    const isEditingInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+    const isCtrl = e.ctrlKey || e.metaKey;
 
-    // Note editing state
-    if (state.isNoteOpen) {
-        if (e.key === 'Escape') { e.preventDefault(); closeNote(); return; }
-        
-        // FIX: Catch 'N' to toggle the note panel closed
-        if (e.key === 'n' || e.key === 'N') { e.preventDefault(); closeNote(); return; }
-        
-        if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
-            const isBottomUp = state.layoutDir === 'bottom-up';
-            const keyChild = isBottomUp ? 'ArrowUp' : 'ArrowDown';
-            const keyParent = isBottomUp ? 'ArrowDown' : 'ArrowUp';
-
-            if (e.key === keyChild) { e.preventDefault(); navigateChild(); return; }
-            if (e.key === keyParent) { e.preventDefault(); navigateParent(); return; }
-            if (e.key === 'ArrowLeft') { e.preventDefault(); navigateSibling(-1); return; }
-            if (e.key === 'ArrowRight') { e.preventDefault(); navigateSibling(1); return; }
+    // 1. Help overlay toggle
+    if (e.key === '?') {
+        if (!isEditingInput) {
+            e.preventDefault();
+            state.isHelpOpen = !state.isHelpOpen;
+            return;
         }
-        return; 
+    }
+    if (state.isHelpOpen) {
+        if (e.key === 'Escape') { e.preventDefault(); state.isHelpOpen = false; }
+        return;
     }
 
-    // If markup panel is open, Escape closes it
-    if (e.key === 'Escape' && state.isPanelOpen) {
+    // Global toggle for Context Box (Ctrl+M / Cmd+M)
+    if (isCtrl && (e.key === 'm' || e.key === 'M')) {
         e.preventDefault();
-        togglePanelUI();
+        toggleContextBox();
         return;
     }
 
-    if (state.isEditing) {
-        if (e.key === 'Enter') { e.preventDefault(); hideNodeInput(true); }
-        else if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
-        else if (e.key === 'Tab') { e.preventDefault(); confirmEditAndCreateChild(); }
+    // Global Export PNG (Ctrl+E / Cmd+E)
+    if (isCtrl && (e.key === 'e' || e.key === 'E')) {
+        e.preventDefault();
+        exportAsPNG();
         return;
     }
 
-    // Global
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'y') { e.preventDefault(); redo(); return; }
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'M' || e.key === 'm')) { e.preventDefault(); openMarkupPanel(); return; }
+    // 2. Focused inside Floating Note
+    if (activeEl === document.getElementById('floatingNote')) {
+        if (e.key === 'Escape') { e.preventDefault(); closeFloatingNote(); return; }
+        if (isCtrl && e.key === 'Enter') { e.preventDefault(); closeFloatingNote(); return; }
+        return; // Pass through text keys, 'n'/'N', and arrows to note textarea
+    }
+
+    // 3. Focused inside Context Box Textarea
+    if (activeEl === document.getElementById('cbTextarea')) {
+        if (e.key === 'Escape') { e.preventDefault(); closeContextBox(); return; }
+        if (isCtrl && e.key === 'Enter') { e.preventDefault(); rebuildFromMarkup(); return; }
+        return; // Pass through text keys to markup textarea
+    }
+
+    // 4. Node Input Editing state
+    if (state.isEditing || activeEl === document.getElementById('nodeInput')) {
+        if (e.key === 'Enter') { e.preventDefault(); hideNodeInput(true); return; }
+        if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); return; }
+        if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); confirmEditAndCreateChild(); return; }
+        if (e.key === 'Tab' && e.shiftKey) { e.preventDefault(); hideNodeInput(true); createSibling(); return; }
+        return; // Pass through character typing inside nodeInput
+    }
+
+    // Pass through if user is focused in any other text input element
+    if (isEditingInput) return;
+
+    // 5. Global Navigation & Canvas Shortcuts (Non-Input context)
+    if (e.key === 'Escape') {
+        if (state.isNoteOpen) { e.preventDefault(); closeFloatingNote(); return; }
+        if (state.isContextOpen) { e.preventDefault(); closeContextBox(); return; }
+    }
+
+    if (isCtrl && e.key === 'z') { e.preventDefault(); undo(); return; }
+    if (isCtrl && e.key === 'y') { e.preventDefault(); redo(); return; }
+    if (isCtrl && e.key === 'c') { e.preventDefault(); copyMarkupToClipboard(); return; }
+    if (isCtrl && e.shiftKey && (e.key === 'N' || e.key === 'n')) { e.preventDefault(); newMap(); return; }
 
     const isShift = e.shiftKey;
-    const isCtrl = e.ctrlKey || e.metaKey;
 
     if (e.key === 'Delete') { e.preventDefault(); handleDelete(isShift); return; }
     if (isCtrl && e.key === 'ArrowLeft') { e.preventDefault(); reorderNode(-1); return; }
     if (isCtrl && e.key === 'ArrowRight') { e.preventDefault(); reorderNode(1); return; }
 
     if (state.isOverview) {
-        if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetView(); }
+        if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetView(); return; }
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
         return;
     }
 
-    // Spatial Navigation
     const isBottomUp = state.layoutDir === 'bottom-up';
     const keyChild = isBottomUp ? 'ArrowUp' : 'ArrowDown';
     const keyParent = isBottomUp ? 'ArrowDown' : 'ArrowUp';
@@ -65,14 +88,15 @@ document.addEventListener('keydown', (e) => {
         case keyParent: e.preventDefault(); navigateParent(); break;
         case 'ArrowLeft': e.preventDefault(); navigateSibling(-1); break;
         case 'ArrowRight': e.preventDefault(); navigateSibling(1); break;
-        case 'n': case 'N': e.preventDefault(); openNote(); break;
+        case 'n': case 'N': e.preventDefault(); openFloatingNote(); break;
         case 'v': case 'V': e.preventDefault(); toggleMode(); break;
         case 'g': case 'G': e.preventDefault(); toggleLayout(); break;
         case 'r': case 'R': e.preventDefault(); resetView(); break;
         case 'Enter': e.preventDefault(); startEditing(); break;
-        case 'Tab': e.preventDefault(); createChild(); break;
+        case 'Tab':
+            e.preventDefault();
+            if (e.shiftKey) createSibling();
+            else createChild();
+            break;
     }
 });
-
-// Strict tab prevention
-window.addEventListener('keydown', (e) => { if (e.key === 'Tab') e.preventDefault(); }, true);

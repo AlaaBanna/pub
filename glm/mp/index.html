@@ -3,51 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="icon" type="image/png" href="../favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg" />
+  <link rel="shortcut icon" href="../favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png" />
   <title>meta.fikra: Mind Map Builder</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="design.css">
   <link rel="stylesheet" href="../meta.css">
 </head>
 <body class="dark-mode">
 
-  <!-- Updated icon for left menu -->
-  <div id="panelToggle" class="panel-toggle" title="Markup Panel">
-    <i class="fa-solid fa-file-code"></i>
+  <div id="panelToggle" class="panel-toggle" title="Context Box">
+    <i class="fa-solid fa-code"></i>
   </div>
-  <canvas id="canvas"></canvas>
-  <input
-    id="nodeInput"
-    type="text"
-    dir="auto"
-    autocomplete="off"
-    spellcheck="false"
-  >
 
-  <aside id="panel">
-    <!-- ADDED: id="noteSection" so JS can hide/show it separately -->
-    <div class="panel-section" id="noteSection">
-      <div class="panel-label">Note</div>
-      <textarea id="noteArea" class="panel-textarea" dir="auto" placeholder="Add note..."></textarea>
-    </div>
-    <!-- ADDED: id="markupSection" so JS can hide/show it separately -->
-    <div class="panel-section" id="markupSection">
-      <div class="panel-label">Markup</div>
-      <textarea id="markupArea" class="panel-textarea" dir="auto" placeholder="Paste markup here..."></textarea>
-      <div class="panel-actions">
-        <button class="panel-btn" id="importBtn">Import</button>
-        <button class="panel-btn" id="copyBtn">Copy All</button>
+  <canvas id="canvas"></canvas>
+  
+  <input id="nodeInput" type="text" dir="auto" autocomplete="off" spellcheck="false">
+
+  <div id="contextBox" class="context-box">
+    <div class="cb-header">
+      <span class="cb-title">Markup</span>
+      <div class="cb-actions">
+        <button id="cbCopyBtn" class="cb-btn" title="Copy Markup"><i class="fa-solid fa-copy"></i></button>
+        <button id="cbRebuildBtn" class="cb-btn" title="Build Mind Map"><i class="fa-solid fa-play"></i></button>
+        <button id="cbCloseBtn" class="cb-btn cb-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
       </div>
     </div>
-  </aside>
+    <textarea id="cbTextarea" class="cb-textarea" dir="auto" placeholder="Paste markup text here and click Build..."></textarea>
+  </div>
+
+  <textarea id="floatingNote" class="floating-note" dir="auto" placeholder="Add note..."></textarea>
 
   <div id="modeBadge" class="view">VIEW</div>
 
-  <!-- meta.js loads first to build the header -->
   <script src="../meta.js" data-project="Mind Map Builder" data-home="../" data-help="Keyboard Shortcuts" data-help-id="helpBtn"></script>
-  
-  <!-- Our files load second -->
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/layout.js"></script>

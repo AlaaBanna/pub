@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,138 +16,164 @@
   <link rel="stylesheet" href="../meta.css">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-4 sm:p-6 md:p-8">
+
+<body
+  class="min-h-screen flex flex-col items-center justify-between px-3 pb-3 sm:px-6 sm:pb-6 md:px-8 md:pb-8 pt-[56px]">
   <div id="panelToggle" class="panel-toggle" title="Context Box">
   </div>
-  <header class="w-full max-w-3xl text-center my-2">
-   <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-1"></h1>
-    <p class="text-slate-400 text-sm sm:text-base max-w-lg mx-auto">
-      Find the <span class="text-amber-400 font-semibold">Ace ♠</span> hidden behind 3 cards. 2 are <span class="text-slate-300 font-semibold">Kings ♔</span>.
+
+  <header class="w-full max-w-4xl text-center mt-2 mb-2">
+    <div
+      class="inline-block px-3 py-1 mb-2 text-[11px] font-semibold tracking-wider text-sky-400 bg-sky-950/40 border border-sky-800/40 rounded-full uppercase">
+      Provably Fair Bayesian Simulation
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
+      The Monty Hall Paradox
+    </h1>
+    <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mb-4">
+      Locate the single <span class="text-amber-400 font-semibold">Ace ♠</span> hidden among <span id="headerCardCount"
+        class="text-sky-400 font-bold">3</span> cards. All others are <span class="text-slate-300 font-semibold">Kings
+        ♔</span>.
     </p>
+
+    <!-- Deck Size Selector Tabs -->
+    <div class="inline-flex p-1 bg-slate-900/90 border border-slate-800 rounded-xl shadow-lg">
+      <button id="modeBtn3" onclick="setDeckSize(3)"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-sky-500 text-slate-950 shadow">
+        3 Cards <span class="text-[10px] opacity-80">(Classic)</span>
+      </button>
+      <button id="modeBtn10" onclick="setDeckSize(10)"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-slate-200">
+        10 Cards <span class="text-[10px] opacity-80">(10% vs 90%)</span>
+      </button>
+      <button id="modeBtn100" onclick="setDeckSize(100)"
+        class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-slate-200">
+        100 Cards <span class="text-[10px] opacity-80">(1% vs 99%)</span>
+      </button>
+    </div>
   </header>
 
-  <main class="w-full max-w-3xl flex flex-col items-center gap-5 my-auto">
-    
+  <main class="w-full max-w-4xl flex flex-col items-center gap-4 my-auto">
+
     <!-- Game Status Header -->
-    <div class="text-center min-h-[56px] flex flex-col justify-center">
-      <div id="gameStatusText" class="text-base sm:text-lg font-semibold text-sky-400">
+    <div class="text-center min-h-[60px] flex flex-col justify-center px-2">
+      <div id="gameStatusText" class="text-base sm:text-lg font-bold text-sky-400">
         Pick a card to begin
       </div>
       <div id="gameStatusSubtext" class="text-xs sm:text-sm text-slate-400 mt-0.5">
-        Cards are generated in advance to guarantee unbiased outcomes.
+        Select any card to locate the Ace.
       </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-3 sm:gap-6 w-full max-w-2xl px-2">
-      <!-- Card 0 -->
-      <div id="cardWrapper0" class="flex flex-col items-center gap-2">
-        <div id="cardContainer0" onclick="handleCardClick(0)" class="card-container h-52 sm:h-64 w-full cursor-pointer select-none">
-          <div id="cardInner0" class="card-inner">
-            <div id="cardFront0" class="card-front flex flex-col items-center justify-between p-2.5 sm:p-4 hover:border-sky-500/70 transition-colors">
-              <span class="text-xs sm:text-sm font-semibold text-slate-400">#1</span>
-              <div class="text-2xl sm:text-4xl opacity-40">🂠</div>
-              <div id="cardOverlay0" class="w-full flex justify-center min-h-[42px] items-center">
-                <span id="cardTag0" class="text-[10px] sm:text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">Select</span>
-              </div>
-            </div>
-            <div id="cardBack0" class="card-back flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl border-2">
-              <div id="cardContent0" class="text-center w-full"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Interactive Cards Arena Container -->
+    <div id="cardArena" class="w-full max-w-3xl px-1 sm:px-2">
+      <!-- Dynamically filled by JS renderer -->
+    </div>
 
-      <!-- Card 1 -->
-      <div id="cardWrapper1" class="flex flex-col items-center gap-2">
-        <div id="cardContainer1" onclick="handleCardClick(1)" class="card-container h-52 sm:h-64 w-full cursor-pointer select-none">
-          <div id="cardInner1" class="card-inner">
-            <div id="cardFront1" class="card-front flex flex-col items-center justify-between p-2.5 sm:p-4 hover:border-sky-500/70 transition-colors">
-              <span class="text-xs sm:text-sm font-semibold text-slate-400">#2</span>
-              <div class="text-2xl sm:text-4xl opacity-40">🂠</div>
-              <div id="cardOverlay1" class="w-full flex justify-center min-h-[42px] items-center">
-                <span id="cardTag1" class="text-[10px] sm:text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">Select</span>
-              </div>
-            </div>
-            <div id="cardBack1" class="card-back flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl border-2">
-              <div id="cardContent1" class="text-center w-full"></div>
-            </div>
-          </div>
+    <!-- Action Bar (Decision Controls) -->
+    <div id="actionContainer" class="w-full max-w-md hidden my-2">
+      <div
+        class="bg-slate-900/90 border border-sky-500/40 rounded-2xl p-3 sm:p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+        <div>
+          <div class="text-xs font-bold text-slate-300">Decision Required:</div>
+          <div id="actionDescription" class="text-xs text-sky-400">Switch or Keep?</div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button id="switchBtn" onclick="handleDecision(true)"
+            class="flex-1 sm:flex-none py-2 px-4 bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg transition active:scale-95">
+            Switch Card
+          </button>
+          <button id="keepBtn" onclick="handleDecision(false)"
+            class="flex-1 sm:flex-none py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition active:scale-95">
+            Keep Card
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- Card 2 -->
-      <div id="cardWrapper2" class="flex flex-col items-center gap-2">
-        <div id="cardContainer2" onclick="handleCardClick(2)" class="card-container h-52 sm:h-64 w-full cursor-pointer select-none">
-          <div id="cardInner2" class="card-inner">
-            <div id="cardFront2" class="card-front flex flex-col items-center justify-between p-2.5 sm:p-4 hover:border-sky-500/70 transition-colors">
-              <span class="text-xs sm:text-sm font-semibold text-slate-400">#3</span>
-              <div class="text-2xl sm:text-4xl opacity-40">🂠</div>
-              <div id="cardOverlay2" class="w-full flex justify-center min-h-[42px] items-center">
-                <span id="cardTag2" class="text-[10px] sm:text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700/60">Select</span>
-              </div>
-            </div>
-            <div id="cardBack2" class="card-back flex flex-col items-center justify-center p-2.5 sm:p-4 rounded-2xl border-2">
-              <div id="cardContent2" class="text-center w-full"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Reset / Next Game Button Bar -->
+    <div id="nextGameBar" class="hidden my-1">
+      <button onclick="resetRound()"
+        class="py-2 px-6 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black uppercase tracking-wider rounded-xl shadow-lg transition active:scale-95 flex items-center gap-2">
+        <span>Play Next Game</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </button>
     </div>
 
     <div class="w-full mt-2">
       <div class="flex items-center justify-between mb-2 px-1">
-        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Performance Statistics</span>
-        <button onclick="resetAll()" class="text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-medium px-2.5 py-1 rounded-lg border border-slate-700/60 transition active:scale-95">
-          Reset
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Performance Statistics</span>
+          <span id="statsModeBadge"
+            class="text-[10px] font-bold bg-sky-950 text-sky-400 border border-sky-800/60 px-2 py-0.5 rounded-full">3
+            Cards Mode</span>
+        </div>
+        <button onclick="resetStats()"
+          class="text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-medium px-2.5 py-1 rounded-lg border border-slate-700/60 transition active:scale-95">
+          Reset Stats
         </button>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <!-- Switch Stats -->
-        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-sky-400 uppercase tracking-wider">Switch Strategy</span>
-            <span id="switchWinRate" class="text-2xl font-bold text-sky-400">0%</span>
+        <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-sky-400 uppercase tracking-wider">Switch Strategy</span>
+            <span id="switchWinRate" class="text-2xl font-extrabold text-sky-400">0%</span>
           </div>
-          <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden mb-2">
+          <div class="w-full bg-slate-800/80 h-2.5 rounded-full overflow-hidden mb-2">
             <div id="switchBar" class="bg-sky-500 h-full transition-all duration-500" style="width: 0%"></div>
           </div>
-          <div id="switchWinCount" class="text-xs text-slate-400">0 wins / 0 games</div>
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span id="switchWinCount">0 wins / 0 games</span>
+            <span class="text-[10px] text-slate-500">Expected: <strong id="switchExpectedText"
+                class="text-sky-400">66.7%</strong></span>
+          </div>
         </div>
 
         <!-- Keep Stats -->
-        <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Keep Strategy</span>
-            <span id="stayWinRate" class="text-2xl font-bold text-slate-300">0%</span>
+        <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Keep Strategy</span>
+            <span id="stayWinRate" class="text-2xl font-extrabold text-slate-300">0%</span>
           </div>
-          <div class="w-full bg-slate-800/80 h-2 rounded-full overflow-hidden mb-2">
+          <div class="w-full bg-slate-800/80 h-2.5 rounded-full overflow-hidden mb-2">
             <div id="stayBar" class="bg-slate-500 h-full transition-all duration-500" style="width: 0%"></div>
           </div>
-          <div id="stayWinCount" class="text-xs text-slate-400">0 wins / 0 games</div>
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span id="stayWinCount">0 wins / 0 games</span>
+            <span class="text-[10px] text-slate-500">Expected: <strong id="stayExpectedText"
+                class="text-slate-400">33.3%</strong></span>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="w-full bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4">
+    <div class="w-full bg-slate-900/70 border border-slate-800/80 rounded-2xl p-3 sm:p-4 mt-1">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Schedule</span>
-          <span id="batchProgressBadge" class="text-[10px] bg-slate-800 text-sky-400 border border-slate-700/60 px-2 py-0.5 rounded-full">Game 1 of 10</span>
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Pre-Generated Batch Schedule</span>
+          <span id="batchProgressBadge"
+            class="text-[10px] bg-slate-800 text-sky-400 border border-slate-700/60 px-2 py-0.5 rounded-full">Game 1 of
+            10</span>
         </div>
-        <button id="peekBtn" onclick="togglePeek()" class="text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700/60 transition">
+        <button id="peekBtn" onclick="togglePeek()"
+          class="text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-medium px-3 py-1.5 rounded-lg border border-slate-700/60 transition">
           Reveal Future Decks
         </button>
       </div>
 
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto max-h-48 overflow-y-auto">
         <table class="w-full text-left text-xs">
-          <thead>
-            <tr class="border-b border-slate-800 text-slate-400">
+          <thead class="sticky top-0 bg-slate-900 border-b border-slate-800 text-slate-400 z-10">
+            <tr>
               <th class="py-2 px-3">#</th>
               <th class="py-2 px-3">Ace Position</th>
               <th class="py-2 px-3">Your Pick</th>
-              <th class="py-2 px-3">Host Revealed</th>
+              <th class="py-2 px-3">Host Eliminated</th>
               <th class="py-2 px-3">Action</th>
               <th class="py-2 px-3 text-right">Result</th>
             </tr>
@@ -160,15 +187,14 @@
 
   </main>
 
-  <footer class="text-center text-xs text-slate-500 my-3 flex flex-col items-center justify-center gap-1.5">
-    <div>Expected Value: Switching = <strong class="text-sky-400">66.7%</strong> win rate | Keeping = <strong class="text-slate-400">33.3%</strong> win rate</div>
-    <div class="text-[11px] font-medium text-slate-400/80 flex items-center justify-center gap-1">
-      <span>Built by</span>
-      <span class="text-sky-400 font-semibold">Gemini</span>
-    </div>
+  <footer class="text-center text-xs text-slate-500 my-4 flex flex-col items-center justify-center gap-1">
+    <div>Bayesian Theorem Limit (<span id="footerDeckSizeText">3</span> Cards): Switch Win Rate = <strong
+        id="footerSwitchExp" class="text-sky-400">66.7%</strong> | Keep Win Rate = <strong id="footerKeepExp"
+        class="text-slate-400">33.3%</strong></div>
   </footer>
 
   <script src="script.js"> </script>
-   <script src="../meta.js" data-project="Monty Hall Simulator" data-home="../" data-help-id="helpBtn"></script>
+  <script src="../meta.js" data-project="Monty Hall Simulator" data-home="../" data-help-id="helpBtn"></script>
 </body>
+
 </html>

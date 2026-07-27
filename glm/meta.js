@@ -25,8 +25,11 @@
 })();
 
 function mfIsLight() {
-  var pageKey = document.body.getAttribute('data-home') || '';
-  return pageKey ? localStorage.getItem(pageKey + '-theme') === 'l' : false;
+  try {
+    return localStorage.getItem('mf-theme') === 'l';
+  } catch (e) {
+    return false;
+  }
 }
 
 function mfToggleTheme() {

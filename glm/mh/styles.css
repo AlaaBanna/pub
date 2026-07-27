@@ -1,79 +1,85 @@
-     body {
-         font-family: 'Inter', sans-serif;
-         background-color: #0b1329;
-         color: #f8fafc;
-     }
+  body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b1329;
+      color: #f8fafc;
+    }
+    .font-card {
+      font-family: 'Cinzel', serif;
+    }
+    /* 3D Card Perspective & Smooth Rotation */
+    .card-container {
+      perspective: 1000px;
+      position: relative;
+      z-index: 1;
+    }
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .card-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 0.75rem;
+    }
+    .card-back {
+      transform: rotateY(180deg);
+    }
+    
+    /* Glow States */
+    .glow-amber {
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.6);
+      border-color: #f59e0b !important;
+    }
+    .glow-sky {
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.7);
+      border-color: #38bdf8 !important;
+    }
+    .glow-emerald {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.7);
+      border-color: #10b981 !important;
+    }
+    .glow-rose {
+      box-shadow: 0 0 16px rgba(244, 63, 94, 0.6);
+      border-color: #f43f5e !important;
+    }
 
-     .font-card {
-         font-family: 'Cinzel', serif;
-     }
+    /* Card Deal & Option Load Entrance Animation */
+    @keyframes dealIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-24px) scale(0.85) rotate(-5deg);
+      }
+      65% {
+        transform: translateY(3px) scale(1.02) rotate(1.5deg);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotate(0deg);
+      }
+    }
 
-     /* 3D Card Perspective & Rotation */
-     .card-container {
-         perspective: 1000px;
-         position: relative;
-         z-index: 1;
-     }
+    .card-deal-anim {
+      animation: dealIn 0.4s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+    }
 
-     .card-inner {
-         position: relative;
-         width: 100%;
-         height: 100%;
-         transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-         transform-style: preserve-3d;
-     }
+    /* Instant flip state without animation (prevents glitch on re-renders) */
+    .card-inner.no-transition {
+      transition: none !important;
+    }
 
-     .card-inner.is-flipped {
-         transform: rotateY(180deg);
-     }
-
-     .card-front,
-     .card-back {
-         position: absolute;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         -webkit-backface-visibility: hidden;
-         backface-visibility: hidden;
-         border-radius: 1rem;
-     }
-
-     .card-back {
-         transform: rotateY(180deg);
-     }
-
-     /* Glow States */
-     .glow-amber {
-         box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
-         border-color: #f59e0b !important;
-     }
-
-     .glow-sky {
-         box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
-         border-color: #38bdf8 !important;
-     }
-
-     .glow-emerald {
-         box-shadow: 0 0 22px rgba(16, 185, 129, 0.7);
-         border-color: #10b981 !important;
-     }
-
-     .glow-rose {
-         box-shadow: 0 0 18px rgba(244, 63, 94, 0.6);
-         border-color: #f43f5e !important;
-     }
-
-     .mf-logo {
-         font-size: var(--mf-logo-size, 13px);
-         font-weight: 600;
-         color: var(--mf-logo-color, #38bdf8);
-         text-decoration: none;
-         letter-spacing: 0.02em;
-         display: flex;
-         align-items: center;
-         gap: 6px;
-         transition: opacity 0.2s;
-         flex-shrink: 0;
-         pointer-events: auto;
-     }
+    /* 1st Pick Amber Highlight in Result State */
+    .pick-indicator-amber {
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.7) !important;
+      border-color: #f59e0b !important;
+    }

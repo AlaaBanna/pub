@@ -17,6 +17,7 @@
     rel="stylesheet">
   <link rel="stylesheet" href="../meta.css">
   <link rel="stylesheet" href="styles.css">
+
 </head>
 
 <body
@@ -32,7 +33,7 @@
     <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1">
       The Monty Hall Paradox
     </h1>
-    <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mb-4">
+    <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mb-3">
       Locate the single <span class="text-amber-400 font-semibold">Ace ♠</span> hidden among <span id="headerCardCount"
         class="text-sky-400 font-bold">3</span> cards. All others are <span class="text-slate-300 font-semibold">Kings
         ♔</span>.
@@ -55,10 +56,10 @@
     </div>
   </header>
 
-  <main class="w-full max-w-4xl flex flex-col items-center gap-4 my-auto">
+  <main class="w-full max-w-4xl flex flex-col items-center gap-3 my-auto">
 
     <!-- Game Status Header -->
-    <div class="text-center min-h-[56px] flex flex-col justify-center px-2">
+    <div class="text-center min-h-[52px] flex flex-col justify-center px-2">
       <div id="gameStatusText" class="text-base sm:text-lg font-bold text-sky-400">
         Pick a card to begin
       </div>
@@ -67,14 +68,27 @@
       </div>
     </div>
 
-    <!-- Interactive 3D Cards Arena Container -->
-    <div id="cardArena"
-      class="w-full max-w-3xl px-1 sm:px-2 min-h-[210px] sm:min-h-[250px] flex items-center justify-center relative z-0 py-2">
-      <!-- Dynamically filled by JS -->
-    </div>
-
-    <!-- Action & Decision Controls Area with Reserved Space -->
+    <!-- Action & Decision Controls Area -->
     <div class="w-full max-w-md min-h-[64px] flex items-center justify-center my-1 relative z-10">
+      <!-- Initial Pick Info Bar (Step 1) -->
+      <div id="pickInfoBar" class="w-full">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-3.5 shadow-xl flex items-center justify-between gap-3 text-center sm:text-left">
+          <div class="flex items-center gap-2.5 mx-auto sm:mx-0">
+            <div class="w-7 h-7 rounded-xl bg-sky-950 border border-sky-500/30 flex items-center justify-center text-sky-400 font-bold text-xs shrink-0">
+              1
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-200">Step 1: Pick Any Card</div>
+              <div class="text-[11px] text-slate-400">1 Ace ♠ hidden among <span id="pickInfoCardCount" class="text-sky-400 font-semibold">2</span> Kings ♔</div>
+            </div>
+          </div>
+          <div class="hidden sm:flex items-center gap-2 text-[11px] text-slate-400 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800 shrink-0">
+            <span>Prior Win Odds:</span>
+            <span id="pickInfoOdds" class="font-bold text-amber-400">33.3%</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Action Bar (Decision Controls) -->
       <div id="actionContainer" class="w-full hidden">
         <div
@@ -108,8 +122,14 @@
       </div>
     </div>
 
+    <!-- Interactive 3D Cards Arena Container -->
+    <div id="cardArena"
+      class="w-full max-w-3xl px-1 sm:px-2 min-h-[210px] sm:min-h-[250px] flex items-center justify-center relative z-0 py-2">
+      <!-- Dynamically filled by JS -->
+    </div>
+
     <!-- Stats Section -->
-    <div class="w-full mt-2 relative z-10">
+    <div class="w-full mt-1 relative z-10">
       <div class="flex items-center justify-between mb-2 px-1">
         <div class="flex items-center gap-2">
           <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Performance Statistics</span>
@@ -199,10 +219,10 @@
         id="footerSwitchExp" class="text-sky-400">66.7%</strong> | Keep Win Rate = <strong id="footerKeepExp"
         class="text-slate-400">33.3%</strong></div>
   </footer>
-  <script src="script.js"></script>
+
   <script src="../meta.js" data-project="Monty Hall Simulator" data-home="../" data-help-id="helpBtn"></script>
 
-
+  <script src="script.js"></script>
 </body>
 
 </html>

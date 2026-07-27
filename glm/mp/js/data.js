@@ -1,3 +1,4 @@
+// Version: v1.3.0 | Updated: 2026-07-28 | Features: Sample data & markup serialization
 // ── UTILITIES ──
 const uid = () => Math.random().toString(36).slice(2, 11);
 const clone = o => JSON.parse(JSON.stringify(o));

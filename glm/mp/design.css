@@ -1,54 +1,54 @@
-/* Version: v1.1.0 | Updated: 2026-07-28 | Features: Left panel icon styling, Light mode background & layout fixes */
+/* Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra warm gold & slate design system styling */
 /* ============================================
    meta.fikra / ميتا.فكرة — Design Tokens
    ============================================ */
 .mf-bar {
     --mf-h: 48px;
-    --mf-bg: rgba(8, 16, 12, 0.98);
-    --mf-border: rgba(80, 120, 100, 0.15);
-    --mf-logo-color: rgba(100, 200, 150, 0.6);
-    --mf-dot-color: rgba(100, 200, 150, 0.6);
-    --mf-title-color: rgba(160, 190, 175, 0.4);
-    --mf-theme-color: rgba(60, 100, 80, 0.35);
-    --mf-theme-hover: rgba(60, 130, 100, 0.6);
-    --mf-gold-dim: rgba(100, 200, 150, 0.1);
-    --mf-help-color: rgba(100, 200, 150, 0.3);
-    --mf-help-hover: rgba(100, 200, 150, 0.7);
-    --mf-help-bg: rgba(100, 200, 150, 0.08);
+    --mf-bg: rgba(30, 30, 30, 0.98);
+    --mf-border: rgba(68, 68, 68, 0.3);
+    --mf-logo-color: #e2b714;
+    --mf-dot-color: #e2b714;
+    --mf-title-color: rgba(224, 224, 224, 0.6);
+    --mf-theme-color: rgba(226, 183, 20, 0.35);
+    --mf-theme-hover: rgba(226, 183, 20, 0.6);
+    --mf-gold-dim: rgba(226, 183, 20, 0.1);
+    --mf-help-color: rgba(226, 183, 20, 0.5);
+    --mf-help-hover: rgba(226, 183, 20, 0.9);
+    --mf-help-bg: rgba(226, 183, 20, 0.08);
     pointer-events: none;
 }
 
 .mf-logo {
     pointer-events: auto;
-    color: rgba(100, 200, 150, 0.7);
+    color: #e2b714;
 }
 
 :root {
-    --bg: #0a0f0d;
-    --bg-panel: rgba(8, 16, 12, 0.98);
-    --bg-input: rgba(10, 20, 16, 0.97);
-    --bg-textarea: rgba(12, 22, 18, 0.5);
-    --bg-btn: rgba(70, 110, 90, 0.1);
-    --bg-btn-hover: rgba(70, 110, 90, 0.25);
-    --bg-badge-view: rgba(80, 120, 100, 0.08);
-    --bg-badge-edit: rgba(100, 200, 150, 0.12);
-    --border-subtle: rgba(80, 120, 100, 0.15);
-    --border-input: rgba(100, 200, 150, 0.55);
-    --border-textarea: rgba(80, 120, 100, 0.1);
-    --border-textarea-focus: rgba(100, 200, 150, 0.2);
-    --border-btn: rgba(80, 120, 100, 0.15);
-    --text-primary: #e0e8e4;
-    --text-secondary: #b0c8ba;
-    --text-dim: rgba(160, 190, 175, 0.45);
-    --text-label: rgba(100, 160, 130, 0.35);
-    --text-btn: #7a9a8a;
-    --text-btn-hover: #a0c0ae;
-    --text-badge-view: rgba(120, 150, 135, 0.35);
-    --text-badge-edit: rgba(100, 200, 150, 0.6);
-    --text-placeholder: rgba(90, 130, 110, 0.25);
-    --header-color: rgba(160, 190, 175, 0.4);
-    --help-btn-color: rgba(100, 200, 150, 0.3);
-    --font: 'DM Sans', 'Noto Sans Arabic', sans-serif;
+    --bg: #1e1e1e;
+    --bg-panel: rgba(45, 45, 45, 0.98);
+    --bg-input: rgba(45, 45, 45, 0.97);
+    --bg-textarea: rgba(35, 35, 35, 0.6);
+    --bg-btn: rgba(226, 183, 20, 0.1);
+    --bg-btn-hover: rgba(226, 183, 20, 0.25);
+    --bg-badge-view: rgba(68, 68, 68, 0.4);
+    --bg-badge-edit: rgba(226, 183, 20, 0.15);
+    --border-subtle: rgba(68, 68, 68, 0.5);
+    --border-input: #e2b714;
+    --border-textarea: rgba(68, 68, 68, 0.4);
+    --border-textarea-focus: rgba(226, 183, 20, 0.5);
+    --border-btn: rgba(68, 68, 68, 0.5);
+    --text-primary: #e0e0e0;
+    --text-secondary: #cccccc;
+    --text-dim: #888888;
+    --text-label: rgba(226, 183, 20, 0.85);
+    --text-btn: #e2b714;
+    --text-btn-hover: #f5d450;
+    --text-badge-view: #888888;
+    --text-badge-edit: #e2b714;
+    --text-placeholder: rgba(136, 136, 136, 0.4);
+    --header-color: rgba(224, 224, 224, 0.6);
+    --help-btn-color: rgba(226, 183, 20, 0.6);
+    --font: 'Tajawal', 'DM Sans', 'Noto Sans Arabic', sans-serif;
     --header-h: 48px;
     --input-h: 34px;
     --radius-sm: 4px;
@@ -153,9 +153,9 @@ body {
     left: 0;
     transform: translateY(-50%);
     z-index: 12;
-    background: rgba(10, 18, 14, 0.85);
-    color: rgba(100, 160, 130, 0.6);
-    border: 1px solid rgba(80, 120, 100, 0.2);
+    background: var(--bg-panel);
+    color: var(--text-btn);
+    border: 1px solid var(--border-subtle);
     border-left: none;
     padding: 12px 8px;
     border-radius: 0 8px 8px 0;
@@ -166,19 +166,21 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.25);
 }
 
 .panel-toggle i {
+    color: var(--text-btn);
     transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .panel-toggle:hover {
-    background: rgba(20, 40, 30, 0.95);
-    color: rgba(100, 200, 150, 0.9);
+    background: var(--bg-input);
+    color: var(--text-btn-hover);
 }
 
 .panel-toggle:hover i {
+    color: var(--text-btn-hover);
     transform: scale(1.15);
 }
 
@@ -375,45 +377,45 @@ body.light-mode .panel-toggle:hover {
    Light Theme Variables (Overrides Dark)
    ============================================ */
    body.light-mode {
-    --bg: #f0f4f2;
+    --bg: #f4f4f4;
     --bg-panel: rgba(255, 255, 255, 0.95);
     --bg-input: rgba(255, 255, 255, 0.98);
-    --bg-textarea: rgba(240, 245, 242, 0.6);
-    --bg-btn: rgba(20, 60, 45, 0.06);
-    --bg-btn-hover: rgba(20, 60, 45, 0.12);
-    --bg-badge-view: rgba(20, 60, 45, 0.06);
-    --bg-badge-edit: rgba(20, 120, 80, 0.1);
+    --bg-textarea: rgba(232, 232, 232, 0.6);
+    --bg-btn: rgba(194, 141, 0, 0.08);
+    --bg-btn-hover: rgba(194, 141, 0, 0.18);
+    --bg-badge-view: rgba(204, 204, 204, 0.4);
+    --bg-badge-edit: rgba(194, 141, 0, 0.12);
   
-    --border-subtle: rgba(20, 60, 45, 0.12);
-    --border-input: rgba(20, 120, 80, 0.5);
-    --border-textarea: rgba(20, 60, 45, 0.15);
-    --border-textarea-focus: rgba(20, 120, 80, 0.4);
-    --border-btn: rgba(20, 60, 45, 0.12);
+    --border-subtle: rgba(204, 204, 204, 0.6);
+    --border-input: #c28d00;
+    --border-textarea: rgba(204, 204, 204, 0.5);
+    --border-textarea-focus: rgba(194, 141, 0, 0.4);
+    --border-btn: rgba(204, 204, 204, 0.6);
   
-    --text-primary: #1a2a22;
-    --text-secondary: #3a5a4a;
-    --text-dim: rgba(30, 60, 45, 0.5);
-    --text-label: rgba(20, 80, 60, 0.5);
-    --text-btn: #3a6a55;
-    --text-btn-hover: #1a4a35;
-    --text-badge-view: rgba(30, 80, 60, 0.4);
-    --text-badge-edit: rgba(20, 120, 80, 0.7);
-    --text-placeholder: rgba(60, 100, 80, 0.4);
+    --text-primary: #404040;
+    --text-secondary: #555555;
+    --text-dim: #737373;
+    --text-label: #c28d00;
+    --text-btn: #c28d00;
+    --text-btn-hover: #996e00;
+    --text-badge-view: #737373;
+    --text-badge-edit: #c28d00;
+    --text-placeholder: rgba(115, 115, 115, 0.4);
   
-    --header-color: rgba(30, 70, 55, 0.6);
-    --help-btn-color: rgba(20, 100, 70, 0.4);
+    --header-color: rgba(64, 64, 64, 0.7);
+    --help-btn-color: #c28d00;
   
     --barBg: 'rgba(255, 255, 255, 0.85)';
-    --barBorder: 'rgba(20, 60, 45, 0.1)';
-    --barText: 'rgba(30, 80, 60, 0.5)';
+    --barBorder: 'rgba(204, 204, 204, 0.3)';
+    --barText: 'rgba(64, 64, 64, 0.6)';
   }
   body.light-mode .panel-toggle {
-    background: rgba(255, 255, 255, 0.9);
-    color: rgba(20, 80, 60, 0.5);
-    border-color: rgba(40, 80, 65, 0.15);
+    background: var(--bg-panel);
+    color: var(--text-btn);
+    border-color: var(--border-subtle);
   }
   
   body.light-mode .panel-toggle:hover {
-    background: rgba(255, 255, 255, 1);
-    color: rgba(20, 120, 80, 0.8);
+    background: var(--bg-input);
+    color: var(--text-btn-hover);
   }

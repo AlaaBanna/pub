@@ -1,4 +1,21 @@
-// Version: v1.1.0 | Updated: 2026-07-28 | Features: Shortcuts help overlay update
+// Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra orbital rings, morphing blobs & dashed Beziers
+function drawOrbits() {
+    const focusedAnim = state.animNodes[state.focusedId];
+    if (!focusedAnim) return;
+    ctx.save();
+    ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = CONFIG.colors.orbitLine || 'rgba(226, 183, 20, 0.12)';
+    ctx.lineWidth = 1;
+    const radii = [140, 260, 390];
+    radii.forEach(r => {
+        ctx.beginPath();
+        ctx.arc(focusedAnim.x, focusedAnim.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    ctx.restore();
+}
+
 function drawBezier(id1, id2, color, alpha = 1.0) {
     const a1 = state.animNodes[id1];
     const a2 = state.animNodes[id2];
@@ -13,9 +30,11 @@ function drawBezier(id1, id2, color, alpha = 1.0) {
     const cpOffset = Math.sin(lastTime * 0.8 + id1.charCodeAt(0)) * 0.8;
     ctx.save();
     ctx.globalAlpha = a1.ta * alpha; 
+    ctx.setLineDash([6, 3]);
     ctx.beginPath(); ctx.moveTo(x1, y1);
     ctx.bezierCurveTo(x1, y1 + (y2 - y1) * 0.4 + cpOffset, x2, y2 - (y2 - y1) * 0.4 - cpOffset, x2, y2);
-    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.0; ctx.stroke();
+    ctx.setLineDash([]);
     ctx.restore();
 }
 
@@ -36,13 +55,14 @@ function drawNodes(time) {
         ctx.globalAlpha = isHov ? Math.min(a.ta + 0.3, 1) : a.ta;
         if (isFoc) { ctx.shadowColor = CONFIG.colors.selectedGlow; ctx.shadowBlur = 30; }
         const points = [];
+        const tMorph = (time * 0.35 + a.ph);
         for (let i = 0; i < seg; i++) {
             const angle = (i / seg) * Math.PI * 2;
-            const w1 = Math.sin(time * 0.6 + a.ph + i * 1.2) * 8 * intensity;
-            const w2 = Math.cos(time * 1.1 + a.ph + i * 0.8) * 5 * intensity;
-            const w3 = Math.sin(time * 1.8 + a.ph + i * 2.5) * 3 * intensity;
-            const totalWobble = w1 + w2 + w3;
-            points.push({ px: x + Math.cos(angle) * (r + totalWobble), py: y + Math.sin(angle) * (r + totalWobble) });
+            const w1 = Math.sin(angle * 2 + tMorph) * 0.12;
+            const w2 = Math.cos(angle * 3 - tMorph * 0.7) * 0.08;
+            const w3 = Math.sin(angle * 4 + tMorph * 1.2) * 0.05;
+            const radiusMod = r * (1.0 + (w1 + w2 + w3) * intensity);
+            points.push({ px: x + Math.cos(angle) * radiusMod, py: y + Math.sin(angle) * radiusMod });
         }
         ctx.beginPath();
         let mx = (points[points.length - 1].px + points[0].px) / 2;

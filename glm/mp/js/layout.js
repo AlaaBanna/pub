@@ -1,3 +1,4 @@
+// Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra orbital spatial distribution & spacing
 function recalculateLayout() {
     const oldAnimNodes = state.animNodes || {};
     state.animNodes = {};
@@ -25,6 +26,8 @@ function buildFocusLayout(focusedNode, oldAnimNodes) {
     const cx = cw / 2;
     const cy = ch * 0.5; 
     const isBottomUp = state.layoutDir === 'bottom-up';
+    const vGap = Math.max(CONFIG.layout.focusVGap, ch * 0.35);
+    const maxSpreadWidth = Math.min(cw * 0.82, cw - 220);
     
     const parentNode = findParent(state.tree, focusedNode.id, null);
     
@@ -32,16 +35,16 @@ function buildFocusLayout(focusedNode, oldAnimNodes) {
         // Parent Node
         state.animNodes[parentNode.id] = getNodeTarget(parentNode.id, {
             tx: cx, 
-            ty: isBottomUp ? cy + CONFIG.layout.focusVGap : cy - CONFIG.layout.focusVGap, 
+            ty: isBottomUp ? cy - vGap : cy + vGap, 
             r: CONFIG.nodeRadius.parent,
-            ta: 0.55, fs: CONFIG.fontSize.parent, tc: CONFIG.colors.textDim
+            ta: 0.7, fs: CONFIG.fontSize.parent, tc: CONFIG.colors.textDim
         }, oldAnimNodes);
 
         // Siblings (including focused)
         const siblings = getSortedChildren(parentNode);
         const focIdx = siblings.findIndex(c => c.id === focusedNode.id);
         const sibCount = siblings.length;
-        const sibHGap = sibCount > 1 ? Math.max(CONFIG.nodeRadius.child * 2.3, Math.min(CONFIG.layout.focusHGap, (cw - 160) / (sibCount - 1))) : 0;
+        const sibHGap = sibCount > 1 ? Math.max(CONFIG.nodeRadius.child * 2.4, Math.min(CONFIG.layout.focusHGap, maxSpreadWidth / Math.max(1, sibCount - 1))) : 0;
         
         for (let i = 0; i < siblings.length; i++) {
             const sib = siblings[i];
@@ -50,7 +53,7 @@ function buildFocusLayout(focusedNode, oldAnimNodes) {
                 tx: cx + (i - focIdx) * sibHGap,
                 ty: cy,
                 r: isFoc ? CONFIG.nodeRadius.focused : CONFIG.nodeRadius.child * 0.85,
-                ta: isFoc ? 1 : 0.35,
+                ta: isFoc ? 1 : 0.5,
                 fs: isFoc ? CONFIG.fontSize.focused : CONFIG.fontSize.child,
                 tc: isFoc ? CONFIG.colors.text : CONFIG.colors.textDim
             }, oldAnimNodes);
@@ -68,7 +71,7 @@ function buildFocusLayout(focusedNode, oldAnimNodes) {
     const visibleCount = Math.min(sortedChildren.length, CONFIG.maxVisibleChildren);
     
     if (visibleCount > 0) {
-        const actualHGap = visibleCount > 1 ? Math.max(CONFIG.nodeRadius.child * 2.3, Math.min(CONFIG.layout.focusHGap, (cw - 180) / (visibleCount - 1))) : 0;
+        const actualHGap = visibleCount > 1 ? Math.max(CONFIG.nodeRadius.child * 2.4, Math.min(CONFIG.layout.focusHGap, maxSpreadWidth / Math.max(1, visibleCount - 1))) : 0;
         const startX = cx - (actualHGap * (visibleCount - 1)) / 2;
 
         for (let i = 0; i < visibleCount; i++) {
@@ -76,9 +79,9 @@ function buildFocusLayout(focusedNode, oldAnimNodes) {
             if (!child) break;
             state.animNodes[child.id] = getNodeTarget(child.id, {
                 tx: startX + i * actualHGap, 
-                ty: isBottomUp ? cy - CONFIG.layout.focusVGap : cy + CONFIG.layout.focusVGap, 
+                ty: isBottomUp ? cy + vGap : cy - vGap, 
                 r: CONFIG.nodeRadius.child,
-                ta: 0.85, fs: CONFIG.fontSize.child, tc: CONFIG.colors.text
+                ta: 0.95, fs: CONFIG.fontSize.child, tc: CONFIG.colors.text
             }, oldAnimNodes);
         }
     }

@@ -1,4 +1,4 @@
-// Version: v1.1.0 | Updated: 2026-07-28 | Features: Full mind map tree PNG export layout (transparent background, clean & compact)
+// Version: v1.3.0 | Updated: 2026-07-28 | Features: Full mind map PNG export & sample data loader
 let editingId = null;
 
 // ── UNDO / REDO ──
@@ -199,7 +199,7 @@ function updateModeBadge() {
 }
 
 function resetView() {
-    state.targetZoom = 0.9; 
+    state.targetZoom = 1.0; 
     state.isOverview = false; state.treeVersion++;
 }
 

@@ -1,4 +1,4 @@
-// Version: v1.1.0 | Updated: 2026-07-28 | Features: New Map shortcut (Ctrl+Alt+N / Alt+N) conflict fix
+// Version: v1.3.0 | Updated: 2026-07-28 | Features: Keyboard shortcuts & navigation directional mapping
 document.addEventListener('keydown', (e) => {
     const activeEl = document.activeElement;
     const isEditingInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
@@ -82,8 +82,8 @@ document.addEventListener('keydown', (e) => {
     }
 
     const isBottomUp = state.layoutDir === 'bottom-up';
-    const keyChild = isBottomUp ? 'ArrowUp' : 'ArrowDown';
-    const keyParent = isBottomUp ? 'ArrowDown' : 'ArrowUp';
+    const keyChild = isBottomUp ? 'ArrowDown' : 'ArrowUp';
+    const keyParent = isBottomUp ? 'ArrowUp' : 'ArrowDown';
 
     switch (e.key) {
         case keyChild: e.preventDefault(); navigateChild(); break;

@@ -1,4 +1,4 @@
-// Version: v1.1.0 | Updated: 2026-07-28 | Features: Light mode full-screen background rendering fix
+// Version: v1.3.0 | Updated: 2026-07-28 | Features: Canvas render loop, orbital rings & theme toggle
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');
@@ -8,7 +8,7 @@ const state = {
     tree: null, focusedId: null, mode: 'view',
     isEditing: false, isNoteOpen: false, isHelpOpen: false,
     isOverview: false, layoutDir: 'top-down', 
-    targetZoom: 0.9, deletePending: null, deletePendingTime: 0,
+    targetZoom: 1.0, deletePending: null, deletePendingTime: 0,
     undoStack: [], redoStack: [], treeVersion: 0, animNodes: {},
     hoveredId: null, isMobile: false, helpCloseBtn: null,
     isContextOpen: false, isContextDisabled: false
@@ -179,6 +179,8 @@ function render(timestamp) {
 
     ctx.save();
     ctx.translate(cw/2, ch/2); ctx.scale(state.targetZoom, state.targetZoom); ctx.translate(-cw/2, -ch/2);
+
+    drawOrbits();
 
     if (state.isOverview) {
         const vis = new Set(Object.keys(state.animNodes));

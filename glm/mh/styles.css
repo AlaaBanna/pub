@@ -1,8 +1,17 @@
-  body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0b1329;
-      color: #f8fafc;
-    }
+/* meta.fikra: Monty Hall Card Simulator | Version 1.2.0 | Updated: 2026-07-28 01:12 */
+
+.mf-logo {
+  color: var(--mf-logo-color, #38bdf8) !important;
+}
+.mf-logo .mf-dot {
+  background: var(--mf-dot-color, #38bdf8) !important;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0b1329;
+  color: #f8fafc;
+}
     .font-card {
       font-family: 'Cinzel', serif;
     }
@@ -82,4 +91,56 @@
     .pick-indicator-amber {
       box-shadow: 0 0 16px rgba(245, 158, 11, 0.7) !important;
       border-color: #f59e0b !important;
+    }
+
+    /* Light Mode Theme Overrides */
+    body.light {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    body.light h1 {
+      color: #0f172a !important;
+    }
+    body.light .bg-slate-900\/90,
+    body.light .bg-slate-900\/70,
+    body.light .bg-slate-900 {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-color: #cbd5e1 !important;
+      color: #1e293b !important;
+    }
+    body.light .bg-slate-950,
+    body.light .bg-slate-950\/80,
+    body.light .bg-slate-950\/60,
+    body.light .bg-slate-950\/40 {
+      background-color: #e2e8f0 !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light .bg-slate-800,
+    body.light .bg-slate-800\/80 {
+      background-color: #e2e8f0 !important;
+      border-color: #cbd5e1 !important;
+      color: #1e293b !important;
+    }
+    body.light .text-slate-200,
+    body.light .text-slate-300 {
+      color: #1e293b !important;
+    }
+    body.light .text-slate-400 {
+      color: #475569 !important;
+    }
+    body.light .text-slate-500 {
+      color: #64748b !important;
+    }
+    body.light .border-slate-800,
+    body.light .border-slate-800\/80,
+    body.light .divide-slate-800\/50 > :not([hidden]) ~ :not([hidden]) {
+      border-color: #cbd5e1 !important;
+    }
+    body.light thead.bg-slate-900 {
+      background-color: #e2e8f0 !important;
+      color: #334155 !important;
+    }
+    body.light .card-front {
+      background-color: #ffffff;
+      border-color: #cbd5e1;
     }

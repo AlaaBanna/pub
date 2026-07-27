@@ -1,4 +1,5 @@
-  let currentDeckSize = 3;
+// meta.fikra: Monty Hall Card Simulator | Version 1.2.0 | Updated: 2026-07-28 01:12
+let currentDeckSize = 3;
     let currentGameIndex = 0;
     let gameState = 'PICK'; // 'PICK', 'DECISION', 'RESULT'
     
@@ -184,8 +185,82 @@
 
     function resetStats() {
       stats[currentDeckSize] = { switchWins: 0, switchGames: 0, stayWins: 0, stayGames: 0 };
+      const statusEl = document.getElementById('autoSimStatus');
+      if (statusEl) statusEl.classList.add('hidden');
       saveStateToLocalStorage();
       updateUI();
+    }
+
+    function toggleAutoSimPanel() {
+      const panel = document.getElementById('autoSimPanel');
+      if (!panel) return;
+      panel.classList.toggle('hidden');
+    }
+
+    function executeAutoSimulation() {
+      const strategySelect = document.getElementById('autoSimStrategy');
+      const countSelect = document.getElementById('autoSimCount');
+      const statusEl = document.getElementById('autoSimStatus');
+
+      const mode = strategySelect ? strategySelect.value : 'both';
+      const totalGames = countSelect ? parseInt(countSelect.value, 10) : 100;
+      const size = currentDeckSize;
+
+      let switchCount = 0;
+      let stayCount = 0;
+
+      if (mode === 'both') {
+        switchCount = Math.floor(totalGames / 2);
+        stayCount = totalGames - switchCount;
+      } else if (mode === 'switch') {
+        switchCount = totalGames;
+      } else {
+        stayCount = totalGames;
+      }
+
+      let switchWins = 0;
+      let stayWins = 0;
+
+      // Simulate Switch Games: picking a King always wins upon switching!
+      for (let i = 0; i < switchCount; i++) {
+        const ace = Math.floor(Math.random() * size);
+        const pick = Math.floor(Math.random() * size);
+        if (pick !== ace) {
+          switchWins++;
+        }
+      }
+
+      // Simulate Keep Games: keeping wins if and only if initial pick is Ace
+      for (let i = 0; i < stayCount; i++) {
+        const ace = Math.floor(Math.random() * size);
+        const pick = Math.floor(Math.random() * size);
+        if (pick === ace) {
+          stayWins++;
+        }
+      }
+
+      // Record simulation results into stats
+      const st = stats[size];
+      st.switchGames += switchCount;
+      st.switchWins += switchWins;
+      st.stayGames += stayCount;
+      st.stayWins += stayWins;
+
+      saveStateToLocalStorage();
+      updateUI();
+
+      if (statusEl) {
+        statusEl.classList.remove('hidden');
+        let details = `Simulated ${totalGames.toLocaleString()} games (${size} Cards): `;
+        if (switchCount > 0 && stayCount > 0) {
+          details += `Switch Win Rate: ${((switchWins / switchCount) * 100).toFixed(1)}% (${switchWins.toLocaleString()}/${switchCount.toLocaleString()}) | Keep Win Rate: ${((stayWins / stayCount) * 100).toFixed(1)}% (${stayWins.toLocaleString()}/${stayCount.toLocaleString()})`;
+        } else if (switchCount > 0) {
+          details += `Switch Win Rate: ${((switchWins / switchCount) * 100).toFixed(1)}% (${switchWins.toLocaleString()}/${switchCount.toLocaleString()} wins)`;
+        } else {
+          details += `Keep Win Rate: ${((stayWins / stayCount) * 100).toFixed(1)}% (${stayWins.toLocaleString()}/${stayCount.toLocaleString()} wins)`;
+        }
+        statusEl.textContent = `⚡ ${details}`;
+      }
     }
 
     function updateUI() {

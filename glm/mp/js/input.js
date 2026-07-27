@@ -1,3 +1,4 @@
+// Version: v1.1.0 | Updated: 2026-07-28 | Features: New Map shortcut (Ctrl+Alt+N / Alt+N) conflict fix
 document.addEventListener('keydown', (e) => {
     const activeEl = document.activeElement;
     const isEditingInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
@@ -65,7 +66,8 @@ document.addEventListener('keydown', (e) => {
     if (isCtrl && e.key === 'z') { e.preventDefault(); undo(); return; }
     if (isCtrl && e.key === 'y') { e.preventDefault(); redo(); return; }
     if (isCtrl && e.key === 'c') { e.preventDefault(); copyMarkupToClipboard(); return; }
-    if (isCtrl && e.shiftKey && (e.key === 'N' || e.key === 'n')) { e.preventDefault(); newMap(); return; }
+    if ((isCtrl && e.altKey && (e.key === 'N' || e.key === 'n')) || (e.altKey && (e.key === 'N' || e.key === 'n'))) { e.preventDefault(); newMap(); return; }
+    if (isCtrl && (e.key === 'N' || e.key === 'n')) { e.preventDefault(); }
 
     const isShift = e.shiftKey;
 

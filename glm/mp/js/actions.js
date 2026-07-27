@@ -1,3 +1,4 @@
+// Version: v1.1.0 | Updated: 2026-07-28 | Features: Full mind map tree PNG export layout (transparent background, clean & compact)
 let editingId = null;
 
 // ── UNDO / REDO ──
@@ -53,7 +54,12 @@ function hideNodeInput(save = true) {
     const inp = document.getElementById('nodeInput');
     if (save && editingId) {
         const node = findNode(state.tree, editingId);
-        if (node) { node.text = inp.value; state.treeVersion++; saveToStorage(); }
+        if (node && node.text !== inp.value) {
+            pushSnapshot();
+            node.text = inp.value;
+            state.treeVersion++;
+            saveToStorage();
+        }
     }
     inp.style.display = 'none'; inp.blur();
     state.isEditing = false; editingId = null;
@@ -145,7 +151,7 @@ function navigateSibling(dir) {
 // ── DELETE ──
 function handleDelete(isShift) {
     if (state.mode !== 'edit' || state.isOverview) return;
-    if (state.deletePending === state.focusedId && isShift) { executeDelete(); return; }
+    if (state.deletePending === state.focusedId && isShift) { pushSnapshot(); executeDelete(); return; }
     const node = findNode(state.tree, state.focusedId);
     const count = getDescendantCount(node);
     if (count === 0) { pushSnapshot(); executeDelete(); } 
@@ -241,6 +247,17 @@ function rebuildFromMarkup() {
     closeContextBox();
 }
 
+function loadSampleData() {
+    const ta = document.getElementById('cbTextarea');
+    ta.value = DEFAULT_SAMPLE_MARKUP;
+    pushSnapshot();
+    state.tree = parseMarkup(DEFAULT_SAMPLE_MARKUP);
+    state.focusedId = state.tree.id;
+    state.treeVersion++;
+    saveToStorage();
+    if (state.isContextOpen) closeContextBox();
+}
+
 // ── FLOATING NOTE ──
 function openFloatingNote() {
     if (state.isEditing) return;
@@ -265,10 +282,8 @@ function closeFloatingNote() {
     if (!state.isNoteOpen) return;
     const fn = document.getElementById('floatingNote');
     
-    if (state.mode === 'edit') {
-        const node = findNode(state.tree, state.focusedId);
-        if (node && node.note !== fn.value) { pushSnapshot(); node.note = fn.value; state.treeVersion++; saveToStorage(); }
-    }
+    const node = findNode(state.tree, state.focusedId);
+    if (node && node.note !== fn.value) { pushSnapshot(); node.note = fn.value; state.treeVersion++; saveToStorage(); }
     
     fn.blur();
     fn.classList.remove('visible');
@@ -280,23 +295,61 @@ function closeFloatingNote() {
 // ── EXPORT & CLIPBOARD ──
 function exportAsPNG() {
     try {
-        const ids = Object.keys(state.animNodes);
-        if (ids.length === 0) return;
+        if (!state.tree) return;
+
+        const items = [];
+        const connections = [];
+
+        function calcSubtreeWidth(node) {
+            const minW = 150;
+            const children = getSortedChildren(node);
+            if (children.length === 0) {
+                node._exportW = minW;
+                return minW;
+            }
+            let sumW = 0;
+            for (const child of children) {
+                sumW += calcSubtreeWidth(child);
+            }
+            node._exportW = Math.max(minW, sumW);
+            return node._exportW;
+        }
+
+        calcSubtreeWidth(state.tree);
+
+        const vGap = 140;
+        function placeNode(node, x, y, level) {
+            const r = level === 0 ? 56 : (level === 1 ? 46 : 38);
+            const fs = level === 0 ? 15 : (level === 1 ? 13 : 11);
+            const item = { node, x, y, r, fs, level };
+            items.push(item);
+
+            const children = getSortedChildren(node);
+            if (children.length > 0) {
+                let currentX = x - node._exportW / 2;
+                for (const child of children) {
+                    const childX = currentX + child._exportW / 2;
+                    const childY = y + vGap;
+                    connections.push({ parentX: x, parentY: y, childX, childY, parentItem: item, childNode: child });
+                    placeNode(child, childX, childY, level + 1);
+                    currentX += child._exportW;
+                }
+            }
+        }
+
+        placeNode(state.tree, 0, 0, 0);
 
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        ids.forEach(id => {
-            const a = state.animNodes[id];
-            if (!a || a.ta < 0.05) return;
-            const r = a.r || 50;
-            minX = Math.min(minX, a.x - r);
-            maxX = Math.max(maxX, a.x + r);
-            minY = Math.min(minY, a.y - r);
-            maxY = Math.max(maxY, a.y + r);
+        items.forEach(item => {
+            minX = Math.min(minX, item.x - item.r);
+            maxX = Math.max(maxX, item.x + item.r);
+            minY = Math.min(minY, item.y - item.r);
+            maxY = Math.max(maxY, item.y + item.r);
         });
 
         if (minX === Infinity) return;
 
-        const padding = 80;
+        const padding = 60;
         const width = Math.ceil(maxX - minX + padding * 2);
         const height = Math.ceil(maxY - minY + padding * 2);
         const offsetX = padding - minX;
@@ -308,71 +361,69 @@ function exportAsPNG() {
         const offCtx = offCanvas.getContext('2d');
         offCtx.scale(2, 2);
 
-        // 1. Draw Connectors with high contrast & full opacity
-        const drawExportBezier = (id1, id2, color, alpha = 0.85) => {
-            const a1 = state.animNodes[id1], a2 = state.animNodes[id2];
-            if (!a1 || !a2) return;
-            const x1 = a1.x + offsetX, y1 = a1.y + offsetY;
-            const x2 = a2.x + offsetX, y2 = a2.y + offsetY;
+        // Transparent background for clean, small PNG export
+
+        // 1. Draw Connections
+        connections.forEach(conn => {
+            const x1 = conn.parentX + offsetX, y1 = conn.parentY + offsetY;
+            const x2 = conn.childX + offsetX, y2 = conn.childY + offsetY;
             offCtx.save();
-            offCtx.globalAlpha = alpha;
             offCtx.beginPath();
             offCtx.moveTo(x1, y1);
-            offCtx.bezierCurveTo(x1, y1 + (y2 - y1) * 0.4, x2, y2 - (y2 - y1) * 0.4, x2, y2);
-            offCtx.strokeStyle = color;
+            offCtx.bezierCurveTo(x1, y1 + (y2 - y1) * 0.45, x2, y2 - (y2 - y1) * 0.45, x2, y2);
+            offCtx.strokeStyle = CONFIG.colors.connection;
             offCtx.lineWidth = 2.5;
             offCtx.stroke();
             offCtx.restore();
-        };
-
-        const parentNode = findParent(state.tree, state.focusedId, null);
-        if (parentNode) {
-            for (const sib of getSortedChildren(parentNode)) {
-                drawExportBezier(parentNode.id, sib.id, CONFIG.colors.selectedBorder, 0.75);
-            }
-        }
-        const focusedNode = findNode(state.tree, state.focusedId);
-        if (focusedNode) {
-            for (const child of getSortedChildren(focusedNode)) {
-                if (state.animNodes[child.id]) {
-                    drawExportBezier(state.focusedId, child.id, CONFIG.colors.selectedBorder, 0.95);
-                }
-            }
-        }
+        });
 
         // 2. Draw Nodes
-        ids.forEach(id => {
-            const a = state.animNodes[id];
-            if (!a || a.ta < 0.05) return;
-            const node = findNode(state.tree, id);
-            if (!node) return;
-
-            const x = a.x + offsetX, y = a.y + offsetY, r = a.r;
-            const isFoc = id === state.focusedId;
+        items.forEach(item => {
+            const x = item.x + offsetX, y = item.y + offsetY, r = item.r;
+            const isFocused = item.node.id === state.focusedId;
 
             offCtx.save();
             offCtx.beginPath();
             offCtx.arc(x, y, r, 0, Math.PI * 2);
             offCtx.fillStyle = CONFIG.colors.nodeFill;
             offCtx.fill();
-            offCtx.strokeStyle = isFoc ? CONFIG.colors.selectedBorder : CONFIG.colors.border;
-            offCtx.lineWidth = isFoc ? 2.5 : 1.5;
+
+            const borderColor = isFocused || item.level === 0 ? CONFIG.colors.selectedBorder : CONFIG.colors.border;
+            offCtx.strokeStyle = borderColor;
+            offCtx.lineWidth = isFocused ? 2.5 : 1.5;
             offCtx.stroke();
 
-            // Text
-            let text = node.text || '...';
+            if (item.node.note) {
+                offCtx.beginPath();
+                offCtx.arc(x + r * 0.6, y - r * 0.6, 4, 0, Math.PI * 2);
+                offCtx.fillStyle = CONFIG.colors.noteDot;
+                offCtx.fill();
+            }
+
+            let text = item.node.text || '...';
             const isRTL = /[\u0600-\u06FF]/.test(text);
             if ('direction' in offCtx) offCtx.direction = isRTL ? 'rtl' : 'ltr';
-            offCtx.font = `500 ${a.fs}px ${CONFIG.font}`;
+            offCtx.font = `500 ${item.fs}px ${CONFIG.font}`;
             offCtx.textAlign = 'center';
             offCtx.textBaseline = 'middle';
-            offCtx.fillStyle = a.tc;
-            offCtx.fillText(text, x, y + 1);
+
+            const maxWidth = r * 1.65;
+            let displayText = text;
+            if (offCtx.measureText(displayText).width > maxWidth) {
+                while (displayText.length > 0 && offCtx.measureText(displayText + '…').width > maxWidth) {
+                    displayText = displayText.slice(0, -1);
+                }
+                displayText = displayText ? displayText + '…' : '…';
+            }
+
+            offCtx.fillStyle = isFocused || item.level === 0 ? CONFIG.colors.text : (CONFIG.colors.textSecondary || CONFIG.colors.text);
+            offCtx.fillText(displayText, x, y + 1);
             offCtx.restore();
         });
 
+        const titleText = (state.tree && state.tree.text ? state.tree.text.trim() : 'mindmap').replace(/[^a-zA-Z0-9_\-\u0600-\u06FF]/g, '_');
         const link = document.createElement('a');
-        link.download = `mindmap-${Date.now()}.png`;
+        link.download = `${titleText}-full-${Date.now()}.png`;
         link.href = offCanvas.toDataURL('image/png');
         link.click();
     } catch(e) {

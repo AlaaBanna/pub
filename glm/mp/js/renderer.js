@@ -1,3 +1,4 @@
+// Version: v1.1.0 | Updated: 2026-07-28 | Features: Shortcuts help overlay update
 function drawBezier(id1, id2, color, alpha = 1.0) {
     const a1 = state.animNodes[id1];
     const a2 = state.animNodes[id2];
@@ -70,17 +71,18 @@ function drawNodes(time) {
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         let text = node.text || '...';
         const isRTL = /[\u0600-\u06FF]/.test(text);
-        if ('direction' in ctx) ctx.direction = isRTL ? 'rtl' : 'ltr';
-        ctx.font = `500 ${a.fs}px ${CONFIG.font}`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        try { if ('direction' in ctx) ctx.direction = isRTL ? 'rtl' : 'ltr'; } catch(e) {}
+        
         const maxWidth = r * 1.6;
         let displayText = text;
         if (ctx.measureText(displayText).width > maxWidth) {
-            while (displayText.length > 1 && ctx.measureText(displayText + '…').width > maxWidth) displayText = displayText.slice(0, -1);
-            displayText += '…';
+            while (displayText.length > 0 && ctx.measureText(displayText + '…').width > maxWidth) {
+                displayText = displayText.slice(0, -1);
+            }
+            displayText = displayText ? displayText + '…' : '…';
         }
         ctx.fillStyle = a.tc; ctx.fillText(displayText, x, y + 1);
-        if ('direction' in ctx) ctx.direction = 'ltr';
+        try { if ('direction' in ctx) ctx.direction = 'ltr'; } catch(e) {}
         ctx.restore();
     }
 }
@@ -132,7 +134,7 @@ function drawHelpOverlay() {
         ['V', 'Toggle View / Edit'],
         ['Delete / Shift+Del', 'Delete Node / Confirm'],
         ['Ctrl+Z / Y', 'Undo / Redo'],
-        ['Ctrl+Shift+N', 'New Mind Map'],
+        ['Ctrl+Alt+N', 'New Mind Map'],
         ['G / R', 'Flip Direction / Reset'],
         ['? / Esc', 'Toggle Help / Close']
     ];

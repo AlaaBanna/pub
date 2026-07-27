@@ -1,3 +1,4 @@
+// Version: v1.1.0 | Updated: 2026-07-28 | Features: Light mode full-screen background rendering fix
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');
@@ -147,6 +148,7 @@ canvas.addEventListener('wheel', (e) => {
 
 document.getElementById('panelToggle').addEventListener('click', () => toggleContextBox());
 document.getElementById('cbCopyBtn').addEventListener('click', copyMarkupFromPanel);
+document.getElementById('cbSampleBtn').addEventListener('click', loadSampleData);
 document.getElementById('cbRebuildBtn').addEventListener('click', rebuildFromMarkup);
 document.getElementById('cbCloseBtn').addEventListener('click', closeContextBox);
 
@@ -164,13 +166,19 @@ function render(timestamp) {
         a.y = lerp(a.y, a.ty, speed);
     }
     ctx.clearRect(0, 0, cw, ch);
-    ctx.fillStyle = CONFIG.colors.bg; ctx.fillRect(0, 0, cw, ch);
+    ctx.fillStyle = CONFIG.colors.bg; 
+    ctx.fillRect(0, 0, cw, ch);
+
+    // Full-screen background radial glow (unscaled screen space)
+    const maxDim = Math.max(cw, ch);
+    const grd = ctx.createRadialGradient(cw / 2, ch * 0.5, 0, cw / 2, ch * 0.5, maxDim * 0.75);
+    grd.addColorStop(0, CONFIG.colors.bgGlow); 
+    grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grd; 
+    ctx.fillRect(0, 0, cw, ch);
 
     ctx.save();
     ctx.translate(cw/2, ch/2); ctx.scale(state.targetZoom, state.targetZoom); ctx.translate(-cw/2, -ch/2);
-    const grd = ctx.createRadialGradient(cw / 2, ch * 0.5, 0, cw / 2, ch * 0.5, ch * 0.8);
-    grd.addColorStop(0, CONFIG.colors.bgGlow); grd.addColorStop(1, 'rgba(10, 15, 13, 0)');
-    ctx.fillStyle = grd; ctx.fillRect(0, 0, cw, ch);
 
     if (state.isOverview) {
         const vis = new Set(Object.keys(state.animNodes));

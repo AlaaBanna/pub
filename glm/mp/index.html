@@ -1,3 +1,4 @@
+<!-- Version: v1.1.0 | Updated: 2026-07-28 | Features: Left context menu icon, Light mode background fix, Full map PNG export, Ctrl+Alt+N shortcut -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,8 +18,9 @@
 </head>
 <body class="dark-mode">
 
-  <div id="panelToggle" class="panel-toggle" title="Context Box">
-    <i class="fa-solid fa-code"></i>
+  <!-- Context / Markup Panel Toggle Button -->
+  <div id="panelToggle" class="panel-toggle" title="Markup Panel (Ctrl+M)">
+    <i class="fa-solid fa-diagram-project"></i>
   </div>
 
   <canvas id="canvas"></canvas>
@@ -30,6 +32,7 @@
       <span class="cb-title">Markup</span>
       <div class="cb-actions">
         <button id="cbCopyBtn" class="cb-btn" title="Copy Markup"><i class="fa-solid fa-copy"></i></button>
+        <button id="cbSampleBtn" class="cb-btn" title="Load Sample Data"><i class="fa-solid fa-lightbulb"></i></button>
         <button id="cbRebuildBtn" class="cb-btn" title="Build Mind Map"><i class="fa-solid fa-play"></i></button>
         <button id="cbCloseBtn" class="cb-btn cb-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
       </div>

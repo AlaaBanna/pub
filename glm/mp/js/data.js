@@ -1,4 +1,4 @@
-// Version: v1.3.0 | Updated: 2026-07-28 | Features: Sample data & markup serialization
+// Version: v1.5.0 | Updated: 2026-07-28 23:52 | Features: Auto-save localStorage persistence & subtree node counter
 // ── UTILITIES ──
 const uid = () => Math.random().toString(36).slice(2, 11);
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -6,8 +6,45 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
 // ── DATA LAYER ──
-function createNode(text = '', order = 0) {
-    return { id: uid(), text, note: '', order, children: [] };
+function createNode(text = '', order = 0, tags = []) {
+    const now = new Date().toISOString();
+    return { id: uid(), text, note: '', order, tags: Array.isArray(tags) ? tags : [], created: now, updated: now, children: [] };
+}
+
+// ── CUSTOM .MT FORMAT SERIALIZATION & PARSING ──
+function serializeMT(tree) {
+    const now = new Date().toISOString();
+    return JSON.stringify({
+        "$schema": "https://metafikra.pub/schema/v1.json",
+        "format": "metafikra-mindmap",
+        "version": "1.0.0",
+        "meta": {
+            "title": tree && tree.text ? tree.text : "Mind Map",
+            "author": "User",
+            "created": tree && tree.created ? tree.created : now,
+            "updated": now,
+            "tags": tree && tree.tags ? tree.tags : []
+        },
+        "tree": tree
+    }, null, 2);
+}
+
+function parseMT(jsonString) {
+    try {
+        const data = JSON.parse(jsonString);
+        if (data && data.tree) return data.tree;
+        if (data && data.id && data.children) return data;
+    } catch(e) {}
+    return null;
+}
+
+function countSubtreeDescendants(node) {
+    if (!node || !node.children || node.children.length === 0) return 0;
+    let count = 0;
+    for (const child of node.children) {
+        count += 1 + countSubtreeDescendants(child);
+    }
+    return count;
 }
 
 function findNode(tree, id) {
@@ -185,3 +222,23 @@ const DEFAULT_SAMPLE_MARKUP = `الفلسفة
 			الاستدلال الاستقراء
 				التعميم الاستقرائي
 					الاستدلال بالاحتمالية والاستشهاد بالأدلة التجريبية`;
+
+// ── LOCAL STORAGE PERSISTENCE ──
+const STORAGE_KEY = 'metafikra_mp_tree_v1';
+
+function saveToStorage() {
+    try {
+        if (!state.tree) return;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tree));
+    } catch(e) {}
+}
+
+function loadFromStorage() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.id && parsed.children) return parsed;
+    } catch(e) {}
+    return null;
+}

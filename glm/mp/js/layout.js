@@ -1,4 +1,4 @@
-// Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra orbital spatial distribution & spacing
+// Version: v2.3.1 | Updated: 2026-07-29 01:02 | Features: Balanced node spread width and comfortable 260px page edge margins
 function recalculateLayout() {
     const oldAnimNodes = state.animNodes || {};
     state.animNodes = {};
@@ -24,10 +24,11 @@ function getNodeTarget(id, props, oldAnimNodes) {
 
 function buildFocusLayout(focusedNode, oldAnimNodes) {
     const cx = cw / 2;
-    const cy = ch * 0.5; 
+    const topInset = 56;
+    const cy = topInset + (ch - topInset) * 0.52;
     const isBottomUp = state.layoutDir === 'bottom-up';
-    const vGap = Math.max(CONFIG.layout.focusVGap, ch * 0.35);
-    const maxSpreadWidth = Math.min(cw * 0.82, cw - 220);
+    const vGap = Math.max(CONFIG.layout.focusVGap + 20, (ch - topInset) * 0.38);
+    const maxSpreadWidth = Math.min(cw * 0.78, cw - 260);
     
     const parentNode = findParent(state.tree, focusedNode.id, null);
     
@@ -44,7 +45,7 @@ function buildFocusLayout(focusedNode, oldAnimNodes) {
         const siblings = getSortedChildren(parentNode);
         const focIdx = siblings.findIndex(c => c.id === focusedNode.id);
         const sibCount = siblings.length;
-        const sibHGap = sibCount > 1 ? Math.max(CONFIG.nodeRadius.child * 2.4, Math.min(CONFIG.layout.focusHGap, maxSpreadWidth / Math.max(1, sibCount - 1))) : 0;
+        const sibHGap = sibCount > 1 ? Math.max(160, Math.min(240, maxSpreadWidth / Math.max(1, sibCount - 1))) : 0;
         
         for (let i = 0; i < siblings.length; i++) {
             const sib = siblings[i];
@@ -71,15 +72,16 @@ function buildFocusLayout(focusedNode, oldAnimNodes) {
     const visibleCount = Math.min(sortedChildren.length, CONFIG.maxVisibleChildren);
     
     if (visibleCount > 0) {
-        const actualHGap = visibleCount > 1 ? Math.max(CONFIG.nodeRadius.child * 2.4, Math.min(CONFIG.layout.focusHGap, maxSpreadWidth / Math.max(1, visibleCount - 1))) : 0;
+        const actualHGap = visibleCount > 1 ? Math.max(170, Math.min(240, maxSpreadWidth / Math.max(1, visibleCount - 1))) : 0;
         const startX = cx - (actualHGap * (visibleCount - 1)) / 2;
 
         for (let i = 0; i < visibleCount; i++) {
             const child = sortedChildren[i];
             if (!child) break;
+            const arcY = Math.sin((i / (visibleCount - 1 || 1)) * Math.PI) * (isBottomUp ? -20 : 20);
             state.animNodes[child.id] = getNodeTarget(child.id, {
                 tx: startX + i * actualHGap, 
-                ty: isBottomUp ? cy + vGap : cy - vGap, 
+                ty: (isBottomUp ? cy + vGap : cy - vGap) + arcY, 
                 r: CONFIG.nodeRadius.child,
                 ta: 0.95, fs: CONFIG.fontSize.child, tc: CONFIG.colors.text
             }, oldAnimNodes);

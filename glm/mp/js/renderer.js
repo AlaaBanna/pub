@@ -1,15 +1,42 @@
-// Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra orbital rings, morphing blobs & dashed Beziers
+// Version: v2.3.0 | Updated: 2026-07-29 00:58 | Features: Depth focus rule for orbital background rings & warm ochre Light mode theme
 function drawOrbits() {
     const focusedAnim = state.animNodes[state.focusedId];
     if (!focusedAnim) return;
+    
+    let depth = 0;
+    function findDepth(n, d) {
+        if (!n) return -1;
+        if (n.id === state.focusedId) return d;
+        for (const c of n.children || []) {
+            const res = findDepth(c, d + 1);
+            if (res !== -1) return res;
+        }
+        return -1;
+    }
+    const foundD = findDepth(state.tree, 0);
+    if (foundD !== -1) depth = foundD;
+    
+    // Depth Focus Rule: Root (depth 0) is sharpest, deeper levels fade softly
+    const alphaFactor = Math.pow(0.55, depth);
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // Light Mode: Warm Ochre Bronze (194, 141, 0), Dark Mode: Gold (226, 183, 20)
+    const baseRgb = isLight ? '194, 141, 0' : '226, 183, 20';
+    
     ctx.save();
     ctx.setLineDash([6, 4]);
-    ctx.strokeStyle = CONFIG.colors.orbitLine || 'rgba(226, 183, 20, 0.12)';
-    ctx.lineWidth = 1;
-    const radii = [140, 260, 390];
-    radii.forEach(r => {
+    const orbits = [
+        { r: 160, bgAlpha: 0.045 * alphaFactor, borderAlpha: 0.22 * alphaFactor },
+        { r: 320, bgAlpha: 0.030 * alphaFactor, borderAlpha: 0.15 * alphaFactor },
+        { r: 490, bgAlpha: 0.018 * alphaFactor, borderAlpha: 0.09 * alphaFactor }
+    ];
+    orbits.forEach(o => {
         ctx.beginPath();
-        ctx.arc(focusedAnim.x, focusedAnim.y, r, 0, Math.PI * 2);
+        ctx.arc(focusedAnim.x, focusedAnim.y, o.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${baseRgb}, ${o.bgAlpha})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(${baseRgb}, ${o.borderAlpha})`;
+        ctx.lineWidth = depth === 0 ? 1.5 : 1.0;
         ctx.stroke();
     });
     ctx.setLineDash([]);
@@ -28,14 +55,37 @@ function drawBezier(id1, id2, color, alpha = 1.0) {
     const x1 = a1.x + ox1, y1 = a1.y + oy1;
     const x2 = a2.x + ox2, y2 = a2.y + oy2;
     const cpOffset = Math.sin(lastTime * 0.8 + id1.charCodeAt(0)) * 0.8;
+
+    const isSearchEdge = state.searchPathEdges && (state.searchPathEdges.has(`${id1}-${id2}`) || state.searchPathEdges.has(`${id2}-${id1}`));
+
     ctx.save();
-    ctx.globalAlpha = a1.ta * alpha; 
-    ctx.setLineDash([6, 3]);
+    ctx.globalAlpha = isSearchEdge ? 1.0 : (a1.ta * alpha); 
+    ctx.setLineDash(isSearchEdge ? [8, 3] : [6, 3]);
     ctx.beginPath(); ctx.moveTo(x1, y1);
     ctx.bezierCurveTo(x1, y1 + (y2 - y1) * 0.4 + cpOffset, x2, y2 - (y2 - y1) * 0.4 - cpOffset, x2, y2);
-    ctx.strokeStyle = color; ctx.lineWidth = 2.0; ctx.stroke();
+    ctx.strokeStyle = isSearchEdge ? '#e2b714' : color;
+    ctx.lineWidth = isSearchEdge ? 4.5 : 2.0;
+    ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
+}
+
+function wrapNodeText(ctx, text, maxWidth) {
+    const words = text.split(/\s+/);
+    if (words.length <= 1) return [text];
+    const lines = [];
+    let currentLine = '';
+    for (let i = 0; i < words.length; i++) {
+        const testLine = currentLine ? currentLine + ' ' + words[i] : words[i];
+        if (ctx.measureText(testLine).width <= maxWidth || !currentLine) {
+            currentLine = testLine;
+        } else {
+            lines.push(currentLine);
+            currentLine = words[i];
+        }
+    }
+    if (currentLine) lines.push(currentLine);
+    return lines.slice(0, 3);
 }
 
 function drawNodes(time) {
@@ -48,19 +98,30 @@ function drawNodes(time) {
         if (!node) continue;
         const ox = Math.sin(time * 0.5 + a.ph) * driftAmount;
         const oy = Math.cos(time * 0.65 + a.ph) * driftAmount * 0.7;
-        const x = a.x + ox, y = a.y + oy, r = a.r;
+        const breathScale = 1.0 + Math.sin(time * 0.0016 + a.ph * 2) * 0.035;
+        const x = a.x + ox, y = a.y + oy, r = a.r * breathScale;
         const isFoc = id === state.focusedId;
         const isHov = id === state.hoveredId && !isFoc;
+        const isTitleMatch = state.searchTitleMatchIds && state.searchTitleMatchIds.has(id);
+        const isNoteMatch = state.searchNoteMatchIds && state.searchNoteMatchIds.has(id);
+        const isSearchMatch = isTitleMatch || isNoteMatch;
+
         ctx.save();
         ctx.globalAlpha = isHov ? Math.min(a.ta + 0.3, 1) : a.ta;
-        if (isFoc) { ctx.shadowColor = CONFIG.colors.selectedGlow; ctx.shadowBlur = 30; }
+        if (isFoc || isTitleMatch) { 
+            ctx.shadowColor = CONFIG.colors.selectedGlow; 
+            ctx.shadowBlur = isTitleMatch ? 40 : 30; 
+        } else if (isNoteMatch) {
+            ctx.shadowColor = 'rgba(226, 183, 20, 0.4)';
+            ctx.shadowBlur = 18;
+        }
         const points = [];
         const tMorph = (time * 0.35 + a.ph);
         for (let i = 0; i < seg; i++) {
             const angle = (i / seg) * Math.PI * 2;
-            const w1 = Math.sin(angle * 2 + tMorph) * 0.12;
-            const w2 = Math.cos(angle * 3 - tMorph * 0.7) * 0.08;
-            const w3 = Math.sin(angle * 4 + tMorph * 1.2) * 0.05;
+            const w1 = Math.sin(angle * 2 + tMorph) * 0.05;
+            const w2 = Math.cos(angle * 3 - tMorph * 0.7) * 0.03;
+            const w3 = Math.sin(angle * 4 + tMorph * 1.2) * 0.02;
             const radiusMod = r * (1.0 + (w1 + w2 + w3) * intensity);
             points.push({ px: x + Math.cos(angle) * radiusMod, py: y + Math.sin(angle) * radiusMod });
         }
@@ -76,32 +137,58 @@ function drawNodes(time) {
         ctx.closePath();
         ctx.fillStyle = CONFIG.colors.nodeFill; ctx.fill();
         ctx.shadowBlur = 0;
+        const directChildCount = node.children ? node.children.length : 0;
+        const totalSubtreeCount = countSubtreeDescendants(node);
+
         let borderColor = CONFIG.colors.border;
-        if (isFoc) borderColor = CONFIG.colors.selectedBorder;
+        if (isTitleMatch) borderColor = '#e2b714';
+        else if (isNoteMatch) borderColor = 'rgba(226, 183, 20, 0.65)';
+        else if (isFoc) borderColor = CONFIG.colors.selectedBorder;
         else if (isHov) borderColor = CONFIG.colors.selectedBorder;
-        else if (a.ta < 0.5) borderColor = CONFIG.colors.siblingBorder;
+        else if (totalSubtreeCount > 0) {
+            const goldAlpha = Math.min(0.4 + totalSubtreeCount * 0.08, 0.88);
+            borderColor = `rgba(226, 183, 20, ${goldAlpha})`;
+        } else if (a.ta < 0.5) borderColor = CONFIG.colors.siblingBorder;
+
         ctx.strokeStyle = borderColor;
-        ctx.lineWidth = isFoc ? 2.5 : (isHov ? 2.0 : 1.5);
+        ctx.lineWidth = isTitleMatch ? 3.5 : (isNoteMatch ? 2.2 : (isFoc ? 2.5 : (isHov ? 2.0 : (totalSubtreeCount > 0 ? 2.0 : 1.2))));
         ctx.stroke();
+
         if (node.note) {
-            ctx.beginPath(); ctx.arc(x + r * 0.6, y - r * 0.6, 4, 0, Math.PI * 2);
-            ctx.fillStyle = CONFIG.colors.noteDot; ctx.fill();
+            ctx.beginPath(); ctx.arc(x + r * 0.6, y - r * 0.6, isNoteMatch ? 6 : 4, 0, Math.PI * 2);
+            ctx.fillStyle = isNoteMatch ? '#e2b714' : CONFIG.colors.noteDot; 
+            ctx.fill();
         }
+
         ctx.font = `500 ${a.fs}px ${CONFIG.font}`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         let text = node.text || '...';
         const isRTL = /[\u0600-\u06FF]/.test(text);
         try { if ('direction' in ctx) ctx.direction = isRTL ? 'rtl' : 'ltr'; } catch(e) {}
         
-        const maxWidth = r * 1.6;
-        let displayText = text;
-        if (ctx.measureText(displayText).width > maxWidth) {
-            while (displayText.length > 0 && ctx.measureText(displayText + '…').width > maxWidth) {
-                displayText = displayText.slice(0, -1);
+        const maxWidth = r * 1.65;
+        const lines = wrapNodeText(ctx, text, maxWidth);
+        const lineHeight = a.fs * 1.25;
+        const startY = y - ((lines.length - 1) * lineHeight) / 2;
+        ctx.fillStyle = isTitleMatch ? '#e2b714' : a.tc;
+
+        lines.forEach((lineText, idx) => {
+            let line = lineText;
+            if (ctx.measureText(line).width > maxWidth) {
+                while (line.length > 0 && ctx.measureText(line + '…').width > maxWidth) {
+                    line = line.slice(0, -1);
+                }
+                line = line ? line + '…' : '…';
             }
-            displayText = displayText ? displayText + '…' : '…';
+            ctx.fillText(line, x, startY + idx * lineHeight);
+        });
+
+        if (totalSubtreeCount > 0 && !isFoc) {
+            ctx.font = `600 ${Math.max(10, Math.floor(a.fs - 3))}px ${CONFIG.font}`;
+            ctx.fillStyle = CONFIG.colors.selectedBorder;
+            ctx.fillText(`+${totalSubtreeCount}`, x, y + r * 0.65);
         }
-        ctx.fillStyle = a.tc; ctx.fillText(displayText, x, y + 1);
+
         try { if ('direction' in ctx) ctx.direction = 'ltr'; } catch(e) {}
         ctx.restore();
     }

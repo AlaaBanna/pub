@@ -1,4 +1,4 @@
-/* Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra warm gold & slate design system styling */
+/* Version: v2.3.0 | Updated: 2026-07-29 00:58 | Features: Warm Ochre theme tokens & depth focus background styling */
 /* ============================================
    meta.fikra / ميتا.فكرة — Design Tokens
    ============================================ */
@@ -419,3 +419,299 @@ body.light-mode .panel-toggle:hover {
     background: var(--bg-input);
     color: var(--text-btn-hover);
   }
+
+/* ============================================
+   Search Container & Overlay
+   ============================================ */
+.search-container {
+    position: fixed;
+    top: 104px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 150;
+    width: 90%;
+    max-width: 460px;
+    pointer-events: auto;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    padding: 6px 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.2s ease;
+}
+
+.search-box:focus-within {
+    border-color: var(--border-input);
+    box-shadow: 0 4px 25px rgba(226, 183, 20, 0.25);
+}
+
+.search-icon {
+    color: var(--text-label);
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+#searchInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: 14px;
+}
+
+#searchInput::placeholder {
+    color: var(--text-placeholder);
+}
+
+.search-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-label);
+    margin: 0 8px;
+    white-space: nowrap;
+}
+
+.search-clear-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+    transition: color 0.15s ease;
+}
+
+.search-clear-btn:hover {
+    color: var(--text-primary);
+}
+
+/* ============================================
+   Glassmorphic Node Hover Tooltip
+   ============================================ */
+.node-tooltip {
+    position: fixed;
+    display: none;
+    max-width: 320px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    z-index: 30;
+    pointer-events: none;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: opacity 0.15s ease;
+}
+
+.tooltip-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.tooltip-tags {
+    font-size: 10px;
+    color: var(--text-label);
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.tooltip-note {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+/* ============================================
+   Always-Visible Top Left Header Menu & Search
+   ============================================ */
+.top-left-menu {
+    position: fixed;
+    top: 56px;
+    left: 18px;
+    z-index: 130;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    padding: 5px 10px;
+    border-radius: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    pointer-events: auto;
+}
+
+.top-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: var(--bg-btn);
+    border: 1px solid var(--border-btn);
+    border-radius: 50%;
+    color: var(--text-btn);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.top-menu-btn:hover {
+    background: var(--bg-btn-hover);
+    color: var(--text-btn-hover);
+    transform: scale(1.12);
+}
+
+.top-menu-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border-subtle);
+    margin: 0 4px;
+}
+
+.search-box-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 4px 10px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.search-box-inline:focus-within {
+    border-color: #e2b714;
+    box-shadow: 0 0 16px rgba(226, 183, 20, 0.45);
+    background: rgba(226, 183, 20, 0.08);
+}
+
+.search-icon-inline {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.search-box-inline input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font);
+    font-size: 13px;
+    width: 210px;
+}
+
+.search-count-inline {
+    font-size: 11px;
+    color: #e2b714;
+    font-weight: 700;
+}
+
+.search-clear-inline {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0 2px;
+}
+
+/* ============================================
+   Right Vertical Floating Side Toolbar
+   ============================================ */
+.side-action-bar {
+    position: fixed;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    z-index: 130;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    padding: 8px 6px;
+    border-radius: 24px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    pointer-events: auto;
+}
+
+.side-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--bg-btn);
+    border: 1px solid var(--border-btn);
+    border-radius: 50%;
+    color: var(--text-btn);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.side-btn:hover:not(:disabled) {
+    background: var(--bg-btn-hover);
+    color: var(--text-btn-hover);
+    transform: scale(1.12);
+}
+
+.tb-mode {
+    background: rgba(226, 183, 20, 0.15);
+    border-color: rgba(226, 183, 20, 0.4);
+    color: #e2b714;
+}
+
+.tb-mode.edit-active {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: rgba(16, 185, 129, 0.5);
+    color: #10b981;
+}
+
+.side-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.2s ease;
+}
+
+.side-group.locked {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.side-divider {
+    width: 18px;
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 2px 0;
+}
+
+.tb-danger {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.tb-danger:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+}

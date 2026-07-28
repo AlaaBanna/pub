@@ -1,4 +1,4 @@
-// Version: v1.3.0 | Updated: 2026-07-28 | Features: Full mind map PNG export & sample data loader
+// Version: v2.1.0 | Updated: 2026-07-29 00:43 | Features: Removed duplicate updateModeBadge, enabled lock-open icon & formatted export timestamps
 let editingId = null;
 
 // ── UNDO / REDO ──
@@ -78,8 +78,7 @@ function ensureEditMode() {
 }
 
 function createChild() {
-    if (state.isOverview) return;
-    ensureEditMode();
+    if (state.isOverview || state.mode === 'view') return;
     pushSnapshot();
     const focusedNode = findNode(state.tree, state.focusedId);
     if (!focusedNode) return;
@@ -91,8 +90,7 @@ function createChild() {
 }
 
 function createSibling() {
-    if (state.isOverview) return;
-    ensureEditMode();
+    if (state.isOverview || state.mode === 'view') return;
     const parent = findParent(state.tree, state.focusedId, null);
     if (!parent) {
         createChild();
@@ -106,6 +104,35 @@ function createSibling() {
     state.focusedId = newSibling.id;
     state.treeVersion++;
     showNodeInput(newSibling.id);
+}
+
+// ── MODES & UI ──
+function toggleMode() {
+    state.mode = state.mode === 'view' ? 'edit' : 'view';
+    updateModeBadge();
+}
+
+function updateModeBadge() {
+    const badge = document.getElementById('modeBadge');
+    if (badge) {
+        badge.textContent = state.mode === 'view' ? 'VIEW' : 'EDIT';
+        badge.className = state.mode;
+    }
+    const modeBtn = document.getElementById('tbModeToggle');
+    const editGroup = document.getElementById('tbEditGroup');
+    if (modeBtn && editGroup) {
+        if (state.mode === 'view') {
+            modeBtn.innerHTML = '<i class="fa-solid fa-lock"></i>';
+            modeBtn.title = 'View Mode Locked (Click or press V to edit)';
+            modeBtn.classList.remove('edit-active');
+            editGroup.classList.add('locked');
+        } else {
+            modeBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
+            modeBtn.title = 'Edit Mode Active (Click or press V to lock)';
+            modeBtn.classList.add('edit-active');
+            editGroup.classList.remove('locked');
+        }
+    }
 }
 
 function newMap() {
@@ -187,16 +214,6 @@ function reorderNode(dir) {
 }
 
 // ── MODES & UI ──
-function toggleMode() {
-    state.mode = state.mode === 'view' ? 'edit' : 'view';
-    updateModeBadge();
-}
-
-function updateModeBadge() {
-    const badge = document.getElementById('modeBadge');
-    badge.textContent = state.mode === 'view' ? 'VIEW' : 'EDIT';
-    badge.className = state.mode;
-}
 
 function resetView() {
     state.targetZoom = 1.0; 
@@ -215,19 +232,17 @@ function toggleContextBox(forceOpen = false) {
     else if (!forceOpen) state.isContextOpen = !state.isContextOpen;
 
     const cb = document.getElementById('contextBox');
-    cb.classList.toggle('open', state.isContextOpen);
-
-    if (state.isContextOpen) {
-        const ta = document.getElementById('cbTextarea');
-        ta.value = serialize(state.tree);
-        ta.focus();
-        ta.select();
-    }
+    if (cb) cb.classList.toggle('open', state.isContextOpen);
 }
 
 function closeContextBox() {
     state.isContextOpen = false;
     document.getElementById('contextBox').classList.remove('open');
+    document.getElementById('panelToggle').classList.remove('open');
+    if (state.tree) {
+        state.focusedId = state.tree.id;
+        state.treeVersion++;
+    }
 }
 
 function copyMarkupFromPanel() {
@@ -248,14 +263,159 @@ function rebuildFromMarkup() {
 }
 
 function loadSampleData() {
-    const ta = document.getElementById('cbTextarea');
-    ta.value = DEFAULT_SAMPLE_MARKUP;
     pushSnapshot();
     state.tree = parseMarkup(DEFAULT_SAMPLE_MARKUP);
     state.focusedId = state.tree.id;
     state.treeVersion++;
     saveToStorage();
     if (state.isContextOpen) closeContextBox();
+}
+
+// ── SEARCH & SHORTEST-PATH CONNECTOR HIGHLIGHTS ──
+function clearSearch() {
+    state.searchTitleMatchIds = null;
+    state.searchNoteMatchIds = null;
+    state.searchMatchIds = null;
+    state.searchPathEdges = null;
+    state.isOverview = false;
+    state.targetZoom = 1.0;
+    const input = document.getElementById('searchInput');
+    if (input) input.value = '';
+    const countEl = document.getElementById('searchResultCount');
+    if (countEl) countEl.textContent = '';
+    if (state.tree) state.focusedId = state.tree.id;
+    state.treeVersion++;
+}
+
+function performSearch(query) {
+    if (!query || !query.trim()) {
+        clearSearch();
+        return;
+    }
+
+    const rawTerms = query.split(/[,;\n،\u060C]+/).map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+    if (rawTerms.length === 0) { clearSearch(); return; }
+
+    const titleMatches = [];
+    const noteMatches = [];
+
+    function searchNode(node) {
+        if (!node) return;
+        const textLower = (node.text || '').toLowerCase();
+        const noteLower = (node.note || '').toLowerCase();
+        
+        const isTitle = rawTerms.some(term => textLower.includes(term));
+        const isNote = !isTitle && rawTerms.some(term => noteLower.includes(term));
+
+        if (isTitle) titleMatches.push(node);
+        else if (isNote) noteMatches.push(node);
+
+        if (node.children) node.children.forEach(searchNode);
+    }
+    searchNode(state.tree);
+
+    const allMatches = [...titleMatches, ...noteMatches];
+    const countEl = document.getElementById('searchResultCount');
+    if (countEl) countEl.textContent = allMatches.length > 0 ? `${allMatches.length} match${allMatches.length > 1 ? 'es' : ''}` : 'No matches';
+
+    if (allMatches.length === 0) {
+        state.searchTitleMatchIds = new Set();
+        state.searchNoteMatchIds = new Set();
+        state.searchMatchIds = new Set();
+        state.searchPathEdges = new Set();
+        state.treeVersion++;
+        return;
+    }
+
+    state.searchTitleMatchIds = new Set(titleMatches.map(m => m.id));
+    state.searchNoteMatchIds = new Set(noteMatches.map(m => m.id));
+    state.searchMatchIds = new Set(allMatches.map(m => m.id));
+    state.searchPathEdges = new Set();
+
+    if (allMatches.length === 1) {
+        state.focusedId = allMatches[0].id;
+        state.treeVersion++;
+        return;
+    }
+
+    for (let i = 0; i < allMatches.length; i++) {
+        for (let j = i + 1; j < allMatches.length; j++) {
+            tracePathBetweenNodes(allMatches[i].id, allMatches[j].id);
+        }
+    }
+
+    state.isOverview = true;
+    state.targetZoom = 0.75;
+    state.treeVersion++;
+}
+
+function tracePathBetweenNodes(id1, id2) {
+    const path1 = getAncestorsPath(id1);
+    const path2 = getAncestorsPath(id2);
+    if (!path1.length || !path2.length) return;
+
+    let i = 0;
+    while (i < path1.length && i < path2.length && path1[i].id === path2[i].id) {
+        i++;
+    }
+
+    for (let idx = path1.length - 1; idx >= i; idx--) {
+        const child = path1[idx];
+        const parent = path1[idx - 1];
+        if (parent && child) state.searchPathEdges.add(`${parent.id}-${child.id}`);
+    }
+
+    for (let idx = path2.length - 1; idx >= i; idx--) {
+        const child = path2[idx];
+        const parent = path2[idx - 1];
+        if (parent && child) state.searchPathEdges.add(`${parent.id}-${child.id}`);
+    }
+}
+
+function getAncestorsPath(nodeId) {
+    const path = [];
+    let currId = nodeId;
+    while (currId) {
+        const node = findNode(state.tree, currId);
+        if (!node) break;
+        path.unshift(node);
+        const parent = findParent(state.tree, currId, null);
+        currId = parent ? parent.id : null;
+    }
+    return path;
+}
+
+// ── CUSTOM .MT FILE EXPORT & IMPORT ──
+function exportAsMT() {
+    try {
+        if (!state.tree) return;
+        const mtContent = serializeMT(state.tree);
+        const titleText = (state.tree && state.tree.text ? state.tree.text.trim() : 'mindmap').replace(/[^a-zA-Z0-9_\-\u0600-\u06FF]/g, '_');
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '-');
+        const blob = new Blob([mtContent], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.download = `${titleText}_${dateStr}_${timeStr}.mt`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+    } catch(e) {
+        console.error('Export .mt failed:', e);
+    }
+}
+
+function importMTContent(content) {
+    if (!content) return;
+    pushSnapshot();
+    const loadedTree = parseMT(content) || parseMarkup(content);
+    if (loadedTree) {
+        state.tree = loadedTree;
+        state.focusedId = state.tree.id;
+        state.treeVersion++;
+        saveToStorage();
+        if (state.isContextOpen) closeContextBox();
+    }
 }
 
 // ── FLOATING NOTE ──
@@ -267,12 +427,13 @@ function openFloatingNote() {
     const fn = document.getElementById('floatingNote');
     const node = findNode(state.tree, state.focusedId);
     fn.value = node ? node.note : '';
+    fn.readOnly = (state.mode === 'view');
     fn.style.display = 'block';
     
     // Trigger CSS transition and focus textarea for typing
     requestAnimationFrame(() => {
         fn.classList.add('visible');
-        fn.focus();
+        if (state.mode !== 'view') fn.focus();
     });
     
     state.isNoteOpen = true;
@@ -422,8 +583,11 @@ function exportAsPNG() {
         });
 
         const titleText = (state.tree && state.tree.text ? state.tree.text.trim() : 'mindmap').replace(/[^a-zA-Z0-9_\-\u0600-\u06FF]/g, '_');
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '-');
         const link = document.createElement('a');
-        link.download = `${titleText}-full-${Date.now()}.png`;
+        link.download = `${titleText}_${dateStr}_${timeStr}.png`;
         link.href = offCanvas.toDataURL('image/png');
         link.click();
     } catch(e) {

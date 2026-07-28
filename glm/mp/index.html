@@ -1,4 +1,4 @@
-<!-- Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra full visual design system, orbital rings, gold theme & typography -->
+<!-- Version: v2.3.1 | Updated: 2026-07-29 01:02 | Features: Balanced node distribution with 260px page edge margins -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,26 +18,48 @@
 </head>
 <body class="dark-mode">
 
-  <!-- Context / Markup Panel Toggle Button -->
-  <div id="panelToggle" class="panel-toggle" title="Markup Panel (Ctrl+M)">
-    <i class="fa-solid fa-diagram-project"></i>
+  <!-- Always-Visible Top Left Header Menu & Search -->
+  <div id="topLeftMenu" class="top-left-menu">
+    <button id="cbNewBtn" class="top-menu-btn" title="New Map (Alt+N)"><i class="fa-solid fa-file-circle-plus"></i></button>
+    <button id="cbSampleBtn" class="top-menu-btn" title="Load Sample"><i class="fa-solid fa-lightbulb"></i></button>
+    <button id="cbExportMtBtn" class="top-menu-btn" title="Save .mt File (Ctrl+S)"><i class="fa-solid fa-floppy-disk"></i></button>
+    <button id="cbUploadMtBtn" class="top-menu-btn" title="Load File (Ctrl+O)"><i class="fa-solid fa-folder-open"></i></button>
+    <input type="file" id="mtFileInput" accept=".mt,.json,.txt" style="display:none;">
+    <button id="cbExportPngBtn" class="top-menu-btn" title="Export PNG (Ctrl+E)"><i class="fa-solid fa-image"></i></button>
+    <button id="cbDirectionBtn" class="top-menu-btn" title="Toggle Layout Direction (G)"><i class="fa-solid fa-arrows-up-down"></i></button>
+    <div class="top-menu-divider"></div>
+    <div id="searchContainer" class="search-box-inline">
+      <i class="fa-solid fa-magnifying-glass search-icon-inline"></i>
+      <input id="searchInput" type="text" dir="auto" placeholder="Search map..." autocomplete="off" spellcheck="false">
+      <span id="searchResultCount" class="search-count-inline"></span>
+    </div>
+  </div>
+
+  <!-- Right Vertical Floating Action Toolbar -->
+  <div id="sideActionBar" class="side-action-bar">
+    <button id="tbModeToggle" class="side-btn tb-mode" title="Toggle View / Edit Mode (V)"><i class="fa-solid fa-lock"></i></button>
+    <div class="side-divider"></div>
+    <div id="tbEditGroup" class="side-group locked">
+      <button id="tbAddChild" class="side-btn" title="Add Child (Tab)"><i class="fa-solid fa-plus"></i></button>
+      <button id="tbAddSibling" class="side-btn" title="Add Sibling (Shift+Tab)"><i class="fa-solid fa-diagram-next"></i></button>
+      <button id="tbEdit" class="side-btn" title="Edit Label (Enter)"><i class="fa-solid fa-pen"></i></button>
+      <button id="tbNote" class="side-btn" title="Note (N)"><i class="fa-solid fa-sticky-note"></i></button>
+      <button id="tbDelete" class="side-btn tb-danger" title="Delete (Del)"><i class="fa-solid fa-trash-can"></i></button>
+    </div>
+    <div class="side-divider"></div>
+    <button id="tbUndo" class="side-btn" title="Undo (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+    <button id="tbRedo" class="side-btn" title="Redo (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
   </div>
 
   <canvas id="canvas"></canvas>
   
   <input id="nodeInput" type="text" dir="auto" autocomplete="off" spellcheck="false">
 
-  <div id="contextBox" class="context-box">
-    <div class="cb-header">
-      <span class="cb-title">Markup</span>
-      <div class="cb-actions">
-        <button id="cbCopyBtn" class="cb-btn" title="Copy Markup"><i class="fa-solid fa-copy"></i></button>
-        <button id="cbSampleBtn" class="cb-btn" title="Load Sample Data"><i class="fa-solid fa-lightbulb"></i></button>
-        <button id="cbRebuildBtn" class="cb-btn" title="Build Mind Map"><i class="fa-solid fa-play"></i></button>
-        <button id="cbCloseBtn" class="cb-btn cb-close" title="Close"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-    </div>
-    <textarea id="cbTextarea" class="cb-textarea" dir="auto" placeholder="Paste markup text here and click Build..."></textarea>
+  <!-- Node Glassmorphic Hover Tooltip -->
+  <div id="nodeTooltip" class="node-tooltip">
+    <div id="tooltipTitle" class="tooltip-title"></div>
+    <div id="tooltipTags" class="tooltip-tags"></div>
+    <div id="tooltipNote" class="tooltip-note"></div>
   </div>
 
   <textarea id="floatingNote" class="floating-note" dir="auto" placeholder="Add note..."></textarea>

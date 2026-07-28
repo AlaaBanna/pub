@@ -1,4 +1,4 @@
-// Version: v1.3.0 | Updated: 2026-07-28 | Features: Keyboard shortcuts & navigation directional mapping
+// Version: v1.5.0 | Updated: 2026-07-28 23:52 | Features: Master Keyboard Shortcut Registry standardization
 document.addEventListener('keydown', (e) => {
     const activeEl = document.activeElement;
     const isEditingInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
@@ -12,8 +12,51 @@ document.addEventListener('keydown', (e) => {
             return;
         }
     }
-    if (state.isHelpOpen) {
-        if (e.key === 'Escape') { e.preventDefault(); state.isHelpOpen = false; }
+    // Focused inside Floating Note (close note & keep current node focus)
+    if (activeEl === document.getElementById('floatingNote')) {
+        if (e.key === 'Escape' || (isCtrl && e.key === 'Enter')) { 
+            e.preventDefault(); 
+            closeFloatingNote(); 
+            return; 
+        }
+        return;
+    }
+
+    // Focused inside Context Box Textarea
+    if (activeEl === document.getElementById('cbTextarea')) {
+        if (e.key === 'Escape') { e.preventDefault(); closeContextBox(); return; }
+        if (isCtrl && e.key === 'Enter') { e.preventDefault(); rebuildFromMarkup(); return; }
+        return;
+    }
+
+    // Focused inside Search Input
+    if (activeEl === document.getElementById('searchInput')) {
+        if (e.key === 'Escape') { e.preventDefault(); clearSearch(); activeEl.blur(); return; }
+    }
+
+    if (e.key === 'Escape') {
+        if (state.isContextOpen) closeContextBox();
+        if (state.isNoteOpen) closeFloatingNote();
+        if (state.isHelpOpen) state.isHelpOpen = false;
+        clearSearch();
+        if (state.tree) {
+            state.focusedId = state.tree.id;
+            state.treeVersion++;
+        }
+        return;
+    }
+
+    // Global Save .mt File (Ctrl+S / Cmd+S)
+    if (isCtrl && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+        exportAsMT();
+        return;
+    }
+
+    // Global Open / Upload .mt File (Ctrl+O / Cmd+O)
+    if (isCtrl && (e.key === 'o' || e.key === 'O')) {
+        e.preventDefault();
+        document.getElementById('mtFileInput').click();
         return;
     }
 
@@ -24,6 +67,17 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
+    // Global Search (Ctrl+F / Cmd+F / '/')
+    if ((isCtrl && (e.key === 'f' || e.key === 'F')) || (!isEditingInput && e.key === '/')) {
+        e.preventDefault();
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+        }
+        return;
+    }
+
     // Global Export PNG (Ctrl+E / Cmd+E)
     if (isCtrl && (e.key === 'e' || e.key === 'E')) {
         e.preventDefault();
@@ -31,21 +85,7 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    // 2. Focused inside Floating Note
-    if (activeEl === document.getElementById('floatingNote')) {
-        if (e.key === 'Escape') { e.preventDefault(); closeFloatingNote(); return; }
-        if (isCtrl && e.key === 'Enter') { e.preventDefault(); closeFloatingNote(); return; }
-        return; // Pass through text keys, 'n'/'N', and arrows to note textarea
-    }
-
-    // 3. Focused inside Context Box Textarea
-    if (activeEl === document.getElementById('cbTextarea')) {
-        if (e.key === 'Escape') { e.preventDefault(); closeContextBox(); return; }
-        if (isCtrl && e.key === 'Enter') { e.preventDefault(); rebuildFromMarkup(); return; }
-        return; // Pass through text keys to markup textarea
-    }
-
-    // 4. Node Input Editing state
+    // Node Input Editing state
     if (state.isEditing || activeEl === document.getElementById('nodeInput')) {
         if (e.key === 'Enter') { e.preventDefault(); hideNodeInput(true); return; }
         if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); return; }
@@ -57,12 +97,6 @@ document.addEventListener('keydown', (e) => {
     // Pass through if user is focused in any other text input element
     if (isEditingInput) return;
 
-    // 5. Global Navigation & Canvas Shortcuts (Non-Input context)
-    if (e.key === 'Escape') {
-        if (state.isNoteOpen) { e.preventDefault(); closeFloatingNote(); return; }
-        if (state.isContextOpen) { e.preventDefault(); closeContextBox(); return; }
-    }
-
     if (isCtrl && e.key === 'z') { e.preventDefault(); undo(); return; }
     if (isCtrl && e.key === 'y') { e.preventDefault(); redo(); return; }
     if (isCtrl && e.key === 'c') { e.preventDefault(); copyMarkupToClipboard(); return; }
@@ -71,7 +105,11 @@ document.addEventListener('keydown', (e) => {
 
     const isShift = e.shiftKey;
 
-    if (e.key === 'Delete') { e.preventDefault(); handleDelete(isShift); return; }
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); handleDelete(isShift); return; }
+    if (e.key === 'F2') { e.preventDefault(); startEditing(); return; }
+    if (e.key === 'Insert') { e.preventDefault(); createChild(); return; }
+    if (e.key === 'Home') { e.preventDefault(); resetView(); return; }
+
     if (isCtrl && e.key === 'ArrowLeft') { e.preventDefault(); reorderNode(-1); return; }
     if (isCtrl && e.key === 'ArrowRight') { e.preventDefault(); reorderNode(1); return; }
 

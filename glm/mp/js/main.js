@@ -1,4 +1,4 @@
-// Version: v1.3.0 | Updated: 2026-07-28 | Features: Canvas render loop, orbital rings & theme toggle
+// Version: v2.1.1 | Updated: 2026-07-29 00:44 | Features: Safe search close button listener check
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');
@@ -146,11 +146,86 @@ canvas.addEventListener('wheel', (e) => {
     else if (state.isOverview && state.targetZoom >= CONFIG.zoomThreshold) { state.isOverview = false; state.treeVersion++; }
 }, { passive: false });
 
-document.getElementById('panelToggle').addEventListener('click', () => toggleContextBox());
-document.getElementById('cbCopyBtn').addEventListener('click', copyMarkupFromPanel);
+document.getElementById('cbNewBtn').addEventListener('click', newMap);
 document.getElementById('cbSampleBtn').addEventListener('click', loadSampleData);
-document.getElementById('cbRebuildBtn').addEventListener('click', rebuildFromMarkup);
-document.getElementById('cbCloseBtn').addEventListener('click', closeContextBox);
+document.getElementById('cbExportMtBtn').addEventListener('click', exportAsMT);
+document.getElementById('cbUploadMtBtn').addEventListener('click', () => document.getElementById('mtFileInput').click());
+document.getElementById('cbExportPngBtn').addEventListener('click', () => exportAsPNG());
+document.getElementById('cbDirectionBtn').addEventListener('click', () => toggleLayout());
+document.getElementById('mtFileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => importMTContent(evt.target.result);
+    reader.readAsText(file);
+});
+
+// ── SEARCH EVENTS ──
+const searchInputEl = document.getElementById('searchInput');
+if (searchInputEl) {
+    searchInputEl.addEventListener('input', (e) => performSearch(e.target.value));
+    searchInputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchInputEl.blur();
+            if (state.tree) {
+                state.focusedId = state.tree.id;
+                state.isOverview = false;
+                state.targetZoom = 1.0;
+                state.treeVersion++;
+            }
+        } else if (e.key === 'Escape') { 
+            clearSearch(); 
+            searchInputEl.blur(); 
+        }
+    });
+}
+const closeBtn = document.getElementById('searchCloseBtn');
+if (closeBtn) closeBtn.addEventListener('click', clearSearch);
+
+// ── SIDE ACTION BAR EVENTS ──
+document.getElementById('tbModeToggle').addEventListener('click', () => toggleMode());
+document.getElementById('tbAddChild').addEventListener('click', () => createChild());
+document.getElementById('tbAddSibling').addEventListener('click', () => createSibling());
+document.getElementById('tbEdit').addEventListener('click', () => startEditing());
+document.getElementById('tbNote').addEventListener('click', () => openFloatingNote());
+document.getElementById('tbDelete').addEventListener('click', () => handleDelete(false));
+document.getElementById('tbUndo').addEventListener('click', () => undo());
+document.getElementById('tbRedo').addEventListener('click', () => redo());
+
+// ── TOOLTIP HOVER DISPLAY ──
+canvas.addEventListener('mousemove', (e) => {
+    if (state.hoveredId) {
+        const node = findNode(state.tree, state.hoveredId);
+        if (node) {
+            const tooltip = document.getElementById('nodeTooltip');
+            document.getElementById('tooltipTitle').textContent = node.text || '';
+            const tagsEl = document.getElementById('tooltipTags');
+            tagsEl.textContent = node.tags && node.tags.length ? `Tags: ${node.tags.join(', ')}` : '';
+            tagsEl.style.display = node.tags && node.tags.length ? 'block' : 'none';
+            const noteEl = document.getElementById('tooltipNote');
+            noteEl.textContent = node.note ? node.note : '';
+            noteEl.style.display = node.note ? 'block' : 'none';
+            tooltip.style.left = Math.min(e.clientX + 16, window.innerWidth - 330) + 'px';
+            tooltip.style.top = Math.min(e.clientY + 16, window.innerHeight - 150) + 'px';
+            tooltip.style.display = 'block';
+        }
+    } else {
+        document.getElementById('nodeTooltip').style.display = 'none';
+    }
+});
+
+// ── DRAG & DROP .MT FILES ──
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        const reader = new FileReader();
+        reader.onload = (evt) => importMTContent(evt.target.result);
+        reader.readAsText(file);
+    }
+});
 
 document.getElementById('helpBtn').addEventListener('click', (e) => { e.stopPropagation(); state.isHelpOpen = !state.isHelpOpen; });
 
@@ -227,7 +302,7 @@ function render(timestamp) {
 // ── INIT ──
 function init() {
     state.isMobile = window.innerWidth <= 768;
-    state.tree = loadFromStorage() || createNode('root');
+    state.tree = loadFromStorage() || parseMarkup(DEFAULT_SAMPLE_MARKUP);
     state.focusedId = state.tree.id;
     applySavedTheme(); resizeCanvas(); updateModeBadge(); requestAnimationFrame(render);
 }

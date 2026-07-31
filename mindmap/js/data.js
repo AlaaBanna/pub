@@ -8,7 +8,7 @@ const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 // ── DATA LAYER ──
 function createNode(text = '', order = 0, tags = []) {
     const now = new Date().toISOString();
-    return { id: uid(), text, note: '', order, tags: Array.isArray(tags) ? tags : [], created: now, updated: now, children: [] };
+    return { id: uid(), text, note: '', completed: false, order, tags: Array.isArray(tags) ? tags : [], created: now, updated: now, children: [] };
 }
 
 // ── CUSTOM .MT FORMAT SERIALIZATION & PARSING ──
@@ -82,7 +82,8 @@ function getDescendantCount(node) {
 // ── SERIALIZATION ──
 function serializeNode(node, depth = 0) {
     const indent = '  '.repeat(depth);
-    let lines = [`${indent}${node.order ? node.order + '. ' : ''}${node.text}`];
+    const checkPrefix = node.completed ? '[x] ' : '';
+    let lines = [`${indent}${node.order ? node.order + '. ' : ''}${checkPrefix}${node.text}`];
     if (node.note) {
         for (const line of node.note.split('\n')) lines.push(`${indent}: ${line}`);
     }
@@ -119,6 +120,12 @@ function parseMarkup(str) {
             inlineNote = parts.slice(1).join(' :: ').trim();
         }
 
+        let isCompleted = false;
+        if (/^\[[xX]\]\s*/.test(text)) {
+            isCompleted = true;
+            text = text.replace(/^\[[xX]\]\s*/, '');
+        }
+
         let order = 0;
         const orderMatch = text.match(/^(\d+)\.\s*/);
         if (orderMatch) {
@@ -127,6 +134,7 @@ function parseMarkup(str) {
         }
 
         const newNode = createNode(text, order);
+        newNode.completed = isCompleted;
         if (inlineNote) newNode.note = inlineNote;
         currentNoteNode = newNode;
 
@@ -249,4 +257,26 @@ function loadFromStorage() {
         if (parsed && parsed.id && parsed.children) return parsed;
     } catch(e) {}
     return null;
+}
+
+function toggleNodeCompletion(tree, id) {
+    const node = findNode(tree, id);
+    if (node) {
+        node.completed = !node.completed;
+        return node.completed;
+    }
+    return false;
+}
+
+function getCompletionStats(node) {
+    if (!node) return { total: 0, completed: 0, percentage: 0 };
+    let total = 0, completed = 0;
+    function traverse(n) {
+        total++;
+        if (n.completed) completed++;
+        if (n.children) n.children.forEach(traverse);
+    }
+    traverse(node);
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { total, completed, percentage };
 }

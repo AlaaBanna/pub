@@ -1,4 +1,4 @@
-// Version: v6.3.0 | Updated: 2026-07-31 22:46 | Features: Multilingual Arabic/English UI toggle, shortcuts modal fix, samples popover alignment, and AI modal esc/close controls
+// Version: v7.0.0 | Updated: 2026-08-01 01:11 | Features: Cloudflare D1 Auth, Cloud Sync, URL Sharing, Read-Only/Fork Permissions, and Node Completion Badge
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');
@@ -687,6 +687,231 @@ function render(timestamp) {
     requestAnimationFrame(render);
 }
 
+// ── SIDE BAR COMPLETION TOGGLE ──
+const tbToggleComplete = document.getElementById('tbToggleComplete');
+if (tbToggleComplete) {
+    tbToggleComplete.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleCompletionAction();
+    });
+}
+
+// ── AUTH MODAL & CLOUD STORAGE EVENTS ──
+const userAccountBtn = document.getElementById('userAccountBtn');
+const authModal = document.getElementById('authModal');
+const authModalClose = document.getElementById('authModalClose');
+
+if (userAccountBtn && authModal) {
+    userAccountBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (window.currentUser) {
+            openCloudDrawer();
+        } else {
+            authModal.style.display = 'flex';
+        }
+    });
+}
+
+if (authModalClose && authModal) {
+    authModalClose.addEventListener('click', () => authModal.style.display = 'none');
+}
+
+const tabLoginBtn = document.getElementById('tabLoginBtn');
+const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+
+if (tabLoginBtn && tabRegisterBtn) {
+    tabLoginBtn.addEventListener('click', () => {
+        tabLoginBtn.classList.add('active');
+        tabRegisterBtn.classList.remove('active');
+        loginForm.style.display = 'flex';
+        registerForm.style.display = 'none';
+    });
+
+    tabRegisterBtn.addEventListener('click', () => {
+        tabRegisterBtn.classList.add('active');
+        tabLoginBtn.classList.remove('active');
+        registerForm.style.display = 'flex';
+        loginForm.style.display = 'none';
+    });
+}
+
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const errEl = document.getElementById('authErrorMsg');
+        if (errEl) errEl.style.display = 'none';
+
+        try {
+            await window.authModule.login(email, password);
+            if (authModal) authModal.style.display = 'none';
+        } catch(err) {
+            if (errEl) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+        }
+    });
+}
+
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('regName').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const errEl = document.getElementById('authErrorMsg');
+        if (errEl) errEl.style.display = 'none';
+
+        try {
+            await window.authModule.register(email, name, password);
+            if (authModal) authModal.style.display = 'none';
+        } catch(err) {
+            if (errEl) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+        }
+    });
+}
+
+window.handleGoogleAuthCallback = async function(response) {
+    try {
+        await window.authModule.googleAuth(response.credential);
+        if (authModal) authModal.style.display = 'none';
+    } catch(err) {
+        const errEl = document.getElementById('authErrorMsg');
+        if (errEl) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+    }
+};
+
+// ── CLOUD MAPS DRAWER EVENTS ──
+const cloudMapsBtn = document.getElementById('cloudMapsBtn');
+const cloudMapsDrawer = document.getElementById('cloudMapsDrawer');
+const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+
+async function openCloudDrawer() {
+    if (!window.currentUser) {
+        if (authModal) authModal.style.display = 'flex';
+        return;
+    }
+    if (cloudMapsDrawer) cloudMapsDrawer.style.display = 'flex';
+    await refreshCloudMapsList();
+}
+
+if (cloudMapsBtn) cloudMapsBtn.addEventListener('click', openCloudDrawer);
+if (closeDrawerBtn && cloudMapsDrawer) closeDrawerBtn.addEventListener('click', () => cloudMapsDrawer.style.display = 'none');
+
+async function refreshCloudMapsList() {
+    const listEl = document.getElementById('cloudMapsList');
+    if (!listEl) return;
+    listEl.innerHTML = '<div style="color:var(--text-dim); font-size:12px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading maps...</div>';
+
+    try {
+        const res = await window.authModule.fetchUserMaps();
+        if (!res.maps || res.maps.length === 0) {
+            listEl.innerHTML = '<div style="color:var(--text-dim); font-size:12px;">No cloud maps saved yet.</div>';
+            return;
+        }
+
+        listEl.innerHTML = res.maps.map(m => `
+            <div class="cloud-map-item">
+                <div class="cloud-map-info">
+                    <div class="cloud-map-title">${m.title}</div>
+                    <div class="cloud-map-date">${new Date(m.updated_at).toLocaleDateString()}</div>
+                </div>
+                <div class="cloud-map-actions">
+                    <button class="cloud-action-btn" onclick="openCloudMap('${m.id}')"><i class="fa-solid fa-folder-open"></i></button>
+                    <button class="cloud-action-btn" onclick="shareCloudMap('${m.share_id}')"><i class="fa-solid fa-share-nodes"></i></button>
+                    <button class="cloud-action-btn" onclick="deleteCloudMap('${m.id}')"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    } catch(err) {
+        listEl.innerHTML = `<div style="color:#ef4444; font-size:12px;">${err.message}</div>`;
+    }
+}
+
+window.openCloudMap = async function(id) {
+    try {
+        const res = await window.authModule.fetchUserMaps();
+        const target = res.maps.find(m => m.id === id);
+        if (target && target.content_json) {
+            importMTContent(target.content_json);
+            if (cloudMapsDrawer) cloudMapsDrawer.style.display = 'none';
+        }
+    } catch(e) {}
+};
+
+window.shareCloudMap = function(shareId) {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?s=${shareId}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        alert(`Share URL copied to clipboard!\n${shareUrl}`);
+    });
+};
+
+window.deleteCloudMap = async function(id) {
+    if (!confirm('Are you sure you want to delete this cloud map?')) return;
+    try {
+        await window.authModule.deleteMap(id);
+        await refreshCloudMapsList();
+    } catch(e) {
+        alert(e.message);
+    }
+};
+
+const saveCurrentToCloudBtn = document.getElementById('saveCurrentToCloudBtn');
+if (saveCurrentToCloudBtn) {
+    saveCurrentToCloudBtn.addEventListener('click', async () => {
+        if (!state.tree) return;
+        const title = state.tree.text || 'Mind Map';
+        const contentJson = serializeMT(state.tree);
+        try {
+            await window.authModule.saveMap(title, contentJson);
+            await refreshCloudMapsList();
+            alert('Mind map saved to your cloud account!');
+        } catch(err) {
+            alert(err.message);
+        }
+    });
+}
+
+// ── SHARE LINK ROUTER ──
+async function checkShareRoute() {
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get('s');
+    if (!shareId) return;
+
+    try {
+        const res = await window.authModule.fetchSharedMap(shareId);
+        if (res.map && res.map.content_json) {
+            importMTContent(res.map.content_json);
+            const banner = document.getElementById('readOnlyBanner');
+            const forkBtn = document.getElementById('forkMapBtn');
+            if (banner) banner.style.display = 'flex';
+
+            if (!window.currentUser) {
+                state.isReadOnly = true;
+                if (forkBtn) {
+                    forkBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Log In to Fork';
+                    forkBtn.onclick = () => { if (authModal) authModal.style.display = 'flex'; };
+                }
+            } else {
+                state.isReadOnly = false;
+                if (forkBtn) {
+                    forkBtn.innerHTML = '<i class="fa-solid fa-code-fork"></i> Fork to My Account';
+                    forkBtn.onclick = async () => {
+                        const title = `${res.map.title} (Forked)`;
+                        await window.authModule.saveMap(title, res.map.content_json);
+                        alert('Map successfully saved to your cloud account!');
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        if (banner) banner.style.display = 'none';
+                    };
+                }
+            }
+        }
+    } catch(e) {
+        console.warn('Failed to load shared map:', e);
+    }
+}
+
 // ── INIT ──
 function init() {
     state.isMobile = window.innerWidth <= 768;
@@ -695,6 +920,7 @@ function init() {
     applySavedTheme();
     applyLanguage(window.currentLang);
     resizeCanvas();
+    checkShareRoute();
     requestAnimationFrame(render);
 }
 init();

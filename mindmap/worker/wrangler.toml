@@ -4,3 +4,9 @@ compatibility_date = "2024-09-23"
 
 [vars]
 ENVIRONMENT = "production"
+JWT_SECRET = "metafikra_mindmap_jwt_secret_key_2026"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "metafikra-db"
+database_id = "e20b926a-b69a-4e9e-94e7-5d5f4e5d78d2"

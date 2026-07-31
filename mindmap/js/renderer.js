@@ -150,6 +150,10 @@ function drawNodes(time) {
             borderColor = `rgba(226, 183, 20, ${goldAlpha})`;
         } else if (a.ta < 0.5) borderColor = CONFIG.colors.siblingBorder;
 
+        if (node.completed && !isFoc && !isHov && !isTitleMatch && !isNoteMatch) {
+            borderColor = '#10b981';
+        }
+
         ctx.strokeStyle = borderColor;
         ctx.lineWidth = isTitleMatch ? 3.5 : (isNoteMatch ? 2.2 : (isFoc ? 2.5 : (isHov ? 2.0 : (totalSubtreeCount > 0 ? 2.0 : 1.2))));
         ctx.stroke();
@@ -158,6 +162,16 @@ function drawNodes(time) {
             ctx.beginPath(); ctx.arc(x + r * 0.6, y - r * 0.6, isNoteMatch ? 6 : 4, 0, Math.PI * 2);
             ctx.fillStyle = isNoteMatch ? '#e2b714' : CONFIG.colors.noteDot;
             ctx.fill();
+        }
+
+        if (node.completed) {
+            ctx.beginPath(); ctx.arc(x - r * 0.6, y - r * 0.6, 7, 0, Math.PI * 2);
+            ctx.fillStyle = '#10b981';
+            ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `700 9px ${CONFIG.font}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('✓', x - r * 0.6, y - r * 0.6);
         }
 
         ctx.font = `500 ${a.fs}px ${CONFIG.font}`;

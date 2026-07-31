@@ -1,4 +1,4 @@
-<!-- Version: v4.7.0 | Updated: 2026-07-31 19:12 | Features: Replaced header with authentic Arabic 'ميتاـفكرة. | خريطة الأفكار' header branding -->
+<!-- Version: v7.0.0 | Updated: 2026-08-01 01:11 | Features: Cloudflare D1 Auth, Cloud Maps Sync, URL Sharing, Read-Only/Fork Permissions, and Node Completion Badge -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="design.css">
   <link rel="stylesheet" href="meta.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="dark-mode">
 
@@ -81,8 +82,18 @@
           </div>
         </div>
       </div>
+
+      <!-- Cloud Storage & User Account Buttons -->
+      <button id="cloudMapsBtn" class="hdr-icon-btn" title="خرائطي السحابية"><i class="fa-solid fa-cloud"></i></button>
+      <button id="userAccountBtn" class="hdr-icon-btn user-acct-btn" title="حسابي / تسجيل الدخول"><i class="fa-solid fa-user-circle"></i> <span class="user-name">Login</span></button>
     </div>
   </header>
+
+  <!-- Read-Only Shared Map Notification Banner -->
+  <div id="readOnlyBanner" class="read-only-banner" style="display: none;">
+    <span id="readOnlyText"><i class="fa-solid fa-eye"></i> خريطة للقراءة فقط</span>
+    <button id="forkMapBtn" class="fork-btn"><i class="fa-solid fa-code-fork"></i> حفظ نسخة في حسابي</button>
+  </div>
 
   <!-- AI Mind Map Generator Modal -->
   <div id="aiModalOverlay" class="ai-modal-overlay" dir="rtl" style="display: none;">
@@ -122,6 +133,7 @@
     <button id="tbAddSibling" class="side-btn" title="Add Sibling (Shift+Tab)"><i class="fa-solid fa-diagram-next"></i></button>
     <button id="tbEdit" class="side-btn" title="Edit Label (Enter)"><i class="fa-solid fa-pen"></i></button>
     <button id="tbNote" class="side-btn" title="Note (N)"><i class="fa-solid fa-sticky-note"></i></button>
+    <button id="tbToggleComplete" class="side-btn" title="Toggle Completion"><i class="fa-solid fa-circle-check"></i></button>
     <button id="tbDelete" class="side-btn tb-danger" title="Delete (Del)"><i class="fa-solid fa-trash-can"></i></button>
     <div class="side-divider"></div>
     <button id="tbUndo" class="side-btn" title="Undo (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
@@ -141,6 +153,53 @@
 
   <textarea id="floatingNote" class="floating-note" dir="auto" placeholder="Add note..."></textarea>
 
+  <!-- Authentication Modal -->
+  <div id="authModal" class="ai-modal-overlay" style="display: none;">
+    <div class="ai-modal-card auth-card">
+      <div class="ai-modal-header">
+        <span id="authModalTitle" class="ai-modal-title"><i class="fa-solid fa-user"></i> تسجيل الدخول / حساب جديد</span>
+        <button id="authModalClose" class="ai-close-btn">&times;</button>
+      </div>
+      <div class="ai-modal-body">
+        <div class="auth-tabs">
+          <button id="tabLoginBtn" class="auth-tab active">تسجيل الدخول</button>
+          <button id="tabRegisterBtn" class="auth-tab">حساب جديد</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required>
+          <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
+          <button type="submit" class="ai-submit-btn"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
+        </form>
+
+        <form id="registerForm" class="auth-form" style="display: none;">
+          <input type="text" id="regName" placeholder="الاسم الكامل" required>
+          <input type="email" id="regEmail" placeholder="البريد الإلكتروني" required>
+          <input type="password" id="regPassword" placeholder="كلمة المرور (6 خانات على الأقل)" required minlength="6">
+          <button type="submit" class="ai-submit-btn"><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد</button>
+        </form>
+
+        <div class="auth-divider"><span>أو</span></div>
+        <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" data-callback="handleGoogleAuthCallback"></div>
+        <div class="g_id_signin" data-type="standard" data-shape="rectangular" data-theme="dark" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+        
+        <div id="authErrorMsg" class="ai-error-msg" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Cloud Maps Slide-Out Drawer -->
+  <div id="cloudMapsDrawer" class="cloud-drawer" style="display: none;">
+    <div class="drawer-header">
+      <span><i class="fa-solid fa-cloud"></i> خرائطي السحابية المحفوظة</span>
+      <button id="closeDrawerBtn" class="ai-close-btn">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <button id="saveCurrentToCloudBtn" class="ai-submit-btn" style="margin-bottom: 12px;"><i class="fa-solid fa-cloud-arrow-up"></i> حفظ الخريطة الحالية سحابياً</button>
+      <div id="cloudMapsList" class="cloud-maps-list"></div>
+    </div>
+  </div>
+
   <script src="meta.js" data-project="خريطة الأفكار" data-home="./" data-help="اختصارات لوحة المفاتيح" data-help-id="metaHelpBtn"></script>
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
@@ -148,6 +207,7 @@
   <script src="js/renderer.js"></script>
   <script src="js/actions.js"></script>
   <script src="js/input.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

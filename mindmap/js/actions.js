@@ -9,6 +9,15 @@ function pushSnapshot() {
     saveToStorage();
 }
 
+function toggleCompletionAction() {
+    if (state.isEditing || state.isReadOnly) return;
+    if (!state.focusedId) return;
+    pushSnapshot();
+    toggleNodeCompletion(state.tree, state.focusedId);
+    state.treeVersion++;
+    saveToStorage();
+}
+
 function undo() {
     if (!state.undoStack.length || state.isEditing || state.isNoteOpen) return;
     state.redoStack.push({ t: clone(state.tree), f: state.focusedId });

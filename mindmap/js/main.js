@@ -834,6 +834,64 @@ const authorEditHint = document.getElementById('authorEditHint');
 if (createArticleBtn) createArticleBtn.addEventListener('click', openSplitEditor);
 if (authorEditHint) authorEditHint.addEventListener('click', openSplitEditor);
 
+function insertMarkdownFormatting(fmtType) {
+    const textarea = document.getElementById('articleMarkdownInput');
+    if (!textarea) return;
+
+    const start = textarea.selectionStart || 0;
+    const end = textarea.selectionEnd || 0;
+    const selectedText = textarea.value.substring(start, end);
+    let replacement = '';
+
+    switch (fmtType) {
+        case 'bold':
+            replacement = `**${selectedText || 'نص عريض'}**`;
+            break;
+        case 'italic':
+            replacement = `*${selectedText || 'نص مائل'}*`;
+            break;
+        case 'h1':
+            replacement = `\n# ${selectedText || 'عنوان رئيسي'}\n`;
+            break;
+        case 'h2':
+            replacement = `\n## ${selectedText || 'عنوان فرعي'}\n`;
+            break;
+        case 'quote':
+            replacement = `\n> ${selectedText || 'نص اقتباس'}\n`;
+            break;
+        case 'code':
+            replacement = selectedText.includes('\n') 
+                ? `\n\`\`\`javascript\n${selectedText || '// الشفرة البرمجية'}\n\`\`\`\n`
+                : `\`${selectedText || 'كود'}\``;
+            break;
+        case 'list':
+            replacement = `\n- ${selectedText || 'عنصر قائمة'}\n`;
+            break;
+        case 'table':
+            replacement = `\n| العمود 1 | العمود 2 |\n| --- | --- |\n| بيانات 1 | بيانات 2 |\n`;
+            break;
+        case 'image':
+            replacement = `![وصف الصورة](https://via.placeholder.com/600x300)`;
+            break;
+        case 'link':
+            replacement = `[${selectedText || 'عنوان الرابط'}](https://example.com)`;
+            break;
+    }
+
+    textarea.setRangeText(replacement, start, end, 'select');
+    textarea.focus();
+    const preview = document.getElementById('articleLivePreview');
+    if (preview) preview.innerHTML = renderMarkdownText(textarea.value);
+}
+
+document.querySelectorAll('.fmt-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const fmt = btn.getAttribute('data-fmt');
+        if (fmt) insertMarkdownFormatting(fmt);
+    });
+});
+
 const mdInputEl = document.getElementById('articleMarkdownInput');
 if (mdInputEl) {
     mdInputEl.addEventListener('input', () => {

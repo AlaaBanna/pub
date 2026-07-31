@@ -177,18 +177,29 @@ function drawNodes(time) {
         if (node.article && node.article.content && node.article.content.trim()) {
             const bx = x, by = y + r * 0.7;
             const br = 10;
+            // Draw crisp abstract vector eye badge
             ctx.beginPath();
             ctx.arc(bx, by, br, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
             ctx.fill();
             ctx.lineWidth = 1.2;
             ctx.strokeStyle = node.article.isRead ? '#10b981' : 'rgba(226, 183, 20, 0.7)';
             ctx.stroke();
 
-            ctx.fillStyle = node.article.isRead ? '#10b981' : '#e2b714';
-            ctx.font = `600 10px ${CONFIG.font}`;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('👁', bx, by);
+            // Vector Eye Shape (Almond outline + inner pupil)
+            const eyeColor = node.article.isRead ? '#10b981' : '#e2b714';
+            ctx.beginPath();
+            ctx.moveTo(bx - 5.5, by);
+            ctx.quadraticCurveTo(bx, by - 3.8, bx + 5.5, by);
+            ctx.quadraticCurveTo(bx, by + 3.8, bx - 5.5, by);
+            ctx.strokeStyle = eyeColor;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(bx, by, 1.8, 0, Math.PI * 2);
+            ctx.fillStyle = eyeColor;
+            ctx.fill();
         }
 
         ctx.font = `500 ${a.fs}px ${CONFIG.font}`;

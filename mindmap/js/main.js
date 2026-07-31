@@ -1148,8 +1148,11 @@ async function checkShareRoute() {
 // ── INIT ──
 function init() {
     state.isMobile = window.innerWidth <= 768;
-    state.tree = loadFromStorage() || parseMarkup(DEFAULT_SAMPLE_MARKUP);
-    state.focusedId = state.tree.id;
+    state.tree = loadFromStorage();
+    if (!state.tree || !state.tree.id) {
+        state.tree = parseMarkup(DEFAULT_SAMPLE_MARKUP);
+    }
+    state.focusedId = state.tree ? state.tree.id : null;
     applySavedTheme();
     applyLanguage(window.currentLang);
     resizeCanvas();

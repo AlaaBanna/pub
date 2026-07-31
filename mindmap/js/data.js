@@ -239,7 +239,7 @@ const STORAGE_KEY = 'metafikra_mp_tree_v1';
 function saveToStorage() {
     try {
         if (!state.tree) return;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tree));
+        localStorage.setItem(STORAGE_KEY, serializeMT(state.tree));
     } catch(e) {}
 }
 
@@ -247,12 +247,9 @@ function loadFromStorage() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('metafikra_tree');
         if (!raw) return null;
-        try {
-            const parsed = JSON.parse(raw);
-            if (parsed && parsed.id && parsed.children) return parsed;
-        } catch(e) {
-            return parseMarkup(raw);
-        }
+        const mtTree = parseMT(raw);
+        if (mtTree && mtTree.id) return mtTree;
+        return parseMarkup(raw);
     } catch(e) {}
     return null;
 }

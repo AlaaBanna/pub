@@ -294,13 +294,37 @@ canvas.addEventListener('mouseleave', () => {
 
 // ── TOUCH ──
 let touchStartX = 0, touchStartY = 0, touchStartTime = 0, initialPinchDist = null;
+let touchTimer = null, longPressTriggered = false;
 function getTouchDist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
 
 canvas.addEventListener('touchstart', (e) => {
     if (state.isEditing || state.isHelpOpen || state.isNoteOpen) return;
     e.preventDefault(); 
-    if (e.touches.length === 1) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; touchStartTime = Date.now(); }
-    else if (e.touches.length === 2) { initialPinchDist = getTouchDist(e.touches); }
+    longPressTriggered = false;
+    if (e.touches.length === 1) { 
+        touchStartX = e.touches[0].clientX; 
+        touchStartY = e.touches[0].clientY; 
+        touchStartTime = Date.now();
+        
+        if (touchTimer) clearTimeout(touchTimer);
+        touchTimer = setTimeout(() => {
+            const rect = canvas.getBoundingClientRect();
+            const {x: wx, y: wy} = screenToWorld(touchStartX - rect.left, touchStartY - rect.top);
+            const hitId = getNodeAtPos(wx, wy);
+            if (hitId) {
+                longPressTriggered = true;
+                state.focusedId = hitId;
+                state.deletePending = null;
+                state.treeVersion++;
+                if ('vibrate' in navigator) navigator.vibrate(40);
+                openFloatingNote();
+            }
+        }, 400);
+    }
+    else if (e.touches.length === 2) { 
+        if (touchTimer) clearTimeout(touchTimer);
+        initialPinchDist = getTouchDist(e.touches); 
+    }
 }, {passive: false});
 
 canvas.addEventListener('touchmove', (e) => {
@@ -309,6 +333,9 @@ canvas.addEventListener('touchmove', (e) => {
     if (e.touches.length === 1) {
         const dx = e.touches[0].clientX - touchStartX, dy = e.touches[0].clientY - touchStartY;
         const absDx = Math.abs(dx), absDy = Math.abs(dy), threshold = 50; 
+        if (absDx > 10 || absDy > 10) {
+            if (touchTimer) clearTimeout(touchTimer);
+        }
         if (absDx > threshold || absDy > threshold) {
             const isBottomUp = state.layoutDir === 'bottom-up';
             if (absDx > absDy) { navigateSibling(dx > 0 ? -1 : 1); }
@@ -316,6 +343,7 @@ canvas.addEventListener('touchmove', (e) => {
             touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
         }
     } else if (e.touches.length === 2 && initialPinchDist) {
+        if (touchTimer) clearTimeout(touchTimer);
         const currentDist = getTouchDist(e.touches);
         state.targetZoom = clamp(state.targetZoom + (currentDist - initialPinchDist) * 0.005, 0.35, 1.8);
         if (!state.isOverview && state.targetZoom < CONFIG.zoomThreshold) { state.isOverview = true; state.treeVersion++; } 
@@ -326,6 +354,12 @@ canvas.addEventListener('touchmove', (e) => {
 
 let lastTapTime = 0;
 canvas.addEventListener('touchend', (e) => {
+    if (touchTimer) clearTimeout(touchTimer);
+    if (longPressTriggered) {
+        longPressTriggered = false;
+        initialPinchDist = null;
+        return;
+    }
     if (state.isEditing || state.isHelpOpen) return;
     if (e.changedTouches.length === 1) {
         const dx = Math.abs(e.changedTouches[0].clientX - touchStartX), dy = Math.abs(e.changedTouches[0].clientY - touchStartY);

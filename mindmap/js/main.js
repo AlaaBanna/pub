@@ -19,6 +19,8 @@ const DEFAULT_SAMPLE = "root";
 // ── CLOSE DROPDOWNS HELPER ──
 function closeAllDropdowns() {
     document.querySelectorAll('.hdr-dropdown-panel, .samples-popover').forEach(p => p.style.display = 'none');
+    const cloudDrawer = document.getElementById('cloudMapsDrawer');
+    if (cloudDrawer) cloudDrawer.style.display = 'none';
 }
 
 // ── LANGUAGE & TRANSLATIONS ──
@@ -490,7 +492,6 @@ if (cbSettingsBtn && settingsMenu) {
     });
 }
 
-// Hide popovers on outside click
 document.addEventListener('click', (e) => {
     const samplesMenu = document.getElementById('samplesMenu');
     const cbSampleBtn = document.getElementById('cbSampleBtn');
@@ -498,10 +499,15 @@ document.addEventListener('click', (e) => {
     const cbFileBtn = document.getElementById('cbFileBtn');
     const settingsMenu = document.getElementById('settingsMenu');
     const cbSettingsBtn = document.getElementById('cbSettingsBtn');
+    const cloudDrawer = document.getElementById('cloudMapsDrawer');
+    const userAccountBtn = document.getElementById('userAccountBtn');
 
-    if (samplesMenu && !samplesMenu.contains(e.target) && e.target !== cbSampleBtn && !cbSampleBtn.contains(e.target) &&
-        fileMenu && !fileMenu.contains(e.target) && e.target !== cbFileBtn && !cbFileBtn.contains(e.target) &&
-        settingsMenu && !settingsMenu.contains(e.target) && e.target !== cbSettingsBtn && !cbSettingsBtn.contains(e.target)) {
+    const isInsideSample = (samplesMenu && samplesMenu.contains(e.target)) || (cbSampleBtn && cbSampleBtn.contains(e.target));
+    const isInsideFile = (fileMenu && fileMenu.contains(e.target)) || (cbFileBtn && cbFileBtn.contains(e.target));
+    const isInsideSettings = (settingsMenu && settingsMenu.contains(e.target)) || (cbSettingsBtn && cbSettingsBtn.contains(e.target));
+    const isInsideCloud = (cloudDrawer && cloudDrawer.contains(e.target)) || (userAccountBtn && userAccountBtn.contains(e.target));
+
+    if (!isInsideSample && !isInsideFile && !isInsideSettings && !isInsideCloud) {
         closeAllDropdowns();
     }
 });
@@ -834,7 +840,7 @@ window.openCloudMap = async function(id) {
         const res = await window.authModule.fetchMapById(id);
         if (res.map && res.map.content_json) {
             importMTContent(res.map.content_json);
-            if (cloudMapsDrawer) cloudMapsDrawer.style.display = 'none';
+            closeAllDropdowns();
         }
     } catch(e) {
         console.error('Error opening cloud map:', e);
@@ -842,13 +848,20 @@ window.openCloudMap = async function(id) {
 };
 
 window.shareCloudMap = function(shareId) {
+    closeAllDropdowns();
     const shareUrl = `${window.location.origin}${window.location.pathname}?s=${shareId}`;
     const shareModal = document.getElementById('shareModal');
     const shareUrlInput = document.getElementById('shareUrlInput');
     const shareToast = document.getElementById('shareToast');
 
     if (shareUrlInput) shareUrlInput.value = shareUrl;
-    if (shareToast) shareToast.style.display = 'none';
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        if (shareToast) shareToast.style.display = 'flex';
+    }).catch(() => {
+        if (shareToast) shareToast.style.display = 'none';
+    });
+
     if (shareModal) shareModal.style.display = 'flex';
 };
 

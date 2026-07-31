@@ -50,9 +50,11 @@
             if (!userBtn) return;
             if (window.currentUser) {
                 userBtn.innerHTML = `<i class="fa-solid fa-user-check" style="color:#e2b714;"></i>`;
+                userBtn.classList.add('logged-in');
                 userBtn.title = `Logged in as ${window.currentUser.name} (${window.currentUser.email})`;
             } else {
                 userBtn.innerHTML = `<i class="fa-solid fa-user-circle"></i>`;
+                userBtn.classList.remove('logged-in');
                 userBtn.title = `Login / Sign Up`;
             }
         },

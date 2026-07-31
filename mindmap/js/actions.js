@@ -373,7 +373,12 @@ function exportAsMT() {
 function importMTContent(content) {
     if (!content) return;
     pushSnapshot();
-    const loadedTree = parseMT(content) || parseMarkup(content);
+    let loadedTree = null;
+    if (typeof content === 'object') {
+        loadedTree = content.tree || (content.id && content.children ? content : null);
+    } else if (typeof content === 'string') {
+        loadedTree = parseMT(content) || parseMarkup(content);
+    }
     if (loadedTree) {
         state.tree = loadedTree;
         state.focusedId = state.tree.id;

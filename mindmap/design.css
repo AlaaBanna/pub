@@ -1239,6 +1239,12 @@ body.lang-en #aiPromptInput {
     cursor: pointer;
 }
 
+.user-acct-btn.logged-in {
+    border-color: #e2b714 !important;
+    color: #e2b714 !important;
+    box-shadow: 0 0 10px rgba(226, 183, 20, 0.3);
+}
+
 /* ============================================
    Share Modal Styling
    ============================================ */

@@ -207,6 +207,17 @@ export default {
       }
     }
 
+    if (url.pathname.startsWith('/api/maps/') && request.method === 'GET') {
+      const user = await getAuthUser();
+      if (!user) return jsonRes({ error: 'Unauthorized.' }, 401);
+      if (!env.DB) return jsonRes({ error: 'D1 DB binding missing.' }, 500);
+
+      const mapId = url.pathname.replace('/api/maps/', '').trim();
+      const map = await env.DB.prepare('SELECT id, title, content_json, share_id, updated_at FROM maps WHERE id = ? AND user_id = ?').bind(mapId, user.sub).first();
+      if (!map) return jsonRes({ error: 'Map not found.' }, 404);
+      return jsonRes({ success: true, map });
+    }
+
     if (url.pathname.startsWith('/api/maps/') && request.method === 'DELETE') {
       const user = await getAuthUser();
       if (!user) return jsonRes({ error: 'Unauthorized.' }, 401);

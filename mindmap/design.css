@@ -1238,3 +1238,48 @@ body.lang-en #aiPromptInput {
     font-weight: 600;
     cursor: pointer;
 }
+
+/* ============================================
+   Share Modal Styling
+   ============================================ */
+.share-card {
+    max-width: 480px;
+}
+
+.share-url-box {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.share-url-box input {
+    flex: 1;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: #e2b714;
+    font-family: monospace;
+    font-size: 13px;
+    outline: none;
+}
+
+.copy-btn {
+    padding: 10px 18px;
+    white-space: nowrap;
+}
+
+.share-toast {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid #10b981;
+    border-radius: 8px;
+    color: #10b981;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 0.2s ease-in-out;
+}

@@ -831,19 +831,46 @@ async function refreshCloudMapsList() {
 
 window.openCloudMap = async function(id) {
     try {
-        const res = await window.authModule.fetchUserMaps();
-        const target = res.maps.find(m => m.id === id);
-        if (target && target.content_json) {
-            importMTContent(target.content_json);
+        const res = await window.authModule.fetchMapById(id);
+        if (res.map && res.map.content_json) {
+            importMTContent(res.map.content_json);
             if (cloudMapsDrawer) cloudMapsDrawer.style.display = 'none';
         }
-    } catch(e) {}
+    } catch(e) {
+        console.error('Error opening cloud map:', e);
+    }
 };
 
 window.shareCloudMap = function(shareId) {
     const shareUrl = `${window.location.origin}${window.location.pathname}?s=${shareId}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-        alert(`Share URL copied to clipboard!\n${shareUrl}`);
+    const shareModal = document.getElementById('shareModal');
+    const shareUrlInput = document.getElementById('shareUrlInput');
+    const shareToast = document.getElementById('shareToast');
+
+    if (shareUrlInput) shareUrlInput.value = shareUrl;
+    if (shareToast) shareToast.style.display = 'none';
+    if (shareModal) shareModal.style.display = 'flex';
+};
+
+const shareModalClose = document.getElementById('shareModalClose');
+if (shareModalClose) {
+    shareModalClose.addEventListener('click', () => {
+        const shareModal = document.getElementById('shareModal');
+        if (shareModal) shareModal.style.display = 'none';
+    });
+}
+
+const copyShareUrlBtn = document.getElementById('copyShareUrlBtn');
+if (copyShareUrlBtn) {
+    copyShareUrlBtn.addEventListener('click', () => {
+        const shareUrlInput = document.getElementById('shareUrlInput');
+        const shareToast = document.getElementById('shareToast');
+        if (shareUrlInput) {
+            shareUrlInput.select();
+            navigator.clipboard.writeText(shareUrlInput.value).then(() => {
+                if (shareToast) shareToast.style.display = 'flex';
+            });
+        }
     });
 };
 

@@ -83,9 +83,8 @@
         </div>
       </div>
 
-      <!-- Cloud Storage & User Account Buttons -->
-      <button id="cloudMapsBtn" class="hdr-icon-btn" title="خرائطي السحابية"><i class="fa-solid fa-cloud"></i></button>
-      <button id="userAccountBtn" class="hdr-icon-btn user-acct-btn" title="حسابي / تسجيل الدخول"><i class="fa-solid fa-user-circle"></i> <span class="user-name">Login</span></button>
+      <!-- User Account Button (Icon Only) -->
+      <button id="userAccountBtn" class="hdr-icon-btn user-acct-btn" title="حسابي / تسجيل الدخول"><i class="fa-solid fa-user-circle"></i></button>
     </div>
   </header>
 
@@ -197,6 +196,26 @@
     <div class="drawer-body">
       <button id="saveCurrentToCloudBtn" class="ai-submit-btn" style="margin-bottom: 12px;"><i class="fa-solid fa-cloud-arrow-up"></i> حفظ الخريطة الحالية سحابياً</button>
       <div id="cloudMapsList" class="cloud-maps-list"></div>
+    </div>
+  </div>
+
+  <!-- Share Mind Map Glassmorphic Modal -->
+  <div id="shareModal" class="ai-modal-overlay" style="display: none;">
+    <div class="ai-modal-card share-card">
+      <div class="ai-modal-header">
+        <div class="ai-modal-header-left">
+          <span class="ai-modal-title"><i class="fa-solid fa-share-nodes"></i> مشاركة الخريطة الذهنية</span>
+        </div>
+        <button id="shareModalClose" class="ai-close-btn">&times;</button>
+      </div>
+      <div class="ai-modal-body">
+        <p class="ai-modal-desc">يمكن لأي شخص لديه هذا الرابط استعراض الخريطة (قراءة فقط) أو حفظ نسخة خاصة به في حسابه:</p>
+        <div class="share-url-box">
+          <input type="text" id="shareUrlInput" readonly>
+          <button id="copyShareUrlBtn" class="ai-submit-btn copy-btn"><i class="fa-solid fa-copy"></i> نسخ</button>
+        </div>
+        <div id="shareToast" class="share-toast" style="display: none;"><i class="fa-solid fa-circle-check"></i> تم نسخ رابط المشاركة بنجاح!</div>
+      </div>
     </div>
   </div>
 

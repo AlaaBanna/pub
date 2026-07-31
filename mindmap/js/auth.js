@@ -49,10 +49,10 @@
             const userBtn = document.getElementById('userAccountBtn');
             if (!userBtn) return;
             if (window.currentUser) {
-                userBtn.innerHTML = `<i class="fa-solid fa-user-check"></i> <span class="user-name">${window.currentUser.name}</span>`;
-                userBtn.title = `Logged in as ${window.currentUser.email}`;
+                userBtn.innerHTML = `<i class="fa-solid fa-user-check" style="color:#e2b714;"></i>`;
+                userBtn.title = `Logged in as ${window.currentUser.name} (${window.currentUser.email})`;
             } else {
-                userBtn.innerHTML = `<i class="fa-solid fa-user-circle"></i> <span class="user-name">Login</span>`;
+                userBtn.innerHTML = `<i class="fa-solid fa-user-circle"></i>`;
                 userBtn.title = `Login / Sign Up`;
             }
         },
@@ -83,6 +83,10 @@
 
         async fetchUserMaps() {
             return await apiRequest('/api/maps', 'GET');
+        },
+
+        async fetchMapById(mapId) {
+            return await apiRequest(`/api/maps/${mapId}`, 'GET');
         },
 
         async saveMap(title, contentJson, id = null) {

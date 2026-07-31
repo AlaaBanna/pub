@@ -528,27 +528,20 @@ document.addEventListener('click', (e) => {
     }
 });
 
-document.getElementById('cbExportMtBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeAllDropdowns();
-    exportAsMT();
-});
-document.getElementById('cbUploadMtBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeAllDropdowns();
-    document.getElementById('mtFileInput').click();
-});
-document.getElementById('cbExportPngBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeAllDropdowns();
-    exportAsPNG();
-});
-document.getElementById('cbDirectionBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    closeAllDropdowns();
-    toggleLayout();
-});
-document.getElementById('mtFileInput').addEventListener('change', (e) => {
+const elExportMt = document.getElementById('cbExportMtBtn');
+if (elExportMt) elExportMt.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(); exportAsMT(); });
+
+const elUploadMt = document.getElementById('cbUploadMtBtn');
+if (elUploadMt) elUploadMt.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(); const inp = document.getElementById('mtFileInput'); if (inp) inp.click(); });
+
+const elExportPng = document.getElementById('cbExportPngBtn');
+if (elExportPng) elExportPng.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(); exportAsPNG(); });
+
+const elDirBtn = document.getElementById('cbDirectionBtn');
+if (elDirBtn) elDirBtn.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(); toggleLayout(); });
+
+const elFileInput = document.getElementById('mtFileInput');
+if (elFileInput) elFileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -589,13 +582,26 @@ const closeBtn = document.getElementById('searchCloseBtn');
 if (closeBtn) closeBtn.addEventListener('click', clearSearch);
 
 // ── SIDE ACTION BAR EVENTS ──
-document.getElementById('tbAddChild').addEventListener('click', () => { closeAllDropdowns(); createChild(); });
-document.getElementById('tbAddSibling').addEventListener('click', () => { closeAllDropdowns(); createSibling(); });
-document.getElementById('tbEdit').addEventListener('click', () => { closeAllDropdowns(); startEditing(); });
-document.getElementById('tbNote').addEventListener('click', () => { closeAllDropdowns(); openFloatingNote(); });
-document.getElementById('tbDelete').addEventListener('click', () => { closeAllDropdowns(); handleDelete(false); });
-document.getElementById('tbUndo').addEventListener('click', () => { closeAllDropdowns(); undo(); });
-document.getElementById('tbRedo').addEventListener('click', () => { closeAllDropdowns(); redo(); });
+const tbAddChild = document.getElementById('tbAddChild');
+if (tbAddChild) tbAddChild.addEventListener('click', () => { closeAllDropdowns(); createChild(); });
+
+const tbAddSibling = document.getElementById('tbAddSibling');
+if (tbAddSibling) tbAddSibling.addEventListener('click', () => { closeAllDropdowns(); createSibling(); });
+
+const tbEdit = document.getElementById('tbEdit');
+if (tbEdit) tbEdit.addEventListener('click', () => { closeAllDropdowns(); startEditing(); });
+
+const tbArticleBtn = document.getElementById('tbArticle');
+if (tbArticleBtn) tbArticleBtn.addEventListener('click', () => { closeAllDropdowns(); openArticleModal(); });
+
+const tbDelete = document.getElementById('tbDelete');
+if (tbDelete) tbDelete.addEventListener('click', () => { closeAllDropdowns(); handleDelete(false); });
+
+const tbUndo = document.getElementById('tbUndo');
+if (tbUndo) tbUndo.addEventListener('click', () => { closeAllDropdowns(); undo(); });
+
+const tbRedo = document.getElementById('tbRedo');
+if (tbRedo) tbRedo.addEventListener('click', () => { closeAllDropdowns(); redo(); });
 
 // ── TOOLTIP HOVER DISPLAY ──
 canvas.addEventListener('mousemove', (e) => {

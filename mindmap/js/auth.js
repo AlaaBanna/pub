@@ -128,5 +128,16 @@
         }
     };
 
+    window.handleGoogleAuthCallback = async function(response) {
+        try {
+            await window.authModule.googleAuth(response.credential);
+            const authModal = document.getElementById('authModal');
+            if (authModal) authModal.style.display = 'none';
+        } catch(err) {
+            const errEl = document.getElementById('authErrorMsg');
+            if (errEl) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+        }
+    };
+
     window.authModule.init();
 })();

@@ -1,4 +1,4 @@
-// Version: v7.0.0 | Updated: 2026-08-01 01:11 | Features: Cloudflare D1 Auth, Cloud Sync, URL Sharing, Read-Only/Fork Permissions, and Node Completion Badge
+// Version: v8.0.0 | Updated: 2026-08-01 02:22 | Features: Rich Node Articles, Split Markdown Editor with Live Preview, Canvas Eye Indicator Badge, and Reader Modal
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');
@@ -285,8 +285,24 @@ canvas.addEventListener('click', (e) => {
     if (state.isEditing || state.isHelpOpen || state.isNoteOpen) return;
     const {x: wx, y: wy} = screenToWorld(sx, sy);
     const hitId = getNodeAtPos(wx, wy);
-    if (hitId && hitId !== state.focusedId) {
-        state.focusedId = hitId; state.deletePending = null; state.treeVersion++;
+
+    if (hitId) {
+        // Eye Badge Hit Test (bottom center of node)
+        const a = state.animNodes[hitId];
+        const node = findNode(state.tree, hitId);
+        if (a && node && node.article && node.article.content) {
+            const bx = a.x, by = a.y + a.r * 0.7;
+            if (Math.hypot(wx - bx, wy - by) <= 16) {
+                state.focusedId = hitId;
+                state.treeVersion++;
+                openArticleModal();
+                return;
+            }
+        }
+
+        if (hitId !== state.focusedId) {
+            state.focusedId = hitId; state.deletePending = null; state.treeVersion++;
+        }
     }
 });
 
@@ -700,6 +716,154 @@ if (tbToggleComplete) {
         e.stopPropagation();
         toggleCompletionAction();
     });
+}
+
+// ── RICH NODE ARTICLE CONTROLLER ──
+const tbArticle = document.getElementById('tbArticle');
+if (tbArticle) {
+    tbArticle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openArticleModal();
+    });
+}
+
+function renderMarkdownText(mdText) {
+    if (typeof marked !== 'undefined' && marked.parse) {
+        return marked.parse(mdText || '');
+    }
+    return (mdText || '').replace(/\n/g, '<br>');
+}
+
+window.openArticleModal = function() {
+    if (!state.focusedId) return;
+    const node = findNode(state.tree, state.focusedId);
+    if (!node) return;
+
+    const modal = document.getElementById('articleModal');
+    const breadcrumb = document.getElementById('articleBreadcrumb');
+    const titleEl = document.getElementById('articleTitle');
+    const bodyContent = document.getElementById('articleBodyContent');
+    const emptyNotice = document.getElementById('articleEmptyNotice');
+    const readerPane = document.getElementById('articleReaderPane');
+    const editorPane = document.getElementById('articleEditorPane');
+
+    const parentNode = findParent(state.tree, state.focusedId, null);
+    if (breadcrumb) breadcrumb.textContent = parentNode ? parentNode.text : (state.tree.text || 'الخريطة الرئيسية');
+    if (titleEl) titleEl.textContent = node.text || 'العقدة';
+
+    updateArticleReadStatusUI(node);
+
+    if (editorPane) editorPane.style.display = 'none';
+    if (readerPane) readerPane.style.display = 'block';
+
+    const articleContent = (node.article && node.article.content) ? node.article.content.trim() : '';
+    if (articleContent) {
+        if (bodyContent) {
+            bodyContent.innerHTML = renderMarkdownText(articleContent);
+            bodyContent.style.display = 'block';
+        }
+        if (emptyNotice) emptyNotice.style.display = 'none';
+    } else {
+        if (bodyContent) bodyContent.style.display = 'none';
+        if (emptyNotice) emptyNotice.style.display = 'block';
+    }
+
+    if (modal) modal.style.display = 'flex';
+};
+
+function updateArticleReadStatusUI(node) {
+    const statusBtn = document.getElementById('articleReadStatusBtn');
+    if (!statusBtn) return;
+    const isRead = node && node.article && node.article.isRead;
+    if (isRead) {
+        statusBtn.className = 'read-status-pill read';
+        statusBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> مقروء';
+    } else {
+        statusBtn.className = 'read-status-pill unread';
+        statusBtn.innerHTML = '<i class="fa-regular fa-circle"></i> غير مقروء';
+    }
+}
+
+window.toggleCurrentArticleRead = function() {
+    if (!state.focusedId) return;
+    const isRead = toggleArticleReadStatus(state.tree, state.focusedId);
+    const node = findNode(state.tree, state.focusedId);
+    updateArticleReadStatusUI(node);
+    state.treeVersion++;
+    saveToStorage();
+};
+
+const articleReadStatusBtn = document.getElementById('articleReadStatusBtn');
+if (articleReadStatusBtn) articleReadStatusBtn.addEventListener('click', toggleCurrentArticleRead);
+
+const articleCloseBtn = document.getElementById('articleCloseBtn');
+if (articleCloseBtn) articleCloseBtn.addEventListener('click', () => {
+    const modal = document.getElementById('articleModal');
+    if (modal) modal.style.display = 'none';
+});
+
+function openSplitEditor() {
+    if (state.isReadOnly) {
+        showToast('لا يمكنك تعديل الخريطة في وضع القراءة فقط', 'info');
+        return;
+    }
+    const node = findNode(state.tree, state.focusedId);
+    if (!node) return;
+
+    const readerPane = document.getElementById('articleReaderPane');
+    const editorPane = document.getElementById('articleEditorPane');
+    const mdInput = document.getElementById('articleMarkdownInput');
+    const preview = document.getElementById('articleLivePreview');
+
+    const content = (node.article && node.article.content) ? node.article.content : '';
+    if (mdInput) mdInput.value = content;
+    if (preview) preview.innerHTML = renderMarkdownText(content);
+
+    if (readerPane) readerPane.style.display = 'none';
+    if (editorPane) editorPane.style.display = 'flex';
+}
+
+const createArticleBtn = document.getElementById('createArticleBtn');
+const authorEditHint = document.getElementById('authorEditHint');
+if (createArticleBtn) createArticleBtn.addEventListener('click', openSplitEditor);
+if (authorEditHint) authorEditHint.addEventListener('click', openSplitEditor);
+
+const mdInputEl = document.getElementById('articleMarkdownInput');
+if (mdInputEl) {
+    mdInputEl.addEventListener('input', () => {
+        const preview = document.getElementById('articleLivePreview');
+        if (preview) preview.innerHTML = renderMarkdownText(mdInputEl.value);
+    });
+}
+
+const saveArticleBtn = document.getElementById('saveArticleBtn');
+if (saveArticleBtn) {
+    saveArticleBtn.addEventListener('click', () => {
+        if (!state.focusedId) return;
+        const content = mdInputEl ? mdInputEl.value : '';
+        setNodeArticle(state.tree, state.focusedId, content);
+        state.treeVersion++;
+        saveToStorage();
+        showToast('تم حفظ المقال بنجاح!', 'success');
+        openArticleModal();
+    });
+}
+
+const deleteArticleBtn = document.getElementById('deleteArticleBtn');
+if (deleteArticleBtn) {
+    deleteArticleBtn.addEventListener('click', () => {
+        if (!confirm('هل أنت تأكد من رغبتك في حذف مقال هذه العقدة؟')) return;
+        setNodeArticle(state.tree, state.focusedId, '');
+        state.treeVersion++;
+        saveToStorage();
+        showToast('تم حذف المقال بنجاح', 'info');
+        openArticleModal();
+    });
+}
+
+const cancelArticleEditBtn = document.getElementById('cancelArticleEditBtn');
+if (cancelArticleEditBtn) {
+    cancelArticleEditBtn.addEventListener('click', openArticleModal);
 }
 
 // ── AUTH MODAL & CLOUD STORAGE EVENTS ──

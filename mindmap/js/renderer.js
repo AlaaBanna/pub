@@ -174,6 +174,23 @@ function drawNodes(time) {
             ctx.fillText('✓', x - r * 0.6, y - r * 0.6);
         }
 
+        if (node.article && node.article.content && node.article.content.trim()) {
+            const bx = x, by = y + r * 0.7;
+            const br = 10;
+            ctx.beginPath();
+            ctx.arc(bx, by, br, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+            ctx.fill();
+            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = node.article.isRead ? '#10b981' : 'rgba(226, 183, 20, 0.7)';
+            ctx.stroke();
+
+            ctx.fillStyle = node.article.isRead ? '#10b981' : '#e2b714';
+            ctx.font = `600 10px ${CONFIG.font}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('👁', bx, by);
+        }
+
         ctx.font = `500 ${a.fs}px ${CONFIG.font}`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         let text = node.text || '...';

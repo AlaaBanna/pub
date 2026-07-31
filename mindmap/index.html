@@ -1,4 +1,4 @@
-<!-- Version: v7.0.0 | Updated: 2026-08-01 01:11 | Features: Cloudflare D1 Auth, Cloud Maps Sync, URL Sharing, Read-Only/Fork Permissions, and Node Completion Badge -->
+<!-- Version: v8.0.0 | Updated: 2026-08-01 02:22 | Features: Rich Node Articles, Split Markdown Editor with Live Preview, Canvas Eye Indicator Badge, and Reader Modal -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="design.css">
   <link rel="stylesheet" href="meta.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body class="dark-mode">
 
@@ -131,7 +132,7 @@
     <button id="tbAddChild" class="side-btn" title="Add Child (Tab)"><i class="fa-solid fa-plus"></i></button>
     <button id="tbAddSibling" class="side-btn" title="Add Sibling (Shift+Tab)"><i class="fa-solid fa-diagram-next"></i></button>
     <button id="tbEdit" class="side-btn" title="Edit Label (Enter)"><i class="fa-solid fa-pen"></i></button>
-    <button id="tbNote" class="side-btn" title="Note (N)"><i class="fa-solid fa-sticky-note"></i></button>
+    <button id="tbArticle" class="side-btn" title="المقال والتفاصيل (Space)"><i class="fa-solid fa-book-open"></i></button>
     <button id="tbToggleComplete" class="side-btn" title="Toggle Completion"><i class="fa-solid fa-circle-check"></i></button>
     <button id="tbDelete" class="side-btn tb-danger" title="Delete (Del)"><i class="fa-solid fa-trash-can"></i></button>
     <div class="side-divider"></div>
@@ -196,6 +197,58 @@
     <div class="drawer-body">
       <button id="saveCurrentToCloudBtn" class="ai-submit-btn" style="margin-bottom: 12px;"><i class="fa-solid fa-cloud-arrow-up"></i> حفظ الخريطة الحالية سحابياً</button>
       <div id="cloudMapsList" class="cloud-maps-list"></div>
+    </div>
+  </div>
+
+  <!-- Rich Node Article Reader & Split Editor Modal -->
+  <div id="articleModal" class="ai-modal-overlay" style="display: none;">
+    <div class="ai-modal-card article-card">
+      <div class="article-modal-header">
+        <div class="article-header-left">
+          <button id="articleCloseBtn" class="article-close-btn" title="تصغير للعودة"><i class="fa-solid fa-compress"></i> تصغير</button>
+          <button id="articleReadStatusBtn" class="read-status-pill unread"><i class="fa-regular fa-circle"></i> غير مقروء</button>
+        </div>
+        <div class="article-header-right">
+          <div id="articleBreadcrumb" class="article-breadcrumb">المنطق المبسط</div>
+          <h2 id="articleTitle" class="article-title">الفلسفة الطبيعية</h2>
+        </div>
+      </div>
+
+      <div class="article-modal-body">
+        <!-- Article Reader Pane -->
+        <div id="articleReaderPane" class="article-reader-pane">
+          <div id="articleBodyContent" class="article-body-content"></div>
+          <div id="articleEmptyNotice" class="article-empty-notice" style="display: none;">
+            <p><i class="fa-solid fa-book-open"></i> لا يوجد مقال تفصيلي مضاف لهذه العقدة بعد.</p>
+            <button id="createArticleBtn" class="ai-submit-btn" style="width: auto; margin-top: 10px;"><i class="fa-solid fa-pen-to-square"></i> إضافة وتعديل مقال تفصيلي</button>
+          </div>
+        </div>
+
+        <!-- Article Split Editor Pane (Left Markdown / Right Live Preview) -->
+        <div id="articleEditorPane" class="article-editor-pane" style="display: none;">
+          <div class="split-editor-container">
+            <div class="editor-column">
+              <div class="editor-col-header"><i class="fa-solid fa-code"></i> المحرر (Markdown)</div>
+              <textarea id="articleMarkdownInput" class="editor-textarea" dir="auto" placeholder="اكتب التفاصيل والمقال هنا باستخدام تنسيقات Markdown..."></textarea>
+            </div>
+            <div class="editor-column">
+              <div class="editor-col-header"><i class="fa-solid fa-eye"></i> المعاينة المباشرة</div>
+              <div id="articleLivePreview" class="article-body-content preview-box"></div>
+            </div>
+          </div>
+          <div class="editor-actions-bar">
+            <button id="saveArticleBtn" class="ai-submit-btn"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
+            <button id="deleteArticleBtn" class="ai-submit-btn danger-btn"><i class="fa-solid fa-trash"></i> حذف المقال</button>
+            <button id="cancelArticleEditBtn" class="hdr-icon-btn">إلغاء</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="article-modal-footer">
+        <hr class="article-footer-divider">
+        <p class="article-footer-hint">انقر في الخلفية أو على زر "تصغير" للعودة للخريطة ورؤية التفرعات</p>
+        <p class="article-footer-shortcut">اضغط <kbd>Enter</kbd> لتحديد المقال كمقروء/غير مقروء <span id="authorEditHint" style="margin-right:12px; cursor:pointer; color:#e2b714;"><i class="fa-solid fa-pen-to-square"></i> تعديل المقال</span></p>
+      </div>
     </div>
   </div>
 

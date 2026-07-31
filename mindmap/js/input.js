@@ -43,9 +43,26 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
+    // Inside Article Modal Shortcuts
+    const articleModal = document.getElementById('articleModal');
+    if (articleModal && articleModal.style.display !== 'none') {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeArticleModal();
+            return;
+        }
+        if (e.key === 'Enter' && activeEl !== document.getElementById('articleMarkdownInput')) {
+            e.preventDefault();
+            toggleCurrentArticleRead();
+            return;
+        }
+        if (activeEl === document.getElementById('articleMarkdownInput')) return;
+    }
+
     if (e.key === 'Escape') {
         if (state.isNoteOpen) closeFloatingNote();
         if (state.isHelpOpen) state.isHelpOpen = false;
+        if (articleModal) closeArticleModal();
         clearSearch();
         return;
     }
@@ -114,6 +131,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === keyParent) { e.preventDefault(); navigateParent(); return; }
     if (e.key === 'ArrowLeft') { e.preventDefault(); navigateSibling(-1); return; }
     if (e.key === 'ArrowRight') { e.preventDefault(); navigateSibling(1); return; }
+    
     // Global AI Generator Modal Shortcut (Alt+A / Cmd+Shift+A)
     if ((e.altKey && (e.code === 'KeyA' || e.key === 'a' || e.key === 'A' || e.key === 'ش')) || (isCtrl && e.shiftKey && (e.code === 'KeyA' || e.key === 'a' || e.key === 'A'))) {
         e.preventDefault();
@@ -121,7 +139,13 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى' || e.key === 'آ') { e.preventDefault(); openFloatingNote(); return; }
+    // Spacebar or N key opens Article Modal for focused node
+    if (e.code === 'Space' || e.key === ' ' || e.code === 'KeyN' || e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        openArticleModal();
+        return;
+    }
+
     if (e.code === 'KeyA' || e.key === 'a' || e.key === 'A' || e.key === 'ش') { e.preventDefault(); openAiModal(); return; }
     if (e.code === 'KeyG' || e.key === 'g' || e.key === 'G') { e.preventDefault(); toggleLayout(); return; }
     if (e.code === 'KeyR' || e.key === 'r' || e.key === 'R') { e.preventDefault(); resetView(); return; }

@@ -8,7 +8,7 @@ const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 // ── DATA LAYER ──
 function createNode(text = '', order = 0, tags = []) {
     const now = new Date().toISOString();
-    return { id: uid(), text, note: '', completed: false, order, tags: Array.isArray(tags) ? tags : [], created: now, updated: now, children: [] };
+    return { id: uid(), text, note: '', article: null, completed: false, order, tags: Array.isArray(tags) ? tags : [], created: now, updated: now, children: [] };
 }
 
 // ── CUSTOM .MT FORMAT SERIALIZATION & PARSING ──
@@ -50,9 +50,11 @@ function countSubtreeDescendants(node) {
 function findNode(tree, id) {
     if (!tree) return null;
     if (tree.id === id) return tree;
-    for (const child of tree.children) {
-        const found = findNode(child, id);
-        if (found) return found;
+    if (tree.children) {
+        for (const child of tree.children) {
+            const found = findNode(child, id);
+            if (found) return found;
+        }
     }
     return null;
 }
@@ -60,16 +62,18 @@ function findNode(tree, id) {
 function findParent(tree, id, parent = null) {
     if (!tree) return null;
     if (tree.id === id) return parent;
-    for (const child of tree.children) {
-        const found = findParent(child, id, tree);
-        if (found) return found;
+    if (tree.children) {
+        for (const child of tree.children) {
+            const found = findParent(child, id, tree);
+            if (found) return found;
+        }
     }
     return null;
 }
 
 function getSortedChildren(node) {
-    if (!node) return [];
-    return [...node.children].sort((a, b) => a.order - b.order);
+    if (!node || !node.children) return [];
+    return [...node.children].sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
 function getDescendantCount(node) {
@@ -279,4 +283,28 @@ function getCompletionStats(node) {
     traverse(node);
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
     return { total, completed, percentage };
+}
+
+function toggleArticleReadStatus(tree, id) {
+    const node = findNode(tree, id);
+    if (node && node.article) {
+        node.article.isRead = !node.article.isRead;
+        return node.article.isRead;
+    }
+    return false;
+}
+
+function setNodeArticle(tree, id, content) {
+    const node = findNode(tree, id);
+    if (!node) return null;
+    if (!content || !content.trim()) {
+        node.article = null;
+    } else {
+        node.article = {
+            content: content.trim(),
+            isRead: node.article ? !!node.article.isRead : false,
+            updatedAt: new Date().toISOString()
+        };
+    }
+    return node.article;
 }

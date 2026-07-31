@@ -678,11 +678,12 @@ function toggleSamplesMenu(show) {
 // ── AI MIND MAP GENERATOR SERVER URL ──
 function getAiServerUrl() {
     const host = window.location.hostname;
-    // Local development or file:// protocol fallback to local backend server
-    if (!host || host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+    // Local development (localhost / 127.0.0.1)
+    if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
         return 'http://localhost:8080';
     }
-    return 'http://localhost:8080';
+    // Production Cloudflare Worker (accessible from any device anywhere)
+    return 'https://metafikra-mindmap-ai.alaabanna.workers.dev';
 }
 
 async function generateAiMindMap(promptText) {

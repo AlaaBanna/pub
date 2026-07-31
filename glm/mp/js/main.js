@@ -1,17 +1,16 @@
-// Version: v2.1.1 | Updated: 2026-07-29 00:44 | Features: Safe search close button listener check
+// Version: v2.8.0 | Updated: 2026-07-31 13:17 | Features: Guarded mfThemeBtn element check & cleaned legacy state properties
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 const state = {
-    tree: null, focusedId: null, mode: 'view',
+    tree: null, focusedId: null,
     isEditing: false, isNoteOpen: false, isHelpOpen: false,
     isOverview: false, layoutDir: 'top-down', 
     targetZoom: 1.0, deletePending: null, deletePendingTime: 0,
     undoStack: [], redoStack: [], treeVersion: 0, animNodes: {},
-    hoveredId: null, isMobile: false, helpCloseBtn: null,
-    isContextOpen: false, isContextDisabled: false
+    hoveredId: null, isMobile: false, helpCloseBtn: null
 };
 
 // ── DEFAULT DATA ──
@@ -21,9 +20,12 @@ const DEFAULT_SAMPLE = "root";
 window.mfToggleTheme = function() {
     const isLight = document.body.classList.toggle('light-mode');
     CONFIG.colors = isLight ? THEMES.light : THEMES.dark;
-    document.getElementById('mfThemeBtn').innerHTML = isLight 
-        ? '<i class="fa-solid fa-moon"></i>' 
-        : '<i class="fa-solid fa-sun"></i>';
+    const themeBtn = document.getElementById('mfThemeBtn');
+    if (themeBtn) {
+        themeBtn.innerHTML = isLight 
+            ? '<i class="fa-solid fa-moon"></i>' 
+            : '<i class="fa-solid fa-sun"></i>';
+    }
     state.treeVersion++;
     localStorage.setItem('mf_theme', isLight ? 'light' : 'dark');
 };
@@ -165,15 +167,24 @@ const searchInputEl = document.getElementById('searchInput');
 if (searchInputEl) {
     searchInputEl.addEventListener('input', (e) => performSearch(e.target.value));
     searchInputEl.addEventListener('keydown', (e) => {
+        e.stopPropagation();
         if (e.key === 'Enter') {
             e.preventDefault();
-            searchInputEl.blur();
-            if (state.tree) {
-                state.focusedId = state.tree.id;
-                state.isOverview = false;
-                state.targetZoom = 1.0;
-                state.treeVersion++;
+            const list = state.searchMatchList;
+            if (list && list.length > 0) {
+                if (state.searchMatchIndex === undefined || state.searchMatchIndex < 0) {
+                    state.searchMatchIndex = 0;
+                }
+                const targetId = list[state.searchMatchIndex];
+                if (targetId) {
+                    state.focusedId = targetId;
+                    state.isOverview = false;
+                    state.targetZoom = 1.0;
+                    state.treeVersion++;
+                }
+                state.searchMatchIndex = (state.searchMatchIndex + 1) % list.length;
             }
+            searchInputEl.blur();
         } else if (e.key === 'Escape') { 
             clearSearch(); 
             searchInputEl.blur(); 
@@ -184,7 +195,6 @@ const closeBtn = document.getElementById('searchCloseBtn');
 if (closeBtn) closeBtn.addEventListener('click', clearSearch);
 
 // ── SIDE ACTION BAR EVENTS ──
-document.getElementById('tbModeToggle').addEventListener('click', () => toggleMode());
 document.getElementById('tbAddChild').addEventListener('click', () => createChild());
 document.getElementById('tbAddSibling').addEventListener('click', () => createSibling());
 document.getElementById('tbEdit').addEventListener('click', () => startEditing());
@@ -304,6 +314,6 @@ function init() {
     state.isMobile = window.innerWidth <= 768;
     state.tree = loadFromStorage() || parseMarkup(DEFAULT_SAMPLE_MARKUP);
     state.focusedId = state.tree.id;
-    applySavedTheme(); resizeCanvas(); updateModeBadge(); requestAnimationFrame(render);
+    applySavedTheme(); resizeCanvas(); requestAnimationFrame(render);
 }
 init();

@@ -1,4 +1,4 @@
-// Version: v1.3.0 | Updated: 2026-07-28 | Features: Metafikra warm gold theme tokens & node sizes
+// Version: v3.1.0 | Updated: 2026-07-31 13:34 | Features: Restored alive intensity (1.0) and drift focus (1.8) settings
 // ── CANVAS THEME PALETTES ──
 const THEMES = {
     dark: {
@@ -61,7 +61,7 @@ const THEMES = {
       maxVisibleChildren: 10,
       zoomThreshold: 0.8,
       nodeRadius: { focused: 104, parent: 72, child: 80 },
-      alive: { focus: 1.5, overview: 0.3, intensity: 0.8 },
+      alive: { focus: 1.8, overview: 0.35, intensity: 1.0 },
       lerpSpeed: 10,
       layout: { focusVGap: 260, focusHGap: 280, ovVGap: 150, ovHGap: 170 },
       undoMaxStates: 200,

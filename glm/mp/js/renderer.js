@@ -1,8 +1,8 @@
-// Version: v2.3.0 | Updated: 2026-07-29 00:58 | Features: Depth focus rule for orbital background rings & warm ochre Light mode theme
+// Version: v3.1.0 | Updated: 2026-07-31 13:34 | Features: Increased organic bacterial morphing wave distortion multipliers (w1: 0.070, w2: 0.042, w3: 0.025)
 function drawOrbits() {
     const focusedAnim = state.animNodes[state.focusedId];
     if (!focusedAnim) return;
-    
+
     let depth = 0;
     function findDepth(n, d) {
         if (!n) return -1;
@@ -15,14 +15,14 @@ function drawOrbits() {
     }
     const foundD = findDepth(state.tree, 0);
     if (foundD !== -1) depth = foundD;
-    
+
     // Depth Focus Rule: Root (depth 0) is sharpest, deeper levels fade softly
     const alphaFactor = Math.pow(0.55, depth);
     const isLight = document.body.classList.contains('light-mode');
-    
+
     // Light Mode: Warm Ochre Bronze (194, 141, 0), Dark Mode: Gold (226, 183, 20)
     const baseRgb = isLight ? '194, 141, 0' : '226, 183, 20';
-    
+
     ctx.save();
     ctx.setLineDash([6, 4]);
     const orbits = [
@@ -59,7 +59,7 @@ function drawBezier(id1, id2, color, alpha = 1.0) {
     const isSearchEdge = state.searchPathEdges && (state.searchPathEdges.has(`${id1}-${id2}`) || state.searchPathEdges.has(`${id2}-${id1}`));
 
     ctx.save();
-    ctx.globalAlpha = isSearchEdge ? 1.0 : (a1.ta * alpha); 
+    ctx.globalAlpha = isSearchEdge ? 1.0 : (a1.ta * alpha);
     ctx.setLineDash(isSearchEdge ? [8, 3] : [6, 3]);
     ctx.beginPath(); ctx.moveTo(x1, y1);
     ctx.bezierCurveTo(x1, y1 + (y2 - y1) * 0.4 + cpOffset, x2, y2 - (y2 - y1) * 0.4 - cpOffset, x2, y2);
@@ -96,9 +96,9 @@ function drawNodes(time) {
         if (a.ta < 0.01) continue;
         const node = findNode(state.tree, id);
         if (!node) continue;
-        const ox = Math.sin(time * 0.5 + a.ph) * driftAmount;
-        const oy = Math.cos(time * 0.65 + a.ph) * driftAmount * 0.7;
-        const breathScale = 1.0 + Math.sin(time * 0.0016 + a.ph * 2) * 0.035;
+        const ox = Math.sin(time * 0.35 + a.ph) * driftAmount;
+        const oy = Math.cos(time * 0.45 + a.ph) * driftAmount * 0.7;
+        const breathScale = 1.0 + Math.sin(time * 0.0012 + a.ph * 2) * 0.02;
         const x = a.x + ox, y = a.y + oy, r = a.r * breathScale;
         const isFoc = id === state.focusedId;
         const isHov = id === state.hoveredId && !isFoc;
@@ -108,20 +108,20 @@ function drawNodes(time) {
 
         ctx.save();
         ctx.globalAlpha = isHov ? Math.min(a.ta + 0.3, 1) : a.ta;
-        if (isFoc || isTitleMatch) { 
-            ctx.shadowColor = CONFIG.colors.selectedGlow; 
-            ctx.shadowBlur = isTitleMatch ? 40 : 30; 
+        if (isFoc || isTitleMatch) {
+            ctx.shadowColor = CONFIG.colors.selectedGlow;
+            ctx.shadowBlur = isTitleMatch ? 40 : 30;
         } else if (isNoteMatch) {
             ctx.shadowColor = 'rgba(226, 183, 20, 0.4)';
             ctx.shadowBlur = 18;
         }
         const points = [];
-        const tMorph = (time * 0.35 + a.ph);
+        const tMorph = (time * 0.40 + a.ph);
         for (let i = 0; i < seg; i++) {
             const angle = (i / seg) * Math.PI * 2;
-            const w1 = Math.sin(angle * 2 + tMorph) * 0.05;
-            const w2 = Math.cos(angle * 3 - tMorph * 0.7) * 0.03;
-            const w3 = Math.sin(angle * 4 + tMorph * 1.2) * 0.02;
+            const w1 = Math.sin(angle * 2 + tMorph) * 0.070;
+            const w2 = Math.cos(angle * 3 - tMorph * 0.7) * 0.042;
+            const w3 = Math.sin(angle * 4 + tMorph * 1.2) * 0.025;
             const radiusMod = r * (1.0 + (w1 + w2 + w3) * intensity);
             points.push({ px: x + Math.cos(angle) * radiusMod, py: y + Math.sin(angle) * radiusMod });
         }
@@ -156,7 +156,7 @@ function drawNodes(time) {
 
         if (node.note) {
             ctx.beginPath(); ctx.arc(x + r * 0.6, y - r * 0.6, isNoteMatch ? 6 : 4, 0, Math.PI * 2);
-            ctx.fillStyle = isNoteMatch ? '#e2b714' : CONFIG.colors.noteDot; 
+            ctx.fillStyle = isNoteMatch ? '#e2b714' : CONFIG.colors.noteDot;
             ctx.fill();
         }
 
@@ -164,8 +164,8 @@ function drawNodes(time) {
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         let text = node.text || '...';
         const isRTL = /[\u0600-\u06FF]/.test(text);
-        try { if ('direction' in ctx) ctx.direction = isRTL ? 'rtl' : 'ltr'; } catch(e) {}
-        
+        try { if ('direction' in ctx) ctx.direction = isRTL ? 'rtl' : 'ltr'; } catch (e) { }
+
         const maxWidth = r * 1.65;
         const lines = wrapNodeText(ctx, text, maxWidth);
         const lineHeight = a.fs * 1.25;
@@ -189,7 +189,7 @@ function drawNodes(time) {
             ctx.fillText(`+${totalSubtreeCount}`, x, y + r * 0.65);
         }
 
-        try { if ('direction' in ctx) ctx.direction = 'ltr'; } catch(e) {}
+        try { if ('direction' in ctx) ctx.direction = 'ltr'; } catch (e) { }
         ctx.restore();
     }
 }
@@ -231,19 +231,19 @@ function drawHelpOverlay() {
     const shortcuts = [
         ['Tab', 'Add Child Node'],
         ['Shift+Tab', 'Add Sibling Node'],
-        ['Enter', 'Edit Node Label'],
+        ['Enter / F2', 'Edit Node Label'],
+        ['Esc', 'Cancel Edit / Close'],
         ['↑ / ↓', 'Parent / Child*'],
         ['← / →', 'Prev / Next Sibling'],
         ['N', 'Toggle Note (post-it)'],
-        ['Ctrl+M', 'Open / Focus Markup'],
         ['Ctrl+E', 'Export PNG Image'],
-        ['Ctrl+C', 'Copy Markup Text'],
-        ['V', 'Toggle View / Edit'],
-        ['Delete / Shift+Del', 'Delete Node / Confirm'],
+        ['Ctrl+S', 'Save .mt File'],
+        ['Ctrl+O', 'Open .mt File'],
+        ['Ctrl+F / /', 'Search Map'],
+        ['Del / Shift+Del', 'Delete Node / Confirm'],
         ['Ctrl+Z / Y', 'Undo / Redo'],
-        ['Ctrl+Alt+N', 'New Mind Map'],
-        ['G / R', 'Flip Direction / Reset'],
-        ['? / Esc', 'Toggle Help / Close']
+        ['Alt+N', 'New Mind Map'],
+        ['G / R', 'Flip Direction / Reset']
     ];
     ctx.textAlign = 'left';
     shortcuts.forEach((sc, i) => {

@@ -251,10 +251,30 @@ document.addEventListener('click', (e) => {
     }
 });
 
-document.getElementById('cbExportMtBtn').addEventListener('click', exportAsMT);
-document.getElementById('cbUploadMtBtn').addEventListener('click', () => document.getElementById('mtFileInput').click());
-document.getElementById('cbExportPngBtn').addEventListener('click', () => exportAsPNG());
-document.getElementById('cbDirectionBtn').addEventListener('click', () => toggleLayout());
+document.getElementById('cbNewBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (fileMenu) fileMenu.style.display = 'none';
+    newMap();
+});
+document.getElementById('cbExportMtBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (fileMenu) fileMenu.style.display = 'none';
+    exportAsMT();
+});
+document.getElementById('cbUploadMtBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (fileMenu) fileMenu.style.display = 'none';
+    document.getElementById('mtFileInput').click();
+});
+document.getElementById('cbExportPngBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (fileMenu) fileMenu.style.display = 'none';
+    exportAsPNG();
+});
+document.getElementById('cbDirectionBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleLayout();
+});
 document.getElementById('mtFileInput').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;

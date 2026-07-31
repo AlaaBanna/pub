@@ -18,23 +18,60 @@
 </head>
 <body class="dark-mode">
 
-  <!-- Always-Visible Top Left Header Menu & Search -->
-  <div id="topLeftMenu" class="top-left-menu">
-    <button id="cbNewBtn" class="top-menu-btn" title="New Map (Alt+N)"><i class="fa-solid fa-file-circle-plus"></i></button>
-    <button id="cbAiBtn" class="top-menu-btn ai-btn-accent" title="Generate AI Mind Map (Alt+A)"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
-    <button id="cbSampleBtn" class="top-menu-btn" title="Load Samples Menu"><i class="fa-solid fa-lightbulb"></i></button>
-    <button id="cbExportMtBtn" class="top-menu-btn" title="Save .mt File (Ctrl+S)"><i class="fa-solid fa-floppy-disk"></i></button>
-    <button id="cbUploadMtBtn" class="top-menu-btn" title="Load File (Ctrl+O)"><i class="fa-solid fa-folder-open"></i></button>
-    <input type="file" id="mtFileInput" accept=".mt,.json,.txt" style="display:none;">
-    <button id="cbExportPngBtn" class="top-menu-btn" title="Export PNG (Ctrl+E)"><i class="fa-solid fa-image"></i></button>
-    <button id="cbDirectionBtn" class="top-menu-btn" title="Toggle Layout Direction (G)"><i class="fa-solid fa-arrows-up-down"></i></button>
-    <div class="top-menu-divider"></div>
-    <div id="searchContainer" class="search-box-inline">
-      <i class="fa-solid fa-magnifying-glass search-icon-inline"></i>
-      <input id="searchInput" type="text" dir="auto" placeholder="Search map..." autocomplete="off" spellcheck="false">
-      <span id="searchResultCount" class="search-count-inline"></span>
+  <!-- Main Unified Top Header Bar -->
+  <header id="topHeaderBar" class="mf-bar">
+    <!-- Right Side Branding -->
+    <div class="mf-brand-group">
+      <a href="./" class="mf-logo">ميتاـفكرة<span class="mf-dot">.</span></a>
+      <div class="mf-divider-v"></div>
+      <span class="mf-title-sub">الخريطة الذهنية</span>
     </div>
-  </div>
+
+    <!-- Left Side Integrated Tools -->
+    <div class="mf-left-tools">
+      <!-- Integrated Search Box -->
+      <div id="searchContainer" class="search-box-header">
+        <i class="fa-solid fa-magnifying-glass search-icon-inline"></i>
+        <input id="searchInput" type="text" dir="auto" placeholder="بحث في الخريطة..." autocomplete="off" spellcheck="false">
+        <span id="searchResultCount" class="search-count-inline"></span>
+      </div>
+
+      <!-- AI Generator Wand Button (Uniform Icon Style) -->
+      <button id="cbAiBtn" class="hdr-icon-btn ai-icon-accent" title="توليد بالذكاء الاصطناعي (Alt+A)"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+
+      <!-- File Menu Dropdown (Icon Only) -->
+      <div class="hdr-dropdown-trigger">
+        <button id="cbFileBtn" class="hdr-icon-btn" title="ملف الخريطة"><i class="fa-solid fa-folder"></i></button>
+        <div id="fileMenu" class="hdr-dropdown-panel" style="display: none;">
+          <div id="cbNewBtn" class="dropdown-item"><span class="item-label"><i class="fa-solid fa-file-circle-plus"></i> خريطة جديدة</span><span class="item-shortcut">Alt+N</span></div>
+          <div id="cbUploadMtBtn" class="dropdown-item"><span class="item-label"><i class="fa-solid fa-folder-open"></i> فتح خريطة...</span><span class="item-shortcut">Ctrl+O</span></div>
+          <div id="cbExportMtBtn" class="dropdown-item"><span class="item-label"><i class="fa-solid fa-floppy-disk"></i> حفظ (.mt)</span><span class="item-shortcut">Ctrl+S</span></div>
+          <div id="cbExportPngBtn" class="dropdown-item"><span class="item-label"><i class="fa-solid fa-image"></i> تصدير صورة PNG</span><span class="item-shortcut">Ctrl+E</span></div>
+        </div>
+      </div>
+      <input type="file" id="mtFileInput" accept=".mt,.json,.txt" style="display:none;">
+
+      <!-- Load Samples Menu Button -->
+      <button id="cbSampleBtn" class="hdr-icon-btn" title="خرائط ونماذج جاهزة"><i class="fa-solid fa-lightbulb"></i></button>
+
+      <!-- Layout Direction Toggle Button -->
+      <button id="cbDirectionBtn" class="hdr-icon-btn" title="تبديل اتجاه التفرع (G)"><i class="fa-solid fa-arrows-up-down"></i></button>
+
+      <!-- Settings & Help Dropdown Menu (Icon Only) -->
+      <div class="hdr-dropdown-trigger">
+        <button id="cbSettingsBtn" class="hdr-icon-btn" title="المظهر والإعدادات"><i class="fa-solid fa-sliders"></i></button>
+        <div id="settingsMenu" class="hdr-dropdown-panel" style="display: none;">
+          <div id="mfThemeBtn" class="dropdown-item" onclick="mfToggleTheme()">
+            <span class="item-label"><i class="fa-solid fa-moon"></i> تبديل المظهر (داكن / فاتح)</span>
+          </div>
+          <div id="helpBtn" class="dropdown-item">
+            <span class="item-label"><i class="fa-solid fa-keyboard"></i> اختصارات لوحة المفاتيح</span>
+            <span class="item-shortcut">?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 
   <!-- Samples Popover Menu -->
   <div id="samplesMenu" class="samples-popover" style="display: none;">

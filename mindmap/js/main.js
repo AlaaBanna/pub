@@ -213,12 +213,41 @@ document.querySelectorAll('.ai-chip').forEach(chip => {
     });
 });
 
+// File and Settings Dropdown Toggles
+const cbFileBtn = document.getElementById('cbFileBtn');
+const fileMenu = document.getElementById('fileMenu');
+if (cbFileBtn && fileMenu) {
+    cbFileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVis = fileMenu.style.display === 'block';
+        document.querySelectorAll('.hdr-dropdown-panel, .samples-popover').forEach(p => p.style.display = 'none');
+        fileMenu.style.display = isVis ? 'none' : 'block';
+    });
+}
+
+const cbSettingsBtn = document.getElementById('cbSettingsBtn');
+const settingsMenu = document.getElementById('settingsMenu');
+if (cbSettingsBtn && settingsMenu) {
+    cbSettingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVis = settingsMenu.style.display === 'block';
+        document.querySelectorAll('.hdr-dropdown-panel, .samples-popover').forEach(p => p.style.display = 'none');
+        settingsMenu.style.display = isVis ? 'none' : 'block';
+    });
+}
+
 // Hide popovers on outside click
 document.addEventListener('click', (e) => {
     const samplesMenu = document.getElementById('samplesMenu');
     const cbSampleBtn = document.getElementById('cbSampleBtn');
     if (samplesMenu && !samplesMenu.contains(e.target) && e.target !== cbSampleBtn && !cbSampleBtn.contains(e.target)) {
-        toggleSamplesMenu(false);
+        samplesMenu.style.display = 'none';
+    }
+    if (fileMenu && !fileMenu.contains(e.target) && e.target !== cbFileBtn && !cbFileBtn.contains(e.target)) {
+        fileMenu.style.display = 'none';
+    }
+    if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== cbSettingsBtn && !cbSettingsBtn.contains(e.target)) {
+        settingsMenu.style.display = 'none';
     }
 });
 

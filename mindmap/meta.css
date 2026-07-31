@@ -1,83 +1,155 @@
 /* ============================================
-   meta.fikra — Shared Header Styles (Arabic Brand)
+   meta.fikra — Shared Header Styles (Arabic Brand - Option 2A)
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 
 .mf-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  height: var(--mf-h, 48px);
-  background: var(--mf-bg, #1e1e1e);
-  border-bottom: 1px solid var(--mf-border, rgba(68, 68, 68, 0.4));
+  padding: 0 20px;
+  height: 52px;
+  background: var(--bg-nav, #111119);
+  border-bottom: 1px solid var(--border-color, #252538);
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
   font-family: 'Tajawal', sans-serif;
   direction: rtl;
 }
+
+.mf-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .mf-logo {
   font-family: 'Tajawal', sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--mf-logo-color, #e2b714);
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--gold-accent, #e2b714);
   text-decoration: none;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   display: flex;
   align-items: center;
   gap: 1px;
-  transition: opacity 0.2s;
-  flex-shrink: 0;
-  pointer-events: auto;
 }
 .mf-logo:hover { opacity: 0.85; }
 .mf-logo .mf-dot {
-  color: var(--mf-muted, #888888);
+  color: var(--text-dim, #7e7e94);
   font-size: 22px;
   line-height: 1;
-  display: inline-block;
 }
-.mf-project {
+.mf-divider-v {
+  width: 1px;
+  height: 18px;
+  background: var(--border-color, #252538);
+}
+.mf-title-sub {
   font-family: 'Tajawal', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--mf-title-color, #888888);
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main, #e2e2ec);
+  letter-spacing: 0.02em;
 }
-.mf-right { display: flex; align-items: center; gap: 8px; }
-.mf-help {
-  pointer-events: auto;
-  color: var(--mf-help-color, rgba(226, 183, 20, 0.7));
-  font-size: 15px; font-weight: 700;
-  cursor: pointer; padding: 4px 10px;
-  border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
-  flex-shrink: 0;
+
+.mf-left-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.mf-help:hover {
-  color: #e2b714;
-  background: rgba(226, 183, 20, 0.15);
+
+/* Integrated Header Search Box */
+.search-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card, #191924);
+  border: 1px solid var(--border-color, #272738);
+  border-radius: 8px;
+  padding: 0 10px;
+  height: 36px;
+  width: 170px;
+  transition: border-color 0.2s, width 0.2s;
+  position: relative;
 }
-.mf-theme {
-  pointer-events: auto;
-  background: var(--mf-bg, #1e1e1e);
-  color: var(--mf-theme-color, #888888);
-  border: 1px solid var(--mf-border, rgba(68, 68, 68, 0.4));
-  width: 30px; height: 30px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
+.search-box-header:focus-within {
+  border-color: var(--gold-accent, #e2b714);
+  width: 210px;
+}
+.search-box-header input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-main, #e2e2ec);
+  font-size: 12px;
+  width: 100%;
+}
+
+/* Uniform Header Icon Buttons */
+.hdr-icon-btn {
+  background: var(--bg-card, #191924);
+  border: 1px solid var(--border-color, #272738);
+  color: var(--text-main, #e2e2ec);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.mf-theme:hover {
-  color: #e2b714;
+.hdr-icon-btn:hover {
+  border-color: var(--gold-accent, #e2b714);
+  color: var(--gold-accent, #e2b714);
+  background: rgba(226, 183, 20, 0.12);
+}
+
+.ai-icon-accent {
+  color: var(--gold-accent, #e2b714);
   border-color: rgba(226, 183, 20, 0.4);
-  background: rgba(226, 183, 20, 0.15);
+}
+.ai-icon-accent:hover {
+  background: rgba(226, 183, 20, 0.18);
+  border-color: var(--gold-accent, #e2b714);
+  box-shadow: 0 0 10px rgba(226, 183, 20, 0.25);
+}
+
+/* Dropdowns */
+.hdr-dropdown-trigger { position: relative; }
+.hdr-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 220px;
+  background: var(--bg-card, #191924);
+  border: 1px solid var(--border-color, #272738);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  z-index: 100;
+}
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  color: var(--text-main, #e2e2ec);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dropdown-item:hover {
+  background: rgba(226, 183, 20, 0.12);
+  color: var(--gold-accent, #e2b714);
+}
+.item-shortcut {
+  color: var(--text-dim, #7e7e94);
+  font-size: 11px;
+  font-family: monospace;
 }

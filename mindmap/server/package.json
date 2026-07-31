@@ -1,7 +1,8 @@
 {
   "name": "meta-fikra-mp-server",
   "version": "1.0.0",
-  "description": "Serverless Gemini AI Mind Map Generator for Meta-Fikra MP",
+  "description": "Serverless Groq AI Mind Map Generator for Meta-Fikra MP",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

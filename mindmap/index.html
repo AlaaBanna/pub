@@ -1,4 +1,4 @@
-<!-- Version: v3.6.0 | Updated: 2026-07-31 17:51 | Features: Added Coming Soon badge and notification banner to AI Generator UI -->
+<!-- Version: v4.5.0 | Updated: 2026-07-31 18:58 | Features: Applied RTL direction & right alignment to AI Modal Screen -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,8 +21,8 @@
   <!-- Always-Visible Top Left Header Menu & Search -->
   <div id="topLeftMenu" class="top-left-menu">
     <button id="cbNewBtn" class="top-menu-btn" title="New Map (Alt+N)"><i class="fa-solid fa-file-circle-plus"></i></button>
+    <button id="cbAiBtn" class="top-menu-btn ai-btn-accent" title="Generate AI Mind Map (✨ Groq AI)"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
     <button id="cbSampleBtn" class="top-menu-btn" title="Load Samples Menu"><i class="fa-solid fa-lightbulb"></i></button>
-    <button id="cbAiBtn" class="top-menu-btn ai-btn-accent" title="Generate AI Mind Map (✨ قريباً - Coming Soon)"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
     <button id="cbExportMtBtn" class="top-menu-btn" title="Save .mt File (Ctrl+S)"><i class="fa-solid fa-floppy-disk"></i></button>
     <button id="cbUploadMtBtn" class="top-menu-btn" title="Load File (Ctrl+O)"><i class="fa-solid fa-folder-open"></i></button>
     <input type="file" id="mtFileInput" accept=".mt,.json,.txt" style="display:none;">
@@ -46,28 +46,33 @@
   </div>
 
   <!-- AI Mind Map Generator Modal -->
-  <div id="aiModalOverlay" class="ai-modal-overlay" style="display: none;">
+  <div id="aiModalOverlay" class="ai-modal-overlay" dir="rtl" style="display: none;">
     <div class="ai-modal-card">
       <div class="ai-modal-header">
-        <span class="ai-modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> توليد خريطة ذهنية بالذكاء الاصطناعي <span class="ai-badge-soon">قريباً</span></span>
+        <div class="ai-modal-header-left">
+          <span class="ai-modal-title"><i class="fa-solid fa-wand-magic-sparkles"></i> توليد خريطة ذهنية بالذكاء الاصطناعي</span>
+          <span class="ai-engine-tag"><i class="fa-solid fa-bolt"></i> Groq Llama 3.1</span>
+        </div>
         <button id="aiModalClose" class="ai-close-btn">&times;</button>
       </div>
       <div class="ai-modal-body">
-        <div class="ai-coming-soon-banner">
-          <i class="fa-solid fa-clock"></i> هذه الميزة قيد التجهيز والإعداد وسوف تتاح فور ربط خادم الذكاء الاصطناعي (Coming Soon)
-        </div>
-        <textarea id="aiPromptInput" dir="auto" placeholder="اكتب أي موضوع أو فكرة لتوليد خريطة ذهنية غنية بالذكاء الاصطناعي... (مثال: فروع الأمن السيبراني، خطوات بناء مشروع)"></textarea>
+        <p class="ai-modal-desc">أدخل أي موضوع أو فكرة لتوليد خريطة ذهنية هيكلية متكاملة ومزودة بالملاحظات الشارحة تلقائياً:</p>
+        <textarea id="aiPromptInput" dir="auto" placeholder="مثال: فروع وتخصصات الأمن السيبراني، خطوات إطلاق مشروع برمجي، أقسام العلوم الطبيعية..."></textarea>
+        
+        <div class="ai-chips-label">أفكار مقترحة سريعة:</div>
         <div class="ai-chips">
-          <span class="ai-chip" data-prompt="فروع الذكاء الاصطناعي وتعلم الآلة">🤖 الذكاء الاصطناعي</span>
-          <span class="ai-chip" data-prompt="أقسام الفيزياء والكونيات">🔬 الفيزياء والكونيات</span>
-          <span class="ai-chip" data-prompt="خطوات إطلاق مشروع برمجي جديد">🚀 إطلاق مشروع</span>
-          <span class="ai-chip" data-prompt="فروع علم النفس والتحليل النفسي">🧠 علم النفس</span>
+          <span class="ai-chip" data-prompt="فروع الذكاء الاصطناعي وتطبيقات تعلم الآلة">🤖 الذكاء الاصطناعي</span>
+          <span class="ai-chip" data-prompt="أقسام العلوم الطبيعية والفيزياء الحديثة">🔬 العلوم والفيزياء</span>
+          <span class="ai-chip" data-prompt="خطوات إطلاق وتخطيط مشروع برمجي جديد">🚀 إطلاق مشروع</span>
+          <span class="ai-chip" data-prompt="فروع علم النفس والتحليل النفسي وتطبيقاته">🧠 علم النفس والمنطق</span>
+          <span class="ai-chip" data-prompt="استراتيجيات التسويق الرقمي وبناء العلامة التجارية">💼 التسويق والأعمال</span>
         </div>
+        
         <div id="aiErrorMsg" class="ai-error-msg" style="display: none;"></div>
         <div id="aiLoading" class="ai-loading" style="display: none;">
-          <i class="fa-solid fa-circle-notch fa-spin"></i> جاري التوليد والتنظيم الذكي...
+          <i class="fa-solid fa-circle-notch fa-spin"></i> جاري التوليد والتنظيم الذكي بواسطة Llama 3.1...
         </div>
-        <button id="aiGenerateSubmit" class="ai-submit-btn"><i class="fa-solid fa-sparkles"></i> توليد الخريطة الذهنية</button>
+        <button id="aiGenerateSubmit" class="ai-submit-btn"><i class="fa-solid fa-wand-magic-sparkles"></i> توليد الخريطة الذهنية الآن</button>
       </div>
     </div>
   </div>

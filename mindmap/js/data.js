@@ -1,4 +1,4 @@
-// Version: v1.5.0 | Updated: 2026-07-28 23:52 | Features: Auto-save localStorage persistence & subtree node counter
+// Version: v4.1.0 | Updated: 2026-07-31 18:49 | Features: Support inline ':: Note text' parsing in parseMarkup
 // ── UTILITIES ──
 const uid = () => Math.random().toString(36).slice(2, 11);
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -112,6 +112,13 @@ function parseMarkup(str) {
             continue;
         }
 
+        let inlineNote = '';
+        if (text.includes(' :: ')) {
+            const parts = text.split(' :: ');
+            text = parts[0].trim();
+            inlineNote = parts.slice(1).join(' :: ').trim();
+        }
+
         let order = 0;
         const orderMatch = text.match(/^(\d+)\.\s*/);
         if (orderMatch) {
@@ -120,6 +127,7 @@ function parseMarkup(str) {
         }
 
         const newNode = createNode(text, order);
+        if (inlineNote) newNode.note = inlineNote;
         currentNoteNode = newNode;
 
         while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop();

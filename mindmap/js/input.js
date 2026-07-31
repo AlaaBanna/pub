@@ -114,7 +114,15 @@ document.addEventListener('keydown', (e) => {
     if (e.key === keyParent) { e.preventDefault(); navigateParent(); return; }
     if (e.key === 'ArrowLeft') { e.preventDefault(); navigateSibling(-1); return; }
     if (e.key === 'ArrowRight') { e.preventDefault(); navigateSibling(1); return; }
+    // Global AI Generator Modal Shortcut (Alt+A / Cmd+Shift+A)
+    if ((e.altKey && (e.code === 'KeyA' || e.key === 'a' || e.key === 'A' || e.key === 'ش')) || (isCtrl && e.shiftKey && (e.code === 'KeyA' || e.key === 'a' || e.key === 'A'))) {
+        e.preventDefault();
+        openAiModal();
+        return;
+    }
+
     if (e.code === 'KeyN' || e.key === 'n' || e.key === 'N' || e.key === 'ى' || e.key === 'آ') { e.preventDefault(); openFloatingNote(); return; }
+    if (e.code === 'KeyA' || e.key === 'a' || e.key === 'A' || e.key === 'ش') { e.preventDefault(); openAiModal(); return; }
     if (e.code === 'KeyG' || e.key === 'g' || e.key === 'G') { e.preventDefault(); toggleLayout(); return; }
     if (e.code === 'KeyR' || e.key === 'r' || e.key === 'R') { e.preventDefault(); resetView(); return; }
     if (e.key === 'Enter' || e.code === 'Enter') { e.preventDefault(); startEditing(); return; }

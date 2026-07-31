@@ -176,6 +176,23 @@ if (aiModalOverlay) {
     });
 }
 
+const aiPromptInput = document.getElementById('aiPromptInput');
+if (aiPromptInput) {
+    aiPromptInput.addEventListener('keydown', (e) => {
+        e.stopPropagation();
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeAiModal();
+            return;
+        }
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const prompt = aiPromptInput.value;
+            if (prompt && prompt.trim()) generateAiMindMap(prompt.trim());
+        }
+    });
+}
+
 const aiGenerateSubmit = document.getElementById('aiGenerateSubmit');
 if (aiGenerateSubmit) {
     aiGenerateSubmit.addEventListener('click', () => {

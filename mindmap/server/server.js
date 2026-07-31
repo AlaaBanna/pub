@@ -58,31 +58,33 @@ app.post('/api/generate', async (req, res) => {
             });
         }
 
-        const systemInstruction = `You are an expert Arabic Mind Map generator.
+        const systemInstruction = `You are an expert multilingual Mind Map generator.
 Your task is to take a topic or idea and organize it into a structured, rich mind map with helpful node notes.
 
 RULES:
-1. Output MUST use plain indented outline format using tab characters (\\t) or 2 spaces for indentation.
-2. The first line MUST be the main Root Node topic.
-3. Every main branch line MUST be indented with 1 tab.
-4. Sub-branches MUST be indented with 2 tabs.
-5. Use clear, concise Arabic (or English if requested) for node labels.
+1. CRITICAL LANGUAGE RULE: Detect the language of the user's prompt (Arabic, English, French, Spanish, etc.) and generate the ENTIRE mind map outline and explanatory notes in THAT EXACT SAME LANGUAGE.
+2. Output MUST use plain indented outline format using tab characters (\\t) or 2 spaces for indentation.
+3. The first line MUST be the main Root Node topic.
+4. Every main branch line MUST be indented with 1 tab.
+5. Sub-branches MUST be indented with 2 tabs.
 6. MANDATORY NOTES: Add helpful explanatory notes to important concepts by appending ' :: Note text' at the end of the node line (e.g. 'Node Title :: Explanatory note').
 7. Do NOT include markdown code blocks, explanations, numbers, or extra text. Output ONLY the mind map outline lines.
 
-Example Output:
+Example Output (Arabic Prompt):
 أقسام علوم الحاسوب :: المدخل الرئيسي لمجالات ونظريات البرمجة والحوسبة
 \tالذكاء الاصطناعي :: محاكاة القدرات الذهنية البشرية بواسطة الأنظمة الحاسوبية
 \t\tتعلم الآلة :: خوارزميات إحصائية تتعلم وتتحسن ذاتياً من البيانات
-\t\tالشبكات العصبية :: نماذج حاسوبية مستوحاة من الخلايا العصبية في الدماغ
-\tهندسة البرمجيات :: إطار عمل لبناء وتصميم تطبيقات برمجية مستقرة
-\t\tالتصميم والتخطيط :: تحديد معمارية النظام وواجهات المستخدم
-\t\tالتطوير والاختبار :: كتابة الشفرة المصدريّة والتحقق من جودتها
-\tأمن المعلومات :: حماية الأنظمة والبيانات من التهديدات السيبرانية
-\t\tالتشفير :: حماية البيانات باستخدام خوارزميات رياضية معقدة
-\t\tالأمن السيبراني :: تصدي للهجمات واختبار الثغرات الأمنية`;
 
-        const userPrompt = `أنشئ خريطة ذهنية غنية وشاملة للموضوع التالي:\n"${prompt.trim()}"`;
+Example Output (English Prompt):
+Computer Science Branches :: Primary entry point for programming and computing theories
+\tArtificial Intelligence :: Simulation of human intelligence by computer systems
+\t\tMachine Learning :: Statistical algorithms that learn automatically from data
+\t\tNeural Networks :: Computing models inspired by biological brain neurons
+\tSoftware Engineering :: Framework for building stable software applications
+\t\tDesign & Architecture :: System structure and UI/UX specification
+\t\tDevelopment & Testing :: Source code implementation and QA verification`;
+
+        const userPrompt = `Create a rich, comprehensive mind map outline with notes for the following topic:\n"${prompt.trim()}"`;
 
         const chatCompletion = await groq.chat.completions.create({
             messages: [

@@ -59,22 +59,28 @@ app.post('/api/generate', async (req, res) => {
         }
 
         const systemInstruction = `You are a world-class domain expert and Master Mind Map Architect.
-Your task is to organize any topic or concept into an extraordinarily rich, comprehensive, accurate, and deeply structured mind map with insightful explanatory notes.
+Your mission is to construct an exceptionally deep, accurate, non-repetitive, and comprehensive mind map outline enriched with high-value explanatory notes.
 
-CRITICAL STRUCTURAL & CONTENT RULES:
-1. LANGUAGE CONSISTENCY: Detect the user's prompt language (Arabic, English, French, Spanish, etc.) and generate the ENTIRE mind map (all titles and all explanatory notes) strictly in THAT EXACT SAME LANGUAGE.
-2. DEPTH & BREADTH HIERARCHY:
-   - Root Node (Line 1): Main topic title + comprehensive introductory note.
-   - 5 to 8 Primary Branches (1 tab \\t): Covering foundational concepts, architecture/components, workflows/methodologies, tools/tech stack, practical applications, and best practices/challenges.
-   - 2 to 4 Secondary Sub-branches (2 tabs \\t\\t): Expanding each primary branch with specific sub-components.
-   - 2 to 3 Tertiary Leaves (3 tabs \\t\\t\\t) where relevant: Providing concrete examples, technical details, or actionable steps.
-3. MANDATORY DETAILED NOTES (:: Note Syntax):
-   - Append ' :: Explanatory note text' to EVERY node.
-   - Notes MUST be rich, informative, and educational (1-3 clear sentences). Provide actionable insights, key technical definitions, practical context, or core mechanisms rather than brief 2-word labels.
-4. SYNTAX & FORMATTING:
-   - Use plain text outline format with Tab characters (\\t) for indentation levels.
+STRICT STRUCTURAL & DEDUPLICATION RULES:
+1. ZERO DUPLICATION (CRITICAL):
+   - EVERY node title across the entire mind map MUST be 100% unique. Never repeat node titles or identical concept names in different branches.
+   - Do NOT duplicate sub-topics or concepts anywhere in the tree.
+2. DISTINCT ORTHOGONAL BRANCHES:
+   - Each Level-1 primary branch must cover a completely distinct, non-overlapping dimension of the main topic (e.g. Branch 1: Core Fundamentals & Principles, Branch 2: Key Architecture & Sub-systems, Branch 3: Practical Tools & Tech Stack, Branch 4: Step-by-Step Workflow, Branch 5: Advanced Applications, Branch 6: Security, Risks & Best Practices).
+3. HIERARCHY & DEPTH:
+   - Line 1: Root Node (Main Topic :: Comprehensive high-level overview note)
+   - Level 1 (1 Tab \\t): 5 to 7 Primary Branches
+   - Level 2 (2 Tabs \\t\\t): 3 to 4 Detailed Sub-branches per branch
+   - Level 3 (3 Tabs \\t\\t\\t): 2 to 3 Specific Leaf nodes with concrete examples, tools, or implementation mechanisms.
+4. MANDATORY RICH & EXPERT NOTES (:: Note Syntax):
+   - EVERY node must have an insightful note attached via ' :: Note text'.
+   - Notes MUST be detailed, educational, and precise (1-3 sentences). Include core definitions, technical mechanisms, practical value, or real-world examples. Avoid superficial 2-word labels.
+5. LANGUAGE MATCHING:
+   - Detect the prompt's language (Arabic, English, French, etc.) and generate ALL node titles and ALL notes exclusively in THAT language.
+6. STRICT OUTPUT SYNTAX:
    - Format per line: Node Title :: Rich explanatory note
-   - Do NOT include markdown code blocks (\`\`\`json or \`\`\`markdown), numbers (1., 2.), bullet symbols (-, *), or extra chat text. Output ONLY the raw mind map outline lines.
+   - Indentation: Use literal Tab characters (\\t) for levels.
+   - Do NOT wrap output in markdown code blocks (\`\`\`json or \`\`\`markdown), numbers (1., 2.), or bullet symbols (-, *). Output ONLY the raw mind map outline lines.
 
 Example Output (Arabic Prompt):
 الذكاء الاصطناعي والتعلم الآلي :: منظومة حوسبة متقدمة تهدف لمحاكاة الإدراك البشري واتخاذ القرارات الذكية بناءً على البيانات.
@@ -100,17 +106,33 @@ Cybersecurity & Defense Architecture :: Modern architectural frameworks and proa
 \t\tSocial Engineering & Phishing :: Manipulative tactics targeting human behavior to steal credentials and bypass security layers.
 \t\tZero-Day Exploits :: Attacks leveraging previously unknown system vulnerabilities before developers issue patches.`;
 
-        const userPrompt = `Generate an exceptionally rich, multi-level, comprehensive mind map outline with detailed explanatory notes (using ' :: Note' on every single node) for the topic:\n"${prompt.trim()}"`;
+        const userPrompt = `Generate a master-level, fully deduplicated, multi-level mind map outline with rich explanatory notes (using ' :: Note' on every single node) for the topic:\n"${prompt.trim()}"`;
 
-        const chatCompletion = await groq.chat.completions.create({
-            messages: [
-                { role: 'system', content: systemInstruction },
-                { role: 'user', content: userPrompt }
-            ],
-            model: 'llama-3.1-8b-instant',
-            temperature: 0.4,
-            max_tokens: 4096,
-        });
+        const candidateModels = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant'];
+        let chatCompletion = null;
+        let usedModel = candidateModels[0];
+
+        for (const model of candidateModels) {
+            try {
+                chatCompletion = await groq.chat.completions.create({
+                    messages: [
+                        { role: 'system', content: systemInstruction },
+                        { role: 'user', content: userPrompt }
+                    ],
+                    model: model,
+                    temperature: 0.2,
+                    max_tokens: 4096,
+                });
+                usedModel = model;
+                break;
+            } catch (err) {
+                console.warn(`Groq model ${model} failed, trying fallback...`, err.message);
+            }
+        }
+
+        if (!chatCompletion) {
+            throw new Error('All Groq AI models failed to generate mind map.');
+        }
 
         const responseText = (chatCompletion.choices[0]?.message?.content || '').trim();
         
@@ -120,7 +142,7 @@ Cybersecurity & Defense Architecture :: Modern architectural frameworks and proa
         return res.json({
             success: true,
             provider: 'Groq',
-            model: 'llama-3.1-8b-instant',
+            model: usedModel,
             topic: prompt.trim(),
             markup: cleanMarkup
         });

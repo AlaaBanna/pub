@@ -1,4 +1,4 @@
-// Version: v2.8.0 | Updated: 2026-07-31 13:17 | Features: Guarded mfThemeBtn element check & cleaned legacy state properties
+// Version: v3.2.0 | Updated: 2026-07-31 16:59 | Features: Bound event listeners for Samples Popover & AI Generator Modal
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');
@@ -149,7 +149,62 @@ canvas.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 document.getElementById('cbNewBtn').addEventListener('click', newMap);
-document.getElementById('cbSampleBtn').addEventListener('click', loadSampleData);
+document.getElementById('cbSampleBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleSamplesMenu();
+});
+
+// Samples menu item buttons
+document.querySelectorAll('.sample-item-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const sampleKey = e.currentTarget.dataset.sample;
+        if (sampleKey) loadSampleByCategory(sampleKey);
+    });
+});
+
+// AI Modal triggers
+const cbAiBtn = document.getElementById('cbAiBtn');
+if (cbAiBtn) cbAiBtn.addEventListener('click', openAiModal);
+
+const aiModalClose = document.getElementById('aiModalClose');
+if (aiModalClose) aiModalClose.addEventListener('click', closeAiModal);
+
+const aiModalOverlay = document.getElementById('aiModalOverlay');
+if (aiModalOverlay) {
+    aiModalOverlay.addEventListener('click', (e) => {
+        if (e.target === aiModalOverlay) closeAiModal();
+    });
+}
+
+const aiGenerateSubmit = document.getElementById('aiGenerateSubmit');
+if (aiGenerateSubmit) {
+    aiGenerateSubmit.addEventListener('click', () => {
+        const prompt = document.getElementById('aiPromptInput').value;
+        if (prompt && prompt.trim()) generateAiMindMap(prompt.trim());
+    });
+}
+
+// AI prompt suggestion chips
+document.querySelectorAll('.ai-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+        const text = e.target.dataset.prompt;
+        const input = document.getElementById('aiPromptInput');
+        if (input && text) {
+            input.value = text;
+            input.focus();
+        }
+    });
+});
+
+// Hide popovers on outside click
+document.addEventListener('click', (e) => {
+    const samplesMenu = document.getElementById('samplesMenu');
+    const cbSampleBtn = document.getElementById('cbSampleBtn');
+    if (samplesMenu && !samplesMenu.contains(e.target) && e.target !== cbSampleBtn && !cbSampleBtn.contains(e.target)) {
+        toggleSamplesMenu(false);
+    }
+});
+
 document.getElementById('cbExportMtBtn').addEventListener('click', exportAsMT);
 document.getElementById('cbUploadMtBtn').addEventListener('click', () => document.getElementById('mtFileInput').click());
 document.getElementById('cbExportPngBtn').addEventListener('click', () => exportAsPNG());

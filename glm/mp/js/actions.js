@@ -1,4 +1,4 @@
-// Version: v2.8.0 | Updated: 2026-07-31 13:17 | Features: Extracted getFormattedTimestamp helper & removed legacy contextBox functions
+// Version: v3.2.2 | Updated: 2026-07-31 17:09 | Features: Detailed error message propagation from backend server
 let editingId = null;
 
 // ── UNDO / REDO ──
@@ -556,4 +556,179 @@ function copyMarkupToClipboard() {
     } catch(e) {
         console.error('Copy failed:', e);
     }
+}
+
+// ── SAMPLE CATEGORY LOADER ──
+const SAMPLES = {
+    philosophy: DEFAULT_SAMPLE_MARKUP,
+    science: `أقسام العلوم
+\tالعلوم الطبيعية
+\t\tالفيزياء
+\t\t\tالفيزياء النظرية
+\t\t\tالفيزياء التجريبية
+\t\t\tعلم الفلك والكونيات
+\t\tالكيمياء
+\t\t\tالكيمياء العضوية
+\t\t\tالكيمياء الحيوية
+\t\t\tالكيمياء الفيزيائية
+\t\tعلوم الأرض والبيئة
+\t\t\tالجيولوجيا
+\t\t\tعلم الأرصاد الجوية
+\tالعلوم الحياتية
+\t\tعلم الأحياء
+\t\t\tعلم الخلية والوراثة
+\t\t\tالأحياء الدقيقة
+\t\t\tعلم البيئة
+\t\tالعلوم الطبية
+\t\t\tالطب البشري
+\t\t\tالصيدلة والعقاقير
+\t\t\tالعلوم العصبية
+\tالعلوم التطبيقية
+\t\tالهندسة
+\t\t\tالهندسة الكهربائية
+\t\t\tالهندسة الميكانيكية
+\t\t\tالهندسة المدنية
+\t\tالتكنولوجيا والمعلومات
+\t\t\tالنظم المدمجة
+\t\t\tالاتصالات والشبكات`,
+    cs: `فروع علوم الحاسوب
+\tالذكاء الاصطناعي
+\t\tتعلم الآلة
+\t\t\tالتعلم الخاضع للإشراف
+\t\t\tالتعلم العميق
+\t\tمعالجة اللغة الطبيعية
+\t\t\tالتوليد النصي
+\t\t\tفهم النصوص وتحليلها
+\t\tالرؤية الحاسوبية
+\t\t\tالتعرف على الصور
+\t\t\tتتبع الكائنات
+\tهندسة البرمجيات
+\t\tالتصميم والمعمارية
+\t\t\tأنماط التصميم
+\t\t\tمعمارية الخدمات المصغرة
+\t\tتطوير الأنظمة
+\t\t\tتطوير الواجهات الأمامية
+\t\t\tتطوير الخوادم والقواعد
+\t\tجودة البرمجيات
+\t\t\tالاختبارات الأوتوماتيكية
+\t\t\tمراجعة الكود
+\tأمن المعلومات
+\t\tالأمن السيبراني
+\t\t\tاختبار الاختراق
+\t\t\tالحماية الجدارية
+\t\tالتشفير
+\t\t\tالتشفير المتماثل
+\t\t\tالتشفير المفتاحي
+\tعلوم البيانات
+\t\tتحليل البيانات
+\t\tالتنقيب في البيانات
+\t\tقواعد البيانات الضخمة`,
+    software: `دليل تخطيط المشاريع البرمجية
+\tمرحلة التحليل والمتطلبات
+\t\tتحديد النطاق والهدف
+\t\tجمع متطلبات المستخدمين
+\t\tدراسة الجدوى الفنية
+\tمرحلة التصميم والمعمارية
+\t\tتصميم واجهات المستخدم UI/UX
+\t\tتصميم قاعدة البيانات Schemas
+\t\tتحديد معمارية النظام Architecture
+\tمرحلة التطوير والبرمجة
+\t\tإعداد بيئة العمل Environment
+\t\tكتابة الشفرة المصدريّة Code
+\t\tالتكامل المستمر CI/CD
+\tمرحلة الاختبار والجودة
+\t\tاختبارات الوحدات Unit Tests
+\t\tاختبارات الأداء والأمان
+\t\tقبول المستخدم النهائي UAT
+\tمرحلة الإطلاق والصيانة
+\t\tالنشر على الخوادم Deployment
+\t\tالمراقبة والدعم الفني Monitoring
+\t\tالتحديثات والتحسينات Updates`
+};
+
+async function loadSampleByCategory(key) {
+    try {
+        const target = SAMPLES[key];
+        if (!target) return;
+        let content = '';
+        if (target.endsWith && target.endsWith('.mt')) {
+            const res = await fetch(target);
+            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+            content = await res.text();
+        } else {
+            content = target;
+        }
+        importMTContent(content);
+        toggleSamplesMenu(false);
+    } catch(err) {
+        console.error('Failed to load sample:', err);
+    }
+}
+
+function toggleSamplesMenu(show) {
+    const menu = document.getElementById('samplesMenu');
+    if (!menu) return;
+    if (show === undefined) {
+        menu.style.display = menu.style.display === 'none' ? 'flex' : 'none';
+    } else {
+        menu.style.display = show ? 'flex' : 'none';
+    }
+}
+
+// ── AI MIND MAP GENERATOR SERVER URL ──
+function getAiServerUrl() {
+    const host = window.location.hostname;
+    // Local development or file:// protocol fallback to local backend server
+    if (!host || host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+        return 'http://localhost:8080';
+    }
+    return 'http://localhost:8080';
+}
+
+async function generateAiMindMap(promptText) {
+    const errorEl = document.getElementById('aiErrorMsg');
+    const loadingEl = document.getElementById('aiLoading');
+    const submitBtn = document.getElementById('aiGenerateSubmit');
+    
+    if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
+    if (loadingEl) loadingEl.style.display = 'block';
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+        const response = await fetch(`${getAiServerUrl()}/api/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: promptText })
+        });
+        
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+            const serverMsg = data.error || 'Failed to generate mind map via server';
+            throw new Error(serverMsg);
+        }
+
+        importMTContent(data.markup);
+        closeAiModal();
+    } catch(err) {
+        console.error('AI Generation Error:', err);
+        if (errorEl) {
+            errorEl.textContent = err.message || 'Error communicating with AI server.';
+            errorEl.style.display = 'block';
+        }
+    } finally {
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (submitBtn) submitBtn.disabled = false;
+    }
+}
+
+function openAiModal() {
+    const overlay = document.getElementById('aiModalOverlay');
+    if (overlay) overlay.style.display = 'flex';
+    const input = document.getElementById('aiPromptInput');
+    if (input) { input.value = ''; input.focus(); }
+}
+
+function closeAiModal() {
+    const overlay = document.getElementById('aiModalOverlay');
+    if (overlay) overlay.style.display = 'none';
 }

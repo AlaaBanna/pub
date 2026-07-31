@@ -1,4 +1,4 @@
-// Version: v4.1.0 | Updated: 2026-07-31 18:49 | Features: Support inline ':: Note text' parsing in parseMarkup
+// Version: v8.1.0 | Updated: 2026-08-01 02:27 | Features: Unified storage persistence and clean article data helpers
 // ── UTILITIES ──
 const uid = () => Math.random().toString(36).slice(2, 11);
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -79,11 +79,13 @@ function getSortedChildren(node) {
 function getDescendantCount(node) {
     if (!node) return 0;
     let count = 0;
-    for (const child of node.children) count += 1 + getDescendantCount(child);
+    if (node.children) {
+        for (const child of node.children) count += 1 + getDescendantCount(child);
+    }
     return count;
 }
 
-// ── SERIALIZATION ──
+// ── MARKUP SERIALIZATION & PARSING ──
 function serializeNode(node, depth = 0) {
     const indent = '  '.repeat(depth);
     const checkPrefix = node.completed ? '[x] ' : '';
@@ -100,6 +102,7 @@ function serialize(tree) {
 }
 
 function parseMarkup(str) {
+    if (!str || !str.trim()) return createNode("خريطة جديدة");
     const lines = str.split('\n');
     const dummyRoot = createNode('');
     let currentNoteNode = null;
@@ -153,20 +156,7 @@ function parseMarkup(str) {
         wrapper.children = dummyRoot.children;
         return wrapper;
     }
-    return createNode('New Map');
-}
-
-// ── LOCAL STORAGE ──
-function saveToStorage() {
-    try { localStorage.setItem('metafikra_tree', serialize(state.tree)); } catch (e) { }
-}
-
-function loadFromStorage() {
-    try {
-        const data = localStorage.getItem('metafikra_tree');
-        if (data) return parseMarkup(data);
-    } catch (e) { }
-    return null;
+    return createNode('خريطة جديدة');
 }
 
 // ── SAMPLE DATA ──
@@ -255,10 +245,14 @@ function saveToStorage() {
 
 function loadFromStorage() {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('metafikra_tree');
         if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (parsed && parsed.id && parsed.children) return parsed;
+        try {
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.id && parsed.children) return parsed;
+        } catch(e) {
+            return parseMarkup(raw);
+        }
     } catch(e) {}
     return null;
 }

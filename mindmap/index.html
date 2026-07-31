@@ -51,8 +51,17 @@
       </div>
       <input type="file" id="mtFileInput" accept=".mt,.json,.txt" style="display:none;">
 
-      <!-- Load Samples Menu Button -->
-      <button id="cbSampleBtn" class="hdr-icon-btn" title="خرائط ونماذج جاهزة"><i class="fa-solid fa-lightbulb"></i></button>
+      <!-- Load Samples Menu Dropdown (Icon Only) -->
+      <div class="hdr-dropdown-trigger">
+        <button id="cbSampleBtn" class="hdr-icon-btn" title="خرائط ونماذج جاهزة"><i class="fa-solid fa-lightbulb"></i></button>
+        <div id="samplesMenu" class="hdr-dropdown-panel samples-popover" style="display: none;">
+          <div class="samples-title">عينات الخرائط الذهنية</div>
+          <button class="sample-item-btn" data-sample="philosophy"><i class="fa-solid fa-brain"></i> فروع الفلسفة والمنطق</button>
+          <button class="sample-item-btn" data-sample="science"><i class="fa-solid fa-microscope"></i> أقسام العلوم الطبيعية والتطبيقية</button>
+          <button class="sample-item-btn" data-sample="cs"><i class="fa-solid fa-laptop-code"></i> فروع علوم الحاسوب والذكاء الاصطناعي</button>
+          <button class="sample-item-btn" data-sample="software"><i class="fa-solid fa-list-check"></i> تخطيط وإدارة المشاريع البرمجية</button>
+        </div>
+      </div>
 
       <!-- Layout Direction Toggle Button -->
       <button id="cbDirectionBtn" class="hdr-icon-btn" title="تبديل اتجاه التفرع (G)"><i class="fa-solid fa-arrows-up-down"></i></button>
@@ -61,26 +70,19 @@
       <div class="hdr-dropdown-trigger">
         <button id="cbSettingsBtn" class="hdr-icon-btn" title="المظهر والإعدادات"><i class="fa-solid fa-sliders"></i></button>
         <div id="settingsMenu" class="hdr-dropdown-panel" style="display: none;">
-          <div id="mfThemeBtn" class="dropdown-item" onclick="mfToggleTheme()">
-            <span class="item-label"><i class="fa-solid fa-moon"></i> تبديل المظهر (داكن / فاتح)</span>
+          <div id="langBtn" class="dropdown-item" onclick="toggleLanguage()">
+            <span class="item-label"><i class="fa-solid fa-globe"></i> Language / اللغة: العربية</span>
           </div>
-          <div id="helpBtn" class="dropdown-item">
-            <span class="item-label"><i class="fa-solid fa-keyboard"></i> اختصارات لوحة المفاتيح</span>
-            <span class="item-shortcut">?</span>
+          <div id="cbThemeBtn" class="dropdown-item" onclick="mfToggleTheme()">
+            <span class="item-label"><i class="fa-solid fa-moon"></i> داكن / فاتح</span>
+          </div>
+          <div id="helpBtn" class="dropdown-item help-btn">
+            <span class="item-label"><i class="fa-solid fa-keyboard"></i> الاختصارات (؟)</span>
           </div>
         </div>
       </div>
     </div>
   </header>
-
-  <!-- Samples Popover Menu -->
-  <div id="samplesMenu" class="samples-popover" style="display: none;">
-    <div class="samples-title">عينات الخرائط الذهنية</div>
-    <button class="sample-item-btn" data-sample="philosophy"><i class="fa-solid fa-brain"></i> فروع الفلسفة والمنطق</button>
-    <button class="sample-item-btn" data-sample="science"><i class="fa-solid fa-microscope"></i> أقسام العلوم الطبيعية والتطبيقية</button>
-    <button class="sample-item-btn" data-sample="cs"><i class="fa-solid fa-laptop-code"></i> فروع علوم الحاسوب والذكاء الاصطناعي</button>
-    <button class="sample-item-btn" data-sample="software"><i class="fa-solid fa-list-check"></i> تخطيط وإدارة المشاريع البرمجية</button>
-  </div>
 
   <!-- AI Mind Map Generator Modal -->
   <div id="aiModalOverlay" class="ai-modal-overlay" dir="rtl" style="display: none;">
@@ -94,7 +96,7 @@
       </div>
       <div class="ai-modal-body">
         <p class="ai-modal-desc">أدخل أي موضوع أو فكرة لتوليد خريطة ذهنية هيكلية متكاملة ومزودة بالملاحظات الشارحة تلقائياً:</p>
-        <textarea id="aiPromptInput" dir="auto" placeholder="مثال: فروع وتخصصات الأمن السيبراني، خطوات إطلاق مشروع برمجي، أقسام العلوم الطبيعية..."></textarea>
+        <textarea id="aiPromptInput" dir="rtl" placeholder="مثال: فروع وتخصصات الأمن السيبراني، خطوات إطلاق مشروع برمجي، أقسام العلوم الطبيعية..."></textarea>
         
         <div class="ai-chips-label">أفكار مقترحة سريعة:</div>
         <div class="ai-chips">
@@ -139,7 +141,7 @@
 
   <textarea id="floatingNote" class="floating-note" dir="auto" placeholder="Add note..."></textarea>
 
-  <script src="meta.js" data-project="خريطة الأفكار" data-home="./" data-help="اختصارات لوحة المفاتيح" data-help-id="helpBtn"></script>
+  <script src="meta.js" data-project="خريطة الأفكار" data-home="./" data-help="اختصارات لوحة المفاتيح" data-help-id="metaHelpBtn"></script>
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/layout.js"></script>

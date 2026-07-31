@@ -689,45 +689,57 @@ body.light-mode .panel-toggle:hover {
     50% { filter: drop-shadow(0 0 8px #ffd700); transform: rotate(-10deg) scale(1.15); }
 }
 
-/* Samples Popover Menu */
+/* Samples Popover Menu (Attached Header Dropdown) */
 .samples-popover {
-    position: fixed;
-    top: 96px;
-    left: 18px;
-    z-index: 200;
-    background: var(--bg-panel, rgba(30, 30, 30, 0.95));
-    border: 1px solid var(--border-subtle, rgba(68, 68, 68, 0.4));
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 2000;
+    background: var(--mf-input-bg, #191924);
+    border: 1px solid var(--mf-border, #272738);
     border-radius: 12px;
-    padding: 10px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(14px);
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-width: 240px;
+    gap: 4px;
+    min-width: 260px;
+}
+body.light .samples-popover {
+    background: #ffffff;
+    border-color: #e2e2ec;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 .samples-title {
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
     color: #e2b714;
-    padding: 4px 8px;
-    border-bottom: 1px solid var(--border-subtle);
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--mf-border, #272738);
     margin-bottom: 4px;
+}
+body.light .samples-title {
+    border-bottom-color: #e2e2ec;
 }
 .sample-item-btn {
     background: transparent;
     border: none;
-    color: var(--text-primary, #e0e0e0);
-    padding: 8px 12px;
-    border-radius: 6px;
+    color: var(--mf-text, #e2e2ec);
+    padding: 9px 12px;
+    border-radius: 8px;
     text-align: right;
     font-family: inherit;
     font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     transition: background 0.15s ease;
+}
+body.light .sample-item-btn {
+    color: #1a1a26;
 }
 .sample-item-btn:hover {
     background: rgba(226, 183, 20, 0.15);
@@ -825,6 +837,8 @@ body.light-mode .panel-toggle:hover {
     font-size: 14px;
     resize: none;
     outline: none;
+    direction: rtl;
+    text-align: right;
 }
 #aiPromptInput:focus {
     border-color: #e2b714;
@@ -904,4 +918,42 @@ body.light-mode .panel-toggle:hover {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* ============================================
+   Scoped LTR Styling for English Mode
+   ============================================ */
+body.lang-en .hdr-dropdown-panel,
+body.lang-en .samples-popover,
+body.lang-en .ai-modal-card {
+    direction: ltr;
+    text-align: left;
+}
+
+body.lang-en .hdr-dropdown-panel .dropdown-item {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+body.lang-en .hdr-dropdown-panel .item-label,
+body.lang-en .samples-popover .sample-item-btn {
+    flex-direction: row;
+    text-align: left;
+}
+
+body.lang-en .ai-modal-header {
+    flex-direction: row;
+}
+
+body.lang-en .ai-modal-header-left {
+    flex-direction: row;
+}
+
+body.lang-en .ai-chips {
+    flex-direction: row;
+}
+
+body.lang-en #aiPromptInput {
+    direction: ltr;
+    text-align: left;
 }

@@ -223,12 +223,30 @@ function drawHelpOverlay() {
     ctx.strokeStyle = CONFIG.colors.helpBorder; ctx.lineWidth = 1; ctx.stroke();
     ctx.font = `600 16px ${CONFIG.font}`;
     ctx.fillStyle = CONFIG.colors.text; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText('Keyboard Shortcuts', cw / 2, py + 18);
+    const isEn = window.currentLang === 'en';
+    ctx.fillText(isEn ? 'Keyboard Shortcuts' : 'اختصارات لوحة المفاتيح', cw / 2, py + 18);
     ctx.beginPath(); ctx.moveTo(px + 40, py + 40);
     ctx.lineTo(px + boxW - 40, py + 40);
     ctx.strokeStyle = CONFIG.colors.helpBorder; ctx.lineWidth = 1; ctx.stroke();
     const cols = 2, rowH = 28, startY = py + 52, colW = boxW / cols;
-    const shortcuts = [
+    const shortcutsAr = [
+        ['Tab', 'إضافة عقدة فرعية'],
+        ['Shift+Tab', 'إضافة عقدة شقيقة'],
+        ['Enter / F2', 'تعديل نص العقدة'],
+        ['Esc', 'إلغاء التعديل / إغلاق'],
+        ['↑ / ↓', 'الأب / الابن*'],
+        ['← / →', 'الشقيق السابق / التالي'],
+        ['N', 'تبديل الملاحظة (post-it)'],
+        ['Ctrl+E', 'تصدير صورة PNG'],
+        ['Ctrl+S', 'حفظ ملف .mt'],
+        ['Ctrl+O', 'فتح ملف .mt'],
+        ['Ctrl+F / /', 'بحث في الخريطة'],
+        ['Del / Shift+Del', 'حذف العقدة / تأكيد'],
+        ['Ctrl+Z / Y', 'تراجع / إعادة'],
+        ['Alt+N', 'خريطة جديدة'],
+        ['G / R', 'قلب الاتجاه / إعادة ضبط']
+    ];
+    const shortcutsEn = [
         ['Tab', 'Add Child Node'],
         ['Shift+Tab', 'Add Sibling Node'],
         ['Enter / F2', 'Edit Node Label'],
@@ -245,19 +263,32 @@ function drawHelpOverlay() {
         ['Alt+N', 'New Mind Map'],
         ['G / R', 'Flip Direction / Reset']
     ];
-    ctx.textAlign = 'left';
-    shortcuts.forEach((sc, i) => {
-        const col = i % cols; const row = Math.floor(i / cols);
-        const cx = px + 30 + (col * colW); const cy = startY + (row * rowH);
-        ctx.font = `500 13px ${CONFIG.font}`;
-        ctx.fillStyle = CONFIG.colors.helpKey; ctx.fillText(sc[0], cx, cy);
-        ctx.font = `400 13px ${CONFIG.font}`;
-        ctx.fillStyle = CONFIG.colors.helpText; ctx.fillText(sc[1], cx + 155, cy);
-    });
+    const shortcuts = isEn ? shortcutsEn : shortcutsAr;
+    if (isEn) {
+        ctx.textAlign = 'left';
+        shortcuts.forEach((sc, i) => {
+            const col = i % cols; const row = Math.floor(i / cols);
+            const cx = px + 30 + (col * colW); const cy = startY + (row * rowH);
+            ctx.font = `500 13px ${CONFIG.font}`;
+            ctx.fillStyle = CONFIG.colors.helpKey; ctx.fillText(sc[0], cx, cy);
+            ctx.font = `400 13px ${CONFIG.font}`;
+            ctx.fillStyle = CONFIG.colors.helpText; ctx.fillText(sc[1], cx + 150, cy);
+        });
+    } else {
+        ctx.textAlign = 'right';
+        shortcuts.forEach((sc, i) => {
+            const col = i % cols; const row = Math.floor(i / cols);
+            const cx = px + boxW - 30 - (col * colW); const cy = startY + (row * rowH);
+            ctx.font = `400 13px ${CONFIG.font}`;
+            ctx.fillStyle = CONFIG.colors.helpText; ctx.fillText(sc[1], cx, cy);
+            ctx.font = `500 13px ${CONFIG.font}`;
+            ctx.fillStyle = CONFIG.colors.helpKey; ctx.fillText(sc[0], cx - 180, cy);
+        });
+    }
     ctx.font = `400 11px ${CONFIG.font}`;
     ctx.fillStyle = CONFIG.colors.textDim; ctx.textAlign = 'center';
-    ctx.fillText('* ↑/↓ matches visual layout. Mobile: Tap to select, Swipe to navigate, Pinch to zoom.', cw / 2, py + boxH - 18);
-    const closeR = 12, closeX = px + boxW - 24, closeY = py + 20;
+    ctx.fillText(isEn ? '* ↑/↓ matches visual layout. Mobile: Tap to select, Swipe to navigate, Pinch to zoom.' : '* ↑/↓ يطابق التنسيق البصري. الجوال: انقر للتحديد، اسحب للتنقل، قرص للتقريب.', cw / 2, py + boxH - 18);
+    const closeR = 12, closeX = isEn ? (px + boxW - 24) : (px + 24), closeY = py + 20;
     ctx.beginPath(); ctx.arc(closeX, closeY, closeR, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(80, 120, 100, 0.2)'; ctx.fill();
     ctx.strokeStyle = CONFIG.colors.helpBorder; ctx.lineWidth = 1; ctx.stroke();

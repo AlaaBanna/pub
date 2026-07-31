@@ -324,15 +324,26 @@ canvas.addEventListener('touchmove', (e) => {
     }
 }, {passive: false});
 
+let lastTapTime = 0;
 canvas.addEventListener('touchend', (e) => {
     if (state.isEditing || state.isHelpOpen) return;
     if (e.changedTouches.length === 1) {
         const dx = Math.abs(e.changedTouches[0].clientX - touchStartX), dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
-        if (dx < 15 && dy < 15 && Date.now() - touchStartTime < 300) {
+        if (dx < 15 && dy < 15 && Date.now() - touchStartTime < 350) {
             const rect = canvas.getBoundingClientRect();
             const {x: wx, y: wy} = screenToWorld(e.changedTouches[0].clientX - rect.left, e.changedTouches[0].clientY - rect.top);
             const hitId = getNodeAtPos(wx, wy);
-            if (hitId && hitId !== state.focusedId) { state.focusedId = hitId; state.deletePending = null; state.treeVersion++; }
+            const now = Date.now();
+            if (hitId) {
+                if (hitId === state.focusedId && (now - lastTapTime < 350)) {
+                    startEditing();
+                } else {
+                    state.focusedId = hitId;
+                    state.deletePending = null;
+                    state.treeVersion++;
+                }
+            }
+            lastTapTime = now;
         }
     }
     initialPinchDist = null;

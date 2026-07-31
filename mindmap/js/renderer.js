@@ -216,7 +216,7 @@ function drawDeleteConfirmation() {
 function drawHelpOverlay() {
     ctx.save();
     ctx.fillStyle = 'rgba(5, 10, 8, 0.8)'; ctx.fillRect(0, 0, cw, ch);
-    const boxW = 660, boxH = 340;
+    const boxW = Math.min(cw - 24, 660), boxH = Math.min(ch - 24, 380);
     const px = (cw - boxW) / 2, py = (ch - boxH) / 2;
     ctx.beginPath(); ctx.roundRect(px, py, boxW, boxH, 12);
     ctx.fillStyle = CONFIG.colors.helpBg; ctx.fill();

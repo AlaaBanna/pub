@@ -1,4 +1,4 @@
-/* Version: v2.3.0 | Updated: 2026-07-29 00:58 | Features: Warm Ochre theme tokens & depth focus background styling */
+/* Version: v4.5.0 | Updated: 2026-07-31 18:58 | Features: Applied direction rtl & text-align right to .ai-modal-card */
 /* ============================================
    meta.fikra / ميتا.فكرة — Design Tokens
    ============================================ */
@@ -670,12 +670,23 @@ body.light-mode .panel-toggle:hover {
 
 /* AI Button & Popovers */
 .top-menu-btn.ai-btn-accent {
-    color: #e2b714;
-    background: rgba(226, 183, 20, 0.12);
+    color: #ffd700;
+    background: linear-gradient(135deg, rgba(226, 183, 20, 0.25), rgba(255, 215, 0, 0.12));
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .top-menu-btn.ai-btn-accent:hover {
-    background: rgba(226, 183, 20, 0.25);
-    box-shadow: 0 0 12px rgba(226, 183, 20, 0.4);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.4), rgba(226, 183, 20, 0.25));
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.6), 0 0 30px rgba(226, 183, 20, 0.3);
+    transform: translateY(-1px) scale(1.06);
+}
+.top-menu-btn.ai-btn-accent i {
+    animation: aiWandGlow 2.5s infinite ease-in-out;
+}
+@keyframes aiWandGlow {
+    0%, 100% { filter: drop-shadow(0 0 2px #ffd700); transform: rotate(0deg) scale(1); }
+    50% { filter: drop-shadow(0 0 8px #ffd700); transform: rotate(-10deg) scale(1.15); }
 }
 
 /* Samples Popover Menu */
@@ -736,6 +747,8 @@ body.light-mode .panel-toggle:hover {
     padding: 20px;
 }
 .ai-modal-card {
+    direction: rtl;
+    text-align: right;
     background: var(--bg-panel, rgba(30, 30, 30, 0.96));
     border: 1px solid rgba(226, 183, 20, 0.3);
     border-radius: 16px;
@@ -756,13 +769,35 @@ body.light-mode .panel-toggle:hover {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border-subtle);
 }
-.ai-modal-title {
-    font-weight: bold;
-    font-size: 15px;
-    color: #e2b714;
+.ai-modal-header-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.ai-engine-tag {
+    background: rgba(226, 183, 20, 0.15);
+    border: 1px solid rgba(226, 183, 20, 0.35);
+    color: #ffd700;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.ai-modal-desc {
+    font-size: 13px;
+    color: var(--text-dim, #a0a0a0);
+    margin: 0;
+    line-height: 1.5;
+}
+.ai-chips-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-dim, #888);
+    margin-top: 4px;
 }
 .ai-close-btn {
     background: transparent;

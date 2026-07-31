@@ -49,6 +49,7 @@ function updateNodeInputPosition() {
 }
 
 function showNodeInput(id) {
+    if (state.isReadOnly) return;
     const node = findNode(state.tree, id);
     if (!node) return;
     const inp = document.getElementById('nodeInput');
@@ -75,12 +76,12 @@ function hideNodeInput(save = true) {
 }
 
 function startEditing() {
-    if (state.isOverview) return;
-    showNodeInput(state.focusedId);
+    if (state.isReadOnly) return;
+    if (state.focusedId) showNodeInput(state.focusedId);
 }
 
 function createChild() {
-    if (state.isOverview) return;
+    if (state.isOverview || state.isReadOnly) return;
     pushSnapshot();
     const focusedNode = findNode(state.tree, state.focusedId);
     if (!focusedNode) return;

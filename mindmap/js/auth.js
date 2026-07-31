@@ -35,8 +35,13 @@
         setSession(token, user) {
             window.jwtToken = token;
             window.currentUser = user;
-            if (token) localStorage.setItem('mf_jwt', token);
-            else localStorage.removeItem('mf_jwt');
+            if (token && user) {
+                localStorage.setItem('mf_jwt', token);
+                localStorage.setItem('mf_user', JSON.stringify(user));
+            } else {
+                localStorage.removeItem('mf_jwt');
+                localStorage.removeItem('mf_user');
+            }
             window.authModule.updateUserUI();
         },
 
@@ -104,12 +109,14 @@
         },
 
         init() {
-            // Restore session if token exists
             if (window.jwtToken) {
                 try {
+                    const savedUser = localStorage.getItem('mf_user');
+                    if (savedUser) window.currentUser = JSON.parse(savedUser);
+
                     const payload = JSON.parse(atob(window.jwtToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
                     if (payload.exp && Date.now() / 1000 < payload.exp) {
-                        window.currentUser = { id: payload.sub, email: payload.email, name: payload.name };
+                        if (!window.currentUser) window.currentUser = { id: payload.sub, email: payload.email, name: payload.name };
                     } else {
                         window.authModule.setSession(null, null);
                     }
@@ -121,7 +128,5 @@
         }
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        window.authModule.init();
-    });
+    window.authModule.init();
 })();

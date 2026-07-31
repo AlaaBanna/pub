@@ -887,13 +887,34 @@ if (copyShareUrlBtn) {
     });
 };
 
+// ── APP TOAST SYSTEM ──
+window.showToast = function(msg, type = 'success', duration = 3000) {
+    const toast = document.getElementById('appToast');
+    const toastMsg = document.getElementById('toastMsg');
+    const toastIcon = document.getElementById('toastIcon');
+    if (!toast || !toastMsg) return;
+
+    toastMsg.textContent = msg;
+    toast.className = `app-toast ${type}`;
+    if (type === 'success') toastIcon.className = 'fa-solid fa-circle-check';
+    else if (type === 'error') toastIcon.className = 'fa-solid fa-circle-exclamation';
+    else toastIcon.className = 'fa-solid fa-circle-info';
+
+    toast.style.display = 'flex';
+    if (window.toastTimer) clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+    }, duration);
+};
+
 window.deleteCloudMap = async function(id) {
-    if (!confirm('Are you sure you want to delete this cloud map?')) return;
+    if (!confirm('هل أنت تأكد من رغبتك في حذف هذه الخريطة السحابية؟')) return;
     try {
         await window.authModule.deleteMap(id);
         await refreshCloudMapsList();
+        showToast('تم حذف الخريطة السحابية', 'info');
     } catch(e) {
-        alert(e.message);
+        showToast(e.message, 'error');
     }
 };
 
@@ -906,11 +927,19 @@ if (saveCurrentToCloudBtn) {
         try {
             await window.authModule.saveMap(title, contentJson);
             await refreshCloudMapsList();
-            alert('Mind map saved to your cloud account!');
+            showToast('تم حفظ الخريطة سحابياً بنجاح!', 'success');
         } catch(err) {
-            alert(err.message);
+            showToast(err.message, 'error');
         }
     });
+}
+
+function applyReadOnlyState(isReadOnly) {
+    state.isReadOnly = isReadOnly;
+    const sideBar = document.getElementById('sideActionBar');
+    const noteEl = document.getElementById('floatingNote');
+    if (sideBar) sideBar.style.display = isReadOnly ? 'none' : 'flex';
+    if (noteEl) noteEl.readOnly = isReadOnly;
 }
 
 // ── SHARE LINK ROUTER ──
@@ -928,19 +957,19 @@ async function checkShareRoute() {
             if (banner) banner.style.display = 'flex';
 
             if (!window.currentUser) {
-                state.isReadOnly = true;
+                applyReadOnlyState(true);
                 if (forkBtn) {
-                    forkBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Log In to Fork';
+                    forkBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول لحفظ نسخة';
                     forkBtn.onclick = () => { if (authModal) authModal.style.display = 'flex'; };
                 }
             } else {
-                state.isReadOnly = false;
+                applyReadOnlyState(false);
                 if (forkBtn) {
-                    forkBtn.innerHTML = '<i class="fa-solid fa-code-fork"></i> Fork to My Account';
+                    forkBtn.innerHTML = '<i class="fa-solid fa-code-fork"></i> حفظ نسخة في حسابي';
                     forkBtn.onclick = async () => {
-                        const title = `${res.map.title} (Forked)`;
+                        const title = `${res.map.title} (نسخة)`;
                         await window.authModule.saveMap(title, res.map.content_json);
-                        alert('Map successfully saved to your cloud account!');
+                        showToast('تم حفظ نسخة الخريطة في حسابك بنجاح!', 'success');
                         window.history.replaceState({}, document.title, window.location.pathname);
                         if (banner) banner.style.display = 'none';
                     };

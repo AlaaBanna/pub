@@ -3,3 +3,5 @@ mindmap/mind-map-deployer.md
 mind-map-deployer.md
 .env
 node_modules/
+.agents/
+

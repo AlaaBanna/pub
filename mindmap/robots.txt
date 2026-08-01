@@ -1,0 +1,27 @@
+# Robots.txt for Meta-Fikra Mind Map (https://metafikra.com)
+User-agent: *
+Allow: /
+Allow: /@*
+Allow: /api/generate
+Allow: /api/share/
+
+# Crawling directives for AI Agents & Search Engines
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://metafikra.com/sitemap.xml

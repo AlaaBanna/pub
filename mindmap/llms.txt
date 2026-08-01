@@ -1,0 +1,29 @@
+# Meta-Fikra Mind Map (.meta.fikra)
+> Interactive AI-Powered Mind Mapping, Visual Knowledge Architecture, and Exam-Style Study Workbooks.
+
+## Overview
+Meta-Fikra Mind Map is an open-source visual knowledge mapping application built for high-speed concept organization, structural study planning, and deep interactive reading. It combines keyboard-first canvas navigation, automated AI structure generation powered by Llama 3.3 70B, and Rich Node Articles formatted in Markdown.
+
+- Primary Website: https://metafikra.com
+- Cloudflare Pages Mirror: https://metafikra.pages.dev
+- GitHub Pages Target: https://alaabanna.github.io/pub/mindmap/
+- Source Code Repository: https://github.com/AlaaBanna/pub/tree/main/mindmap
+
+## Core Capabilities & System Architecture
+- **Interactive Canvas & Tree Topology**: Hierarchical mind map rendering supporting unlimited branch nesting, keyboard navigation (Tab / Shift+Tab / Enter / Space), and focus zooming.
+- **AI Mind Map Generator**: Instant multi-tier mind map generation from any prompt or subject using Llama 3.3 70B via Cloudflare Worker proxy (`/api/generate`).
+- **Rich Node Articles**: Every node in a mind map can hold a Markdown article complete with syntax-highlighted code blocks, tables, lists, and read/unread status tracking (`👁` badge indicator).
+- **SPA Semantic URLs & Portfolio**: User profile portfolios (`/@username`) and public map attribution URLs (`/@username/map-id`).
+- **Cloud Storage & Sharing**: Save, share (`/api/share/`), duplicate, and collaborate with 1-click likes, node comments, and @user mentions.
+- **Multi-Language Support**: Fully localized in Arabic (`ar`) and English (`en`) with scoped RTL/LTR layout control.
+
+## Semantic URL Structure for AI Agents & Crawlers
+- Master Web Application: `https://metafikra.com/`
+- User Portfolio Profile: `https://metafikra.com/@username`
+- Public Shared Map: `https://metafikra.com/@username/map-id`
+- Direct Share Link Parameter: `https://metafikra.com/?s=shareId`
+
+## Documentation & References
+- Architectural Specification: https://github.com/AlaaBanna/pub/blob/main/mindmap/docs/ARCHITECTURE.md
+- Functionalities Guide: https://github.com/AlaaBanna/pub/blob/main/mindmap/docs/FUNCTIONALITIES.md
+- Developer & Creator: Alaa Banna (https://github.com/AlaaBanna)

@@ -106,23 +106,25 @@ function serialize(tree) {
 
 function parseMarkup(str) {
     if (!str || !str.trim()) return createNode("خريطة جديدة");
-    const lines = str.split('\n');
+    // Normalize literal \t escape sequences if emitted by LLMs/JSON
+    const normalizedStr = str.replace(/\\t/g, '\t');
+    const lines = normalizedStr.split('\n');
     const dummyRoot = createNode('');
     let currentNoteNode = null;
     const stack = [{ node: dummyRoot, indent: -1 }];
 
     for (const rawLine of lines) {
         if (!rawLine.trim()) continue;
-        const line = rawLine.replace(/\t/g, '  ');
-        const indent = line.search(/\S/);
+        const expandedLine = rawLine.replace(/\t/g, '    ');
+        const indent = expandedLine.search(/\S/);
         if (indent < 0) continue;
 
-        let text = line.trim();
-        if (text.startsWith('::article ')) {
+        let text = rawLine.trim();
+        if (text.startsWith('::article') || text.startsWith(':: article')) {
             if (currentNoteNode) {
-                const articleLine = text.slice(10);
+                const articleLine = text.replace(/^::\s*article\s?/, '');
                 if (!currentNoteNode.article) {
-                    currentNoteNode.article = { content: articleLine, isRead: false, updatedAt: new Date().toISOString() };
+                    currentNoteNode.article = { content: articleLine, updatedAt: new Date().toISOString() };
                 } else {
                     currentNoteNode.article.content += '\n' + articleLine;
                 }
@@ -131,15 +133,22 @@ function parseMarkup(str) {
         }
 
         if (text.startsWith(': ')) {
-            if (currentNoteNode) currentNoteNode.note += (currentNoteNode.note ? '\n' : '') + text.slice(2);
+            if (currentNoteNode) {
+                const noteLine = text.slice(2);
+                if (!currentNoteNode.article) {
+                    currentNoteNode.article = { content: noteLine, updatedAt: new Date().toISOString() };
+                } else {
+                    currentNoteNode.article.content += '\n' + noteLine;
+                }
+            }
             continue;
         }
 
-        let inlineNote = '';
+        let inlineArticle = '';
         if (text.includes(' :: ')) {
             const parts = text.split(' :: ');
             text = parts[0].trim();
-            inlineNote = parts.slice(1).join(' :: ').trim();
+            inlineArticle = parts.slice(1).join(' :: ').trim();
         }
 
         let isCompleted = false;
@@ -157,7 +166,9 @@ function parseMarkup(str) {
 
         const newNode = createNode(text, order);
         newNode.completed = isCompleted;
-        if (inlineNote) newNode.note = inlineNote;
+        if (inlineArticle) {
+            newNode.article = { content: inlineArticle, updatedAt: new Date().toISOString() };
+        }
         currentNoteNode = newNode;
 
         while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop();
@@ -177,73 +188,84 @@ function parseMarkup(str) {
 // ── SAMPLE DATA ──
 const DEFAULT_SAMPLE_MARKUP = `الفلسفة
 	الميتافيزيقا (فلسفة الوجود)
-	: دراسة طبيعة الوجود، الواقع، والكون
+	::article # الميتافيزيقا (فلسفة الوجود)
+	::article دراسة طبيعة الوجود، الواقع، والكون والمبادئ الأولى للمادة والروح.
+	::article 
+	::article ### المحاور والأنشطة الرئيسية:
+	::article 1. **الأنطولوجيا**: البحث في ماهية الوجود الخالص.
+	::article 2. **الكوزمولوجيا**: علم الكون وبنيته وقوانينه الكلية.
 		الأنطولوجيا (علم الوجود)
-		: البحث في ماهية الوجود الخالص ومكوناته الأساسية
+		::article البحث في ماهية الوجود الخالص ومكوناته الأساسية وتحليل مقومات الواقع.
 			طبيعة الواقع
 				المادية
-				: الاعتقاد بأن المادة هي المادة الأساسية الوحيدة في الكون
+				::article الاعتقاد بأن المادة هي المادة الأساسية الوحيدة في الكون وأن جميع الظواهر ناتجة عن التفاعلات المادية.
 					المادية الجدلية
 						تطبيقات المادية التاريخية عند كارل ماركس
 				المثالية
-				: الاعتقاد بأن العقل أو الروح هما الجوهر الأساسي للواقع
+				::article الاعتقاد بأن العقل أو الروح هما الجوهر الأساسي للواقع وأن العالم الخارجي نتاج الفكر.
 					المثالية المطلقة
 						فلسفة الروح والديالكتيك عند هيجل
 		الكونيات (الكوزمولوجيا)
-		: البحث في أصل الكون وبنيته وقوانينه الكلية
+		::article البحث في أصل الكون وبنيته وقوانينه الكلية وتطور الزمان والمكان.
 			الزمان والمكان
 				الواقعية الزمانية
 					المفهوم المطلق للزمان والمكان عند نيوتن
 				النسبية الزمانية
 					المفهوم العلاقي للزمان والمكان عند لايبنتز وإينشتاين
 	الإبستمولوجيا (نظرية المعرفة)
-	: دراسة أصل المعرفة، طبيعتها، حدودها، ووسائل تحصيلها
+	::article # الإبستمولوجيا (نظرية المعرفة)
+	::article دراسة أصل المعرفة، طبيعتها، حدودها، ووسائل تحصيلها والتمييز بين اليقين والظن.
+	::article 
+	::article ### التوجهات الفلسفية الكبرى:
+	::article - **العقلانية**: الفكر المستقل والمفاهيم الفطرية.
+	::article - **التجريبية**: الحواس والملاحظة المباشرة.
 		مصادر المعرفة
 			العقلانية
-			: التفكير العقلاني المستقل عن الحواس هو المصدر الرئيس للحقائق
+			::article التفكير العقلاني المستقل عن الحواس هو المصدر الرئيس للحقائق اليقينية.
 				المعرفة الفطرية
 					الأفكار المسبقة عند ديكارت
 						مبدأ الكوجيتو: "أنا أفكر، إذن أنا موجود"
 			التجريبية
-			: الحواس والتجربة المباشرة هما المصدر الوحيد للمعرفة
+			::article الحواس والتجربة المباشرة هما المصدر الوحيد لبناء المعرفة البشرية.
 				التأثر الحسي
 					مفهوم اللوح الأبيض عند جون لوك
 						الانطباعات الحسية الأولية والثانوية
 		طبيعة الحقيقة
 			نظرية التطابق
-			: الحقيقة هي ما يطابق الواقع الخارجي بالفعل
+			::article الحقيقة هي ما يطابق الواقع الخارجي بالفعل بشكل مباشر.
 			نظرية التماسك
-			: الحقيقة هي الاتساق المنطقي داخل مجموعة معتقدات مترابطة
+			::article الحقيقة هي الاتساق المنطقي داخل مجموعة معتقدات مترابطة.
 	الإكسيولوجيا (نظرية القيم)
-	: دراسة القيم وغايات السلوك الإنساني والتقدير الجمالي
+	::article دراسة القيم وغايات السلوك الإنساني والتقدير الجمالي والأخلاقي.
 		الأخلاق (فلسفة الأخلاق)
-		: دراسة المفاهيم المتعلقة بالخير والشر والصواب والخطأ
+		::article دراسة المفاهيم المتعلقة بالخير والشر والصواب والخطأ وتأطير السلوك الفردي والجماعي.
 			الأخلاق المعيارية
 				أخلاق الواجب (الواجباتية)
-				: التركيز على القواعد والواجبات الأخلاقية بصرف النظر عن النتائج
+				::article التركيز على القواعد والواجبات الأخلاقية بصرف النظر عن النتائج والمكاسب.
 					الأمر المطلق عند إيمانويل كانت
 						صياغة القانون العام للواجب الأخلاقي
 				الأخلاق العواقبية
-				: تقييم الأفعال بناءً على نتائجها وآثارها
+				::article تقييم الأفعال بناءً على نتائجها وآثارها ومقياس المنفعة العامة.
 					المذهب النفعي عند جيريمي بنثام وجون ستيوارت مل
 						مبدأ تحقيق أكبر قدر من السعادة لأكبر عدد من الناس
 		الجماليات (فلسفة الفن)
-		: دراسة طبيعة الجمال والتذوق الفني والابتكار الإبداعي
+		::article دراسة طبيعة الجمال والتذوق الفني والابتكار الإبداعي ومعايير التقييم الجمالي.
 			طبيعة الحكم الجمالي
 				الموضوعية الجمالية
-				: الجمال صفة متأصلة في الموضوع الفني نفسه
+				::article الجمال صفة متأصلة في الموضوع الفني نفسه.
 				الذاتية الجمالية
-				: الجمال ذوق فردي يعتمد على إدراك المشاهد وتجربته
+				::article الجمال ذوق فردي يعتمد على إدراك المشاهد وتجربته.
 	المنطق
-	: دراسة مبادئ الاستدلال الصحيح والتفكير النقدي
+	::article # المنطق والاستدلال
+	::article دراسة مبادئ الاستدلال الصحيح والتفكير النقدي وصياغة الحجج المنطقية.
 		المنطق الصوري (التقليدي)
-		: التركيز على صورة الحجة وصحتها الهيكلية
+		::article التركيز على صورة الحجة وصحتها الهيكلية واستنباط النتائج من المقدمات.
 			الاستدلال الاستنباطي
 				القياس الأرسطي
 					المقدمات والنتائج المنطقية
 						قواعد الصدق والصحة في القياس
 		المنطق غير الصوري (الرمزي والمعاصر)
-		: تحليل الحجج والتعبير عنها برموز رياضية بدقة
+		::article تحليل الحجج والتعبير عنها برموز رياضية بدقة واستنتاج الاحتمالات.
 			الاستدلال الاستقراء
 				التعميم الاستقرائي
 					الاستدلال بالاحتمالية والاستشهاد بالأدلة التجريبية`;
@@ -291,13 +313,34 @@ function getCompletionStats(node) {
     return { total, completed, percentage };
 }
 
-function toggleArticleReadStatus(tree, id) {
-    const node = findNode(tree, id);
-    if (node && node.article) {
-        node.article.isRead = !node.article.isRead;
-        return node.article.isRead;
+function isArticleRead(id) {
+    if (!id) return false;
+    try {
+        const readSet = JSON.parse(localStorage.getItem('mf_read_articles') || '[]');
+        return readSet.includes(id);
+    } catch(e) {
+        return false;
     }
-    return false;
+}
+
+function toggleArticleReadStatus(tree, id) {
+    if (!id) return false;
+    try {
+        let readSet = JSON.parse(localStorage.getItem('mf_read_articles') || '[]');
+        const idx = readSet.indexOf(id);
+        let isRead = false;
+        if (idx !== -1) {
+            readSet.splice(idx, 1);
+            isRead = false;
+        } else {
+            readSet.push(id);
+            isRead = true;
+        }
+        localStorage.setItem('mf_read_articles', JSON.stringify(readSet));
+        return isRead;
+    } catch(e) {
+        return false;
+    }
 }
 
 function setNodeArticle(tree, id, content) {
@@ -308,7 +351,6 @@ function setNodeArticle(tree, id, content) {
     } else {
         node.article = {
             content: content.trim(),
-            isRead: node.article ? !!node.article.isRead : false,
             updatedAt: new Date().toISOString()
         };
     }

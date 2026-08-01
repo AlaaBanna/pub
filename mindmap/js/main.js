@@ -817,7 +817,7 @@ window.openArticleModal = function() {
 function updateArticleReadStatusUI(node) {
     const statusBtn = document.getElementById('articleReadStatusBtn');
     if (!statusBtn) return;
-    const isRead = node && node.article && node.article.isRead;
+    const isRead = node ? isArticleRead(node.id) : false;
     if (isRead) {
         statusBtn.className = 'read-status-pill read';
         statusBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> مقروء';

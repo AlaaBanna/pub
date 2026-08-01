@@ -4,10 +4,6 @@
     window.jwtToken = localStorage.getItem('mf_jwt') || null;
 
     function getApiUrl() {
-        const host = window.location.hostname;
-        if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
-            return 'http://localhost:8080';
-        }
         return 'https://metafikra-mindmap-ai.alaabanna.workers.dev';
     }
 
@@ -124,7 +120,11 @@
                     window.authModule.setSession(null, null);
                 }
             }
-            window.authModule.updateUserUI();
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => window.authModule.updateUserUI());
+            } else {
+                window.authModule.updateUserUI();
+            }
         }
     };
 

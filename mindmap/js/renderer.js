@@ -158,12 +158,6 @@ function drawNodes(time) {
         ctx.lineWidth = isTitleMatch ? 3.5 : (isNoteMatch ? 2.2 : (isFoc ? 2.5 : (isHov ? 2.0 : (totalSubtreeCount > 0 ? 2.0 : 1.2))));
         ctx.stroke();
 
-        if (node.note) {
-            ctx.beginPath(); ctx.arc(x + r * 0.6, y - r * 0.6, isNoteMatch ? 6 : 4, 0, Math.PI * 2);
-            ctx.fillStyle = isNoteMatch ? '#e2b714' : CONFIG.colors.noteDot;
-            ctx.fill();
-        }
-
         if (node.completed) {
             ctx.beginPath(); ctx.arc(x - r * 0.6, y - r * 0.6, 7, 0, Math.PI * 2);
             ctx.fillStyle = '#10b981';
@@ -174,20 +168,43 @@ function drawNodes(time) {
             ctx.fillText('✓', x - r * 0.6, y - r * 0.6);
         }
 
+        // Subtree Children Count Badge (Top-Center of node)
+        if (totalSubtreeCount > 0 && !isFoc) {
+            const countText = `+${totalSubtreeCount}`;
+            ctx.font = `600 ${Math.max(10, Math.floor(a.fs - 3))}px ${CONFIG.font}`;
+            const countW = ctx.measureText(countText).width + 10;
+            const countH = 16;
+            const countX = x - countW / 2;
+            const countY = y - r * 0.72 - countH / 2;
+
+            ctx.beginPath();
+            ctx.roundRect(countX, countY, countW, countH, 8);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fill();
+            ctx.strokeStyle = CONFIG.colors.selectedBorder;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.fillStyle = CONFIG.colors.selectedBorder;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(countText, x, countY + countH / 2);
+        }
+
         if (node.article && node.article.content && node.article.content.trim()) {
             const bx = x, by = y + r * 0.7;
             const br = 10;
+            const readStatus = isArticleRead(node.id);
             // Draw crisp abstract vector eye badge
             ctx.beginPath();
             ctx.arc(bx, by, br, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
             ctx.fill();
             ctx.lineWidth = 1.2;
-            ctx.strokeStyle = node.article.isRead ? '#10b981' : 'rgba(226, 183, 20, 0.7)';
+            ctx.strokeStyle = readStatus ? '#10b981' : 'rgba(226, 183, 20, 0.7)';
             ctx.stroke();
 
             // Vector Eye Shape (Almond outline + inner pupil)
-            const eyeColor = node.article.isRead ? '#10b981' : '#e2b714';
+            const eyeColor = readStatus ? '#10b981' : '#e2b714';
             ctx.beginPath();
             ctx.moveTo(bx - 5.5, by);
             ctx.quadraticCurveTo(bx, by - 3.8, bx + 5.5, by);
@@ -224,12 +241,6 @@ function drawNodes(time) {
             }
             ctx.fillText(line, x, startY + idx * lineHeight);
         });
-
-        if (totalSubtreeCount > 0 && !isFoc) {
-            ctx.font = `600 ${Math.max(10, Math.floor(a.fs - 3))}px ${CONFIG.font}`;
-            ctx.fillStyle = CONFIG.colors.selectedBorder;
-            ctx.fillText(`+${totalSubtreeCount}`, x, y + r * 0.65);
-        }
 
         try { if ('direction' in ctx) ctx.direction = 'ltr'; } catch (e) { }
         ctx.restore();

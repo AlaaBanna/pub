@@ -252,30 +252,24 @@ export default {
         }
 
         const systemInstruction = `You are a world-class domain expert and Master Mind Map Architect.
-Your mission is to construct an exceptionally deep, accurate, non-repetitive, and comprehensive mind map outline enriched with high-value explanatory notes.
+Your mission is to construct an exceptionally deep, accurate, multi-level mind map outline enriched with explanatory articles using ' :: Article text'.
 
-STRICT STRUCTURAL & DEDUPLICATION RULES:
-1. ZERO DUPLICATION (CRITICAL):
-   - EVERY node title across the entire mind map MUST be 100% unique. Never repeat node titles or identical concept names in different branches.
-   - Do NOT duplicate sub-topics or concepts anywhere in the tree.
-2. DISTINCT ORTHOGONAL BRANCHES:
-   - Each Level-1 primary branch must cover a completely distinct, non-overlapping dimension of the main topic (e.g. Branch 1: Core Fundamentals & Principles, Branch 2: Key Architecture & Sub-systems, Branch 3: Practical Tools & Tech Stack, Branch 4: Step-by-Step Workflow, Branch 5: Advanced Applications, Branch 6: Security, Risks & Best Practices).
-3. HIERARCHY & DEPTH:
-   - Line 1: Root Node (Main Topic :: Comprehensive high-level overview note)
-   - Level 1 (1 Tab \\t): 5 to 7 Primary Branches
-   - Level 2 (2 Tabs \\t\\t): 3 to 4 Detailed Sub-branches per branch
-   - Level 3 (3 Tabs \\t\\t\\t): 2 to 3 Specific Leaf nodes with concrete examples, tools, or implementation mechanisms.
-4. MANDATORY RICH & EXPERT NOTES (:: Note Syntax):
-   - EVERY node must have an insightful note attached via ' :: Note text'.
-   - Notes MUST be detailed, educational, and precise (1-3 sentences). Include core definitions, technical mechanisms, practical value, or real-world examples. Avoid superficial 2-word labels.
-5. LANGUAGE MATCHING:
-   - Detect the prompt's language (Arabic, English, French, etc.) and generate ALL node titles and ALL notes exclusively in THAT language.
-6. STRICT OUTPUT SYNTAX:
-   - Format per line: Node Title :: Rich explanatory note
-   - Indentation: Use literal Tab characters (\\t) for levels.
-   - Do NOT wrap output in markdown code blocks (\`\`\`json or \`\`\`markdown), numbers (1., 2.), or bullet symbols (-, *). Output ONLY the raw mind map outline lines.`;
+STRICT STRUCTURAL & INDENTATION RULES:
+1. ZERO DUPLICATION: Every node title MUST be 100% unique across the tree.
+2. MULTI-LEVEL HIERARCHY (CRITICAL):
+   - Line 1: Root Node (Main Topic :: High-level overview article)
+   - Level 1 (1 Tab \\t): 5 to 6 Primary Category Branches :: Explanatory article
+   - Level 2 (2 Tabs \\t\\t): 3 to 4 Sub-branches per category :: Explanatory article
+   - Level 3 (3 Tabs \\t\\t\\t): 2 to 3 Leaf Nodes with concrete examples :: Explanatory article
+3. FORMAT PER LINE:
+   - Use 'Title :: Explanatory article text' on every line.
+   - Use literal Tab characters (\\t) to define depth levels (Level 1 = 1 Tab, Level 2 = 2 Tabs, Level 3 = 3 Tabs).
+4. LANGUAGE MATCHING:
+   - Detect the prompt's language (Arabic, English, etc.) and generate ALL titles and articles in THAT language.
+5. STRICT OUTPUT SYNTAX:
+   - Output ONLY raw outline lines with tabs. No code blocks (\`\`\`), no numbers, no bullet symbols.`;
 
-        const userPrompt = `Generate a master-level, fully deduplicated, multi-level mind map outline with rich explanatory notes (using ' :: Note' on every single node) for the topic:\n"${prompt.trim()}"`;
+        const userPrompt = `Generate a master-level multi-level (3 levels deep with tabs \\t) mind map outline with explanatory articles (using ' :: Article text') for the topic:\n"${prompt.trim()}"`;
 
         const candidateModels = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant'];
         let groqResponse = null;

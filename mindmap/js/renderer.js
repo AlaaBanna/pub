@@ -135,17 +135,19 @@ function drawNodes(time) {
             ctx.quadraticCurveTo(points[i].px, points[i].py, mx, my);
         }
         ctx.closePath();
-        ctx.fillStyle = CONFIG.colors.nodeFill; ctx.fill();
+        const readStatus = (node.article && node.article.content && node.article.content.trim()) ? isArticleRead(node.id) : false;
+        ctx.fillStyle = readStatus ? 'rgba(64, 68, 86, 0.94)' : CONFIG.colors.nodeFill;
+        ctx.fill();
         ctx.shadowBlur = 0;
         const directChildCount = node.children ? node.children.length : 0;
         const totalSubtreeCount = getDescendantCount(node);
 
-        ctx.strokeStyle = isTitleMatch ? '#e2b714' : (isNoteMatch ? '#e2b714' : (isFoc ? CONFIG.colors.selectedBorder : (isHov ? CONFIG.colors.hoverBorder : (totalSubtreeCount > 0 ? 'rgba(226, 183, 20, 0.45)' : CONFIG.colors.nodeBorder))));
-        ctx.lineWidth = isTitleMatch ? 3.5 : (isNoteMatch ? 2.2 : (isFoc ? 2.5 : (isHov ? 2.0 : (totalSubtreeCount > 0 ? 2.0 : 1.2))));
+        ctx.strokeStyle = isTitleMatch ? '#e2b714' : (isNoteMatch ? '#e2b714' : (isFoc ? CONFIG.colors.selectedBorder : (isHov ? CONFIG.colors.hoverBorder : 'rgba(226, 183, 20, 0.45)')));
+        ctx.lineWidth = isTitleMatch ? 3.5 : (isNoteMatch ? 2.2 : (isFoc ? 2.5 : (isHov ? 2.0 : 1.8)));
         ctx.stroke();
 
         if (node.completed) {
-            ctx.beginPath(); ctx.arc(x - r * 0.6, y - r * 0.6, 7, 0, Math.PI * 2);
+            ctx.beginPath(); ctx.arc(x - r * 0.6, y - r * 0.6, 7.5, 0, Math.PI * 2);
             ctx.fillStyle = '#10b981';
             ctx.fill();
             ctx.fillStyle = '#ffffff';
@@ -178,29 +180,36 @@ function drawNodes(time) {
 
         if (node.article && node.article.content && node.article.content.trim()) {
             const bx = x, by = y + r * 0.72;
-            const br = 13.5;
-            const readStatus = isArticleRead(node.id);
-            // Draw crisp abstract vector eye badge (Enlarged)
+            const br = 14;
+
+            // Outer Circle Badge (Clean Silver Outline)
             ctx.beginPath();
             ctx.arc(bx, by, br, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(34, 38, 52, 0.96)';
+            ctx.fillStyle = 'rgba(26, 28, 38, 0.95)';
             ctx.fill();
-            ctx.lineWidth = 1.4;
-            ctx.strokeStyle = readStatus ? '#10b981' : 'rgba(226, 183, 20, 0.85)';
+            ctx.lineWidth = 1.3;
+            ctx.strokeStyle = readStatus ? '#e2b714' : 'rgba(220, 225, 235, 0.75)';
             ctx.stroke();
 
-            // Vector Eye Shape (Almond outline + inner pupil)
-            const eyeColor = readStatus ? '#10b981' : '#e2b714';
+            // Wide Open Vector Eye Shape (Almond outline + Inner Iris Ring + Pupil)
+            const eyeColor = '#e2b714';
             ctx.beginPath();
-            ctx.moveTo(bx - 7.5, by);
-            ctx.quadraticCurveTo(bx, by - 5.0, bx + 7.5, by);
-            ctx.quadraticCurveTo(bx, by + 5.0, bx - 7.5, by);
+            ctx.moveTo(bx - 8.0, by);
+            ctx.quadraticCurveTo(bx, by - 6.2, bx + 8.0, by);
+            ctx.quadraticCurveTo(bx, by + 6.2, bx - 8.0, by);
             ctx.strokeStyle = eyeColor;
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+
+            // Inner Iris Ring & Pupil
+            ctx.beginPath();
+            ctx.arc(bx, by, 3.8, 0, Math.PI * 2);
+            ctx.strokeStyle = eyeColor;
+            ctx.lineWidth = 1.2;
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.arc(bx, by, 2.4, 0, Math.PI * 2);
+            ctx.arc(bx, by, 1.8, 0, Math.PI * 2);
             ctx.fillStyle = eyeColor;
             ctx.fill();
         }

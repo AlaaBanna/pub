@@ -6,6 +6,8 @@ node_modules/
 .agents/
 
 handoff_spec.md
+mock_*.html
+mindmap/mock_*.html
 
 # wrangler files
 .wrangler

@@ -105,21 +105,41 @@
         },
 
         init() {
-            if (window.jwtToken) {
-                try {
-                    const savedUser = localStorage.getItem('mf_user');
-                    if (savedUser) window.currentUser = JSON.parse(savedUser);
+            const token = localStorage.getItem('mf_jwt');
+            const savedUserStr = localStorage.getItem('mf_user');
 
-                    const payload = JSON.parse(atob(window.jwtToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-                    if (payload.exp && Date.now() / 1000 < payload.exp) {
-                        if (!window.currentUser) window.currentUser = { id: payload.sub, email: payload.email, name: payload.name };
-                    } else {
-                        window.authModule.setSession(null, null);
+            if (token && savedUserStr) {
+                try {
+                    window.jwtToken = token;
+                    window.currentUser = JSON.parse(savedUserStr);
+
+                    // Validate JWT expiration safely without failing on UTF-8 encoding
+                    const base64Payload = token.split('.')[1];
+                    if (base64Payload) {
+                        const jsonStr = decodeURIComponent(escape(atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'))));
+                        const payload = JSON.parse(jsonStr);
+                        if (payload && payload.exp && (Date.now() / 1000 > payload.exp)) {
+                            // Token truly expired
+                            window.authModule.setSession(null, null);
+                        }
+                    }
+                } catch(e) {
+                    console.warn('Session parse info:', e);
+                }
+            } else if (token && !savedUserStr) {
+                try {
+                    window.jwtToken = token;
+                    const base64Payload = token.split('.')[1];
+                    const jsonStr = decodeURIComponent(escape(atob(base64Payload.replace(/-/g, '+').replace(/_/g, '/'))));
+                    const payload = JSON.parse(jsonStr);
+                    if (payload) {
+                        window.currentUser = { id: payload.sub, email: payload.email, name: payload.name || payload.email };
                     }
                 } catch(e) {
                     window.authModule.setSession(null, null);
                 }
             }
+
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', () => window.authModule.updateUserUI());
             } else {

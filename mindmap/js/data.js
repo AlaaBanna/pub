@@ -93,6 +93,9 @@ function serializeNode(node, depth = 0) {
     if (node.note) {
         for (const line of node.note.split('\n')) lines.push(`${indent}: ${line}`);
     }
+    if (node.article && node.article.content) {
+        for (const line of node.article.content.split('\n')) lines.push(`${indent}::article ${line}`);
+    }
     for (const child of getSortedChildren(node)) lines.push(...serializeNode(child, depth + 1));
     return lines;
 }
@@ -115,6 +118,18 @@ function parseMarkup(str) {
         if (indent < 0) continue;
 
         let text = line.trim();
+        if (text.startsWith('::article ')) {
+            if (currentNoteNode) {
+                const articleLine = text.slice(10);
+                if (!currentNoteNode.article) {
+                    currentNoteNode.article = { content: articleLine, isRead: false, updatedAt: new Date().toISOString() };
+                } else {
+                    currentNoteNode.article.content += '\n' + articleLine;
+                }
+            }
+            continue;
+        }
+
         if (text.startsWith(': ')) {
             if (currentNoteNode) currentNoteNode.note += (currentNoteNode.note ? '\n' : '') + text.slice(2);
             continue;

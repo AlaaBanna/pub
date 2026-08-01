@@ -876,25 +876,51 @@ if (authorEditHint) authorEditHint.addEventListener('click', openSingleBoxEditor
 
 const saveArticleBtn = document.getElementById('saveArticleBtn');
 if (saveArticleBtn) {
-    saveArticleBtn.addEventListener('click', () => {
+    saveArticleBtn.addEventListener('click', async () => {
         if (!state.focusedId) return;
         const mde = getEasyMDE();
         const content = mde ? mde.value() : '';
         setNodeArticle(state.tree, state.focusedId, content);
         state.treeVersion++;
         saveToStorage();
-        showToast('تم حفظ المقال بنجاح!', 'success');
+
+        // Auto sync with Cloudflare D1 database if user is logged in
+        if (window.currentUser) {
+            const title = state.activeCloudMapTitle || state.tree.text || 'Mind Map';
+            const contentJson = serializeMT(state.tree);
+            try {
+                const res = await window.authModule.saveMap(title, contentJson, state.activeCloudMapId);
+                if (res && res.map && res.map.id) {
+                    state.activeCloudMapId = res.map.id;
+                }
+            } catch(e) {
+                console.warn('Auto cloud sync failed:', e);
+            }
+        }
+
+        showToast('تم حفظ المقال سحابياً بنجاح!', 'success');
         openArticleModal();
     });
 }
 
 const deleteArticleBtn = document.getElementById('deleteArticleBtn');
 if (deleteArticleBtn) {
-    deleteArticleBtn.addEventListener('click', () => {
+    deleteArticleBtn.addEventListener('click', async () => {
         if (!confirm('هل أنت تأكد من رغبتك في حذف مقال هذه العقدة؟')) return;
         setNodeArticle(state.tree, state.focusedId, '');
         state.treeVersion++;
         saveToStorage();
+
+        if (window.currentUser) {
+            const title = state.activeCloudMapTitle || state.tree.text || 'Mind Map';
+            const contentJson = serializeMT(state.tree);
+            try {
+                await window.authModule.saveMap(title, contentJson, state.activeCloudMapId);
+            } catch(e) {
+                console.warn('Auto cloud sync failed:', e);
+            }
+        }
+
         showToast('تم حذف المقال بنجاح', 'info');
         openArticleModal();
     });
@@ -1042,8 +1068,11 @@ window.openCloudMap = async function(id) {
     try {
         const res = await window.authModule.fetchMapById(id);
         if (res.map && res.map.content_json) {
+            state.activeCloudMapId = res.map.id;
+            state.activeCloudMapTitle = res.map.title;
             importMTContent(res.map.content_json);
             closeAllDropdowns();
+            showToast(`تم فتح الخريطة السحابية "${res.map.title}"`, 'info');
         }
     } catch(e) {
         console.error('Error opening cloud map:', e);
@@ -1125,12 +1154,15 @@ const saveCurrentToCloudBtn = document.getElementById('saveCurrentToCloudBtn');
 if (saveCurrentToCloudBtn) {
     saveCurrentToCloudBtn.addEventListener('click', async () => {
         if (!state.tree) return;
-        const title = state.tree.text || 'Mind Map';
+        const title = state.activeCloudMapTitle || state.tree.text || 'Mind Map';
         const contentJson = serializeMT(state.tree);
         try {
-            await window.authModule.saveMap(title, contentJson);
+            const res = await window.authModule.saveMap(title, contentJson, state.activeCloudMapId);
+            if (res && res.map && res.map.id) {
+                state.activeCloudMapId = res.map.id;
+            }
             await refreshCloudMapsList();
-            showToast('تم حفظ الخريطة سحابياً بنجاح!', 'success');
+            showToast('تم حفظ الخريطة والمقالات سحابياً بنجاح!', 'success');
         } catch(err) {
             showToast(err.message, 'error');
         }

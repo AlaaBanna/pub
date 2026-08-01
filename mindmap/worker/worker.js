@@ -251,25 +251,31 @@ export default {
           return jsonRes({ error: 'GROQ_API_KEY environment variable is missing on Cloudflare Worker.' }, 500);
         }
 
-        const systemInstruction = `You are a world-class domain expert and Master Mind Map Architect.
-Your mission is to construct an exceptionally deep, accurate, multi-level mind map outline enriched with explanatory articles using ' :: Article text'.
+        const systemInstruction = `You are a Master Curriculum Architect and Mind Map Engineer.
+Your mission is to generate a comprehensive, highly balanced, multi-tier mind map outline designed like an authoritative Exam Preparation Workbook.
 
-STRICT STRUCTURAL & INDENTATION RULES:
-1. ZERO DUPLICATION: Every node title MUST be 100% unique across the tree.
-2. MULTI-LEVEL HIERARCHY (CRITICAL):
-   - Line 1: Root Node (Main Topic :: High-level overview article)
-   - Level 1 (1 Tab \\t): 5 to 6 Primary Category Branches :: Explanatory article
-   - Level 2 (2 Tabs \\t\\t): 3 to 4 Sub-branches per category :: Explanatory article
-   - Level 3 (3 Tabs \\t\\t\\t): 2 to 3 Leaf Nodes with concrete examples :: Explanatory article
-3. FORMAT PER LINE:
-   - Use 'Title :: Explanatory article text' on every line.
-   - Use literal Tab characters (\\t) to define depth levels (Level 1 = 1 Tab, Level 2 = 2 Tabs, Level 3 = 3 Tabs).
-4. LANGUAGE MATCHING:
-   - Detect the prompt's language (Arabic, English, etc.) and generate ALL titles and articles in THAT language.
-5. STRICT OUTPUT SYNTAX:
-   - Output ONLY raw outline lines with tabs. No code blocks (\`\`\`), no numbers, no bullet symbols.`;
+CRITICAL STRUCTURAL & TREE BALANCE RULES:
+1. BALANCED HIERARCHICAL TOPOLOGY (MANDATORY 3-LEVEL DEPTH):
+   - Line 1: Root Topic Node :: High-Level Master Overview Article
+   - Level 1 (1 Tab '\\t'): Exactly 4 to 6 Core Pillars/Categories :: In-depth Pillar Article
+   - Level 2 (2 Tabs '\\t\\t'): Exactly 3 to 4 Sub-Disciplines per Pillar :: Detailed Sub-Topic Article
+   - Level 3 (3 Tabs '\\t\\t\\t'): Exactly 2 to 3 Concrete Concepts/Examples per Sub-Discipline :: Practical Exam-Style Article
+   - DO NOT FLATTEN THE TREE. DO NOT output a single list of direct children.
+   - DO NOT MAKE LOPSIDED TREES. Ensure every main branch has a balanced count of Level 2 and Level 3 child nodes.
 
-        const userPrompt = `Generate a master-level multi-level (3 levels deep with tabs \\t) mind map outline with explanatory articles (using ' :: Article text') for the topic:\n"${prompt.trim()}"`;
+2. EXAM WORKBOOK CONTENT DEPTH:
+   - Provide factually rich, rigorous educational details covering theoretical principles, key terminology, practical workflows, and real-world applications.
+   - Every single line MUST use the 'Title :: Markdown Article' format.
+   - Articles should include bullet points, core facts, definitions, or step-by-step breakdowns.
+
+3. STRICT TAB INDENTATION SYNTAX:
+   - Use literal Tab characters ('\\t') for nesting (Level 1 = 1 Tab, Level 2 = 2 Tabs, Level 3 = 3 Tabs).
+   - Output ONLY raw line-by-line text with tabs and ' :: '. NO markdown code blocks (\`\`\`), NO bullet points (- or *), NO line numbers (1. or 2.).
+
+4. LANGUAGE COMPLIANCE:
+   - Detect the language of the prompt (Arabic, English, etc.) and generate 100% of titles and articles in THAT language.`;
+
+        const userPrompt = `Construct a balanced, master-level 3-tier deep mind map (using tabs '\\t' and ' :: Article') formatted like an exam workbook for:\n"${prompt.trim()}"`;
 
         const candidateModels = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant'];
         let groqResponse = null;

@@ -3,18 +3,8 @@ function drawOrbits() {
     const focusedAnim = state.animNodes[state.focusedId];
     if (!focusedAnim) return;
 
-    let depth = 0;
-    function findDepth(n, d) {
-        if (!n) return -1;
-        if (n.id === state.focusedId) return d;
-        for (const c of n.children || []) {
-            const res = findDepth(c, d + 1);
-            if (res !== -1) return res;
-        }
-        return -1;
-    }
-    const foundD = findDepth(state.tree, 0);
-    if (foundD !== -1) depth = foundD;
+    const focusedNode = findNode(state.tree, state.focusedId);
+    const depth = focusedNode ? (focusedNode.depth || 0) : 0;
 
     // Depth Focus Rule: Root (depth 0) is sharpest, deeper levels fade softly
     const alphaFactor = Math.pow(0.55, depth);
@@ -88,6 +78,16 @@ function wrapNodeText(ctx, text, maxWidth) {
     return lines.slice(0, 3);
 }
 
+function getCachedNodeTextLines(ctx, node, a, maxWidth) {
+    if (a._cachedText === node.text && a._cachedMaxWidth === maxWidth && a._cachedLines) {
+        return a._cachedLines;
+    }
+    a._cachedText = node.text;
+    a._cachedMaxWidth = maxWidth;
+    a._cachedLines = wrapNodeText(ctx, node.text || '...', maxWidth);
+    return a._cachedLines;
+}
+
 function drawNodes(time) {
     const driftAmount = state.isOverview ? CONFIG.alive.overview : CONFIG.alive.focus;
     const seg = 16; const intensity = CONFIG.alive.intensity;
@@ -138,23 +138,9 @@ function drawNodes(time) {
         ctx.fillStyle = CONFIG.colors.nodeFill; ctx.fill();
         ctx.shadowBlur = 0;
         const directChildCount = node.children ? node.children.length : 0;
-        const totalSubtreeCount = countSubtreeDescendants(node);
+        const totalSubtreeCount = getDescendantCount(node);
 
-        let borderColor = CONFIG.colors.border;
-        if (isTitleMatch) borderColor = '#e2b714';
-        else if (isNoteMatch) borderColor = 'rgba(226, 183, 20, 0.65)';
-        else if (isFoc) borderColor = CONFIG.colors.selectedBorder;
-        else if (isHov) borderColor = CONFIG.colors.selectedBorder;
-        else if (totalSubtreeCount > 0) {
-            const goldAlpha = Math.min(0.4 + totalSubtreeCount * 0.08, 0.88);
-            borderColor = `rgba(226, 183, 20, ${goldAlpha})`;
-        } else if (a.ta < 0.5) borderColor = CONFIG.colors.siblingBorder;
-
-        if (node.completed && !isFoc && !isHov && !isTitleMatch && !isNoteMatch) {
-            borderColor = '#10b981';
-        }
-
-        ctx.strokeStyle = borderColor;
+        ctx.strokeStyle = isTitleMatch ? '#e2b714' : (isNoteMatch ? '#e2b714' : (isFoc ? CONFIG.colors.selectedBorder : (isHov ? CONFIG.colors.hoverBorder : (totalSubtreeCount > 0 ? 'rgba(226, 183, 20, 0.45)' : CONFIG.colors.nodeBorder))));
         ctx.lineWidth = isTitleMatch ? 3.5 : (isNoteMatch ? 2.2 : (isFoc ? 2.5 : (isHov ? 2.0 : (totalSubtreeCount > 0 ? 2.0 : 1.2))));
         ctx.stroke();
 
@@ -179,7 +165,7 @@ function drawNodes(time) {
 
             ctx.beginPath();
             ctx.roundRect(countX, countY, countW, countH, 8);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillStyle = 'rgba(38, 42, 56, 0.94)';
             ctx.fill();
             ctx.strokeStyle = CONFIG.colors.selectedBorder;
             ctx.lineWidth = 1;
@@ -191,30 +177,30 @@ function drawNodes(time) {
         }
 
         if (node.article && node.article.content && node.article.content.trim()) {
-            const bx = x, by = y + r * 0.7;
-            const br = 10;
+            const bx = x, by = y + r * 0.72;
+            const br = 13.5;
             const readStatus = isArticleRead(node.id);
-            // Draw crisp abstract vector eye badge
+            // Draw crisp abstract vector eye badge (Enlarged)
             ctx.beginPath();
             ctx.arc(bx, by, br, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillStyle = 'rgba(34, 38, 52, 0.96)';
             ctx.fill();
-            ctx.lineWidth = 1.2;
-            ctx.strokeStyle = readStatus ? '#10b981' : 'rgba(226, 183, 20, 0.7)';
+            ctx.lineWidth = 1.4;
+            ctx.strokeStyle = readStatus ? '#10b981' : 'rgba(226, 183, 20, 0.85)';
             ctx.stroke();
 
             // Vector Eye Shape (Almond outline + inner pupil)
             const eyeColor = readStatus ? '#10b981' : '#e2b714';
             ctx.beginPath();
-            ctx.moveTo(bx - 5.5, by);
-            ctx.quadraticCurveTo(bx, by - 3.8, bx + 5.5, by);
-            ctx.quadraticCurveTo(bx, by + 3.8, bx - 5.5, by);
+            ctx.moveTo(bx - 7.5, by);
+            ctx.quadraticCurveTo(bx, by - 5.0, bx + 7.5, by);
+            ctx.quadraticCurveTo(bx, by + 5.0, bx - 7.5, by);
             ctx.strokeStyle = eyeColor;
-            ctx.lineWidth = 1.2;
+            ctx.lineWidth = 1.5;
             ctx.stroke();
 
             ctx.beginPath();
-            ctx.arc(bx, by, 1.8, 0, Math.PI * 2);
+            ctx.arc(bx, by, 2.4, 0, Math.PI * 2);
             ctx.fillStyle = eyeColor;
             ctx.fill();
         }
@@ -226,7 +212,7 @@ function drawNodes(time) {
         try { if ('direction' in ctx) ctx.direction = isRTL ? 'rtl' : 'ltr'; } catch (e) { }
 
         const maxWidth = r * 1.65;
-        const lines = wrapNodeText(ctx, text, maxWidth);
+        const lines = getCachedNodeTextLines(ctx, node, a, maxWidth);
         const lineHeight = a.fs * 1.25;
         const startY = y - ((lines.length - 1) * lineHeight) / 2;
         ctx.fillStyle = isTitleMatch ? '#e2b714' : a.tc;

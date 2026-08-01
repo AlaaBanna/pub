@@ -854,16 +854,18 @@ body.light .sample-item-btn {
 .ai-chip {
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border-subtle);
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 16px;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s ease;
 }
 .ai-chip:hover {
     border-color: #e2b714;
     color: #e2b714;
-    background: rgba(226, 183, 20, 0.1);
+    background: rgba(226, 183, 20, 0.12);
 }
 .ai-submit-btn {
     background: linear-gradient(135deg, #e2b714, #c28d00);
@@ -885,11 +887,67 @@ body.light .sample-item-btn {
     transform: translateY(-1px);
     box-shadow: 0 4px 15px rgba(226, 183, 20, 0.4);
 }
-.ai-loading {
-    color: #e2b714;
-    font-size: 13px;
+.ai-loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px 12px;
+    background: rgba(226, 183, 20, 0.05);
+    border: 1px dashed rgba(226, 183, 20, 0.35);
+    border-radius: 12px;
     text-align: center;
-    padding: 8px;
+}
+.ai-loading-spark-ring {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(226, 183, 20, 0.12);
+    border: 1.5px solid rgba(226, 183, 20, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: sparkPulse 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+.ai-spark-icon {
+    font-size: 20px;
+    color: #e2b714;
+    animation: sparkRotate 3s infinite linear;
+}
+.ai-loading-status-text {
+    color: #e2b714;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 0.2s ease-in-out;
+}
+.ai-loading-bar-track {
+    width: 80%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+.ai-loading-bar-fill {
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(90deg, #e2b714, #f5d450);
+    border-radius: 4px;
+    position: absolute;
+    animation: shimmerSlide 1.6s infinite ease-in-out;
+}
+@keyframes sparkPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(226, 183, 20, 0.3); }
+    50% { transform: scale(1.1); box-shadow: 0 0 16px 4px rgba(226, 183, 20, 0.25); }
+}
+@keyframes sparkRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes shimmerSlide {
+    0% { left: -45%; }
+    100% { left: 100%; }
 }
 .ai-error-msg {
     color: #ef4444;
@@ -1335,9 +1393,9 @@ body.lang-en #aiPromptInput {
     flex-direction: column;
     padding: 0;
     overflow: hidden;
-    background: rgba(18, 20, 24, 0.96);
-    border: 1px solid var(--border-subtle);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    background: rgba(28, 31, 44, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     border-radius: 20px;
 }
 
@@ -1567,7 +1625,7 @@ body.lang-en #aiPromptInput {
 }
 
 .EasyMDEContainer .editor-preview {
-    background: rgba(15, 23, 42, 0.98) !important;
+    background: rgba(24, 27, 38, 0.98) !important;
     color: #e2e8f0 !important;
     direction: rtl;
     text-align: right;

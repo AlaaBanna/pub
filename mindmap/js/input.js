@@ -37,20 +37,18 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    // Focused inside Search Input
-    if (activeEl === document.getElementById('searchInput') || e.target === document.getElementById('searchInput')) {
-        if (e.key === 'Escape') { e.preventDefault(); clearSearch(); activeEl.blur(); }
+    // Universal ESC Key Handler (Closes any active modal, panel, drawer, popup, search, or input)
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        if (window.closeAllModalsAndPanels) {
+            window.closeAllModalsAndPanels();
+        }
         return;
     }
 
-    // Inside Article Modal Shortcuts
+    // Inside Article Modal Shortcuts (Enter to toggle read status when not editing markdown)
     const articleModal = document.getElementById('articleModal');
     if (articleModal && articleModal.style.display !== 'none') {
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            closeArticleModal();
-            return;
-        }
         const isEditingMarkdown = activeEl && (activeEl.tagName === 'TEXTAREA' || activeEl.classList.contains('CodeMirror-code') || activeEl.closest('.CodeMirror'));
         if (e.key === 'Enter' && !isEditingMarkdown) {
             e.preventDefault();
@@ -58,14 +56,6 @@ document.addEventListener('keydown', (e) => {
             return;
         }
         if (isEditingMarkdown) return;
-    }
-
-    if (e.key === 'Escape') {
-        if (state.isNoteOpen) closeFloatingNote();
-        if (state.isHelpOpen) state.isHelpOpen = false;
-        if (articleModal) closeArticleModal();
-        clearSearch();
-        return;
     }
 
     // Global Save .mt File (Ctrl+S / Cmd+S)

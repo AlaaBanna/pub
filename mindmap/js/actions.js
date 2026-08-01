@@ -789,10 +789,31 @@ async function generateAiMindMap(promptText) {
     const errorEl = document.getElementById('aiErrorMsg');
     const loadingEl = document.getElementById('aiLoading');
     const submitBtn = document.getElementById('aiGenerateSubmit');
+    const statusTextEl = document.getElementById('aiLoadingStatusText');
     
     if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
-    if (loadingEl) loadingEl.style.display = 'block';
+    if (loadingEl) loadingEl.style.display = 'flex';
     if (submitBtn) submitBtn.disabled = true;
+
+    const loadingMessages = [
+        'جاري استدعاء المعرفة وتنظيم الأفكار...',
+        'نسج الهيكل الشجري والمفاهيم...',
+        'صياغة المقالات الشارحة والتوضيحات...',
+        'تحضير الخريطة الذهنية التفاعلية...'
+    ];
+    let msgIndex = 0;
+    if (statusTextEl) statusTextEl.textContent = loadingMessages[0];
+
+    const messageInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % loadingMessages.length;
+        if (statusTextEl) {
+            statusTextEl.style.opacity = '0';
+            setTimeout(() => {
+                statusTextEl.textContent = loadingMessages[msgIndex];
+                statusTextEl.style.opacity = '1';
+            }, 180);
+        }
+    }, 1600);
 
     try {
         const response = await fetch(`${getAiServerUrl()}/api/generate`, {
@@ -803,7 +824,7 @@ async function generateAiMindMap(promptText) {
         
         const data = await response.json();
         if (!response.ok || !data.success) {
-            const serverMsg = data.error || 'Failed to generate mind map via server';
+            const serverMsg = data.error || 'فشل توليد الخريطة من الخادم';
             throw new Error(serverMsg);
         }
 
@@ -812,10 +833,11 @@ async function generateAiMindMap(promptText) {
     } catch(err) {
         console.error('AI Generation Error:', err);
         if (errorEl) {
-            errorEl.textContent = err.message || 'Error communicating with AI server.';
+            errorEl.textContent = err.message || 'حدث خطأ أثناء الاتصال بخادم الذكاء الاصطناعي.';
             errorEl.style.display = 'block';
         }
     } finally {
+        clearInterval(messageInterval);
         if (loadingEl) loadingEl.style.display = 'none';
         if (submitBtn) submitBtn.disabled = false;
     }

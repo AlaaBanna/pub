@@ -47,7 +47,28 @@ function countSubtreeDescendants(node) {
     return count;
 }
 
+// O(1) Fast Node Index Map
+const nodeIndexMap = new Map();
+
+function rebuildNodeIndex(tree) {
+    nodeIndexMap.clear();
+    if (!tree) return;
+    function index(n, d = 0) {
+        if (!n) return;
+        n.depth = d;
+        nodeIndexMap.set(n.id, n);
+        if (n.children) {
+            for (let i = 0; i < n.children.length; i++) {
+                index(n.children[i], d + 1);
+            }
+        }
+    }
+    index(tree, 0);
+}
+
 function findNode(tree, id) {
+    if (!id) return null;
+    if (nodeIndexMap.has(id)) return nodeIndexMap.get(id);
     if (!tree) return null;
     if (tree.id === id) return tree;
     if (tree.children) {
@@ -176,13 +197,15 @@ function parseMarkup(str) {
         stack.push({ node: newNode, indent });
     }
 
-    if (dummyRoot.children.length === 1) return dummyRoot.children[0];
-    if (dummyRoot.children.length > 0) {
+    let resultTree = createNode('خريطة جديدة');
+    if (dummyRoot.children.length === 1) resultTree = dummyRoot.children[0];
+    else if (dummyRoot.children.length > 0) {
         const wrapper = createNode('Root');
         wrapper.children = dummyRoot.children;
-        return wrapper;
+        resultTree = wrapper;
     }
-    return createNode('خريطة جديدة');
+    rebuildNodeIndex(resultTree);
+    return resultTree;
 }
 
 // ── SAMPLE DATA ──
@@ -276,6 +299,7 @@ const STORAGE_KEY = 'metafikra_mp_tree_v1';
 function saveToStorage() {
     try {
         if (!state.tree) return;
+        rebuildNodeIndex(state.tree);
         localStorage.setItem(STORAGE_KEY, serializeMT(state.tree));
     } catch(e) {}
 }
@@ -285,8 +309,15 @@ function loadFromStorage() {
         const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('metafikra_tree');
         if (!raw) return null;
         const mtTree = parseMT(raw);
-        if (mtTree && mtTree.id) return mtTree;
-        return parseMarkup(raw);
+        if (mtTree) {
+            rebuildNodeIndex(mtTree);
+            return mtTree;
+        }
+        const markupTree = parseMarkup(raw);
+        if (markupTree) {
+            rebuildNodeIndex(markupTree);
+            return markupTree;
+        }
     } catch(e) {}
     return null;
 }

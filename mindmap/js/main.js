@@ -16,11 +16,50 @@ const state = {
 // ── DEFAULT DATA ──
 const DEFAULT_SAMPLE = "root";
 
-// ── CLOSE DROPDOWNS HELPER ──
-function closeAllDropdowns() {
-    document.querySelectorAll('.hdr-dropdown-panel, .samples-popover').forEach(p => p.style.display = 'none');
+// ── UNIFIED CLOSE ALL MODALS & PANELS HELPER ──
+window.closeAllModalsAndPanels = function() {
+    // 1. Close Modals & Overlays
+    if (typeof closeArticleModal === 'function') closeArticleModal();
+
+    const authModal = document.getElementById('authModal');
+    if (authModal) authModal.style.display = 'none';
+
     const cloudDrawer = document.getElementById('cloudMapsDrawer');
     if (cloudDrawer) cloudDrawer.style.display = 'none';
+
+    const shareModal = document.getElementById('shareModal');
+    if (shareModal) shareModal.style.display = 'none';
+
+    const aiModalOverlay = document.getElementById('aiModalOverlay');
+    if (aiModalOverlay) aiModalOverlay.style.display = 'none';
+
+    if (typeof state !== 'undefined' && state) state.isHelpOpen = false;
+
+    // 2. Close Dropdowns & Popovers
+    document.querySelectorAll('.hdr-dropdown-panel, .samples-popover, #samplesMenu, .menu-panel').forEach(p => p.style.display = 'none');
+
+    // 3. Close floating note if open
+    if (typeof state !== 'undefined' && state && state.isNoteOpen && typeof closeFloatingNote === 'function') {
+        closeFloatingNote();
+    }
+
+    // 4. Cancel active node input editing if open
+    if (typeof state !== 'undefined' && state && state.isEditing && typeof hideNodeInput === 'function') {
+        hideNodeInput(false);
+    }
+
+    // 5. Clear search if active
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput && document.activeElement === searchInput) {
+        searchInput.blur();
+    }
+    if (typeof clearSearch === 'function') {
+        clearSearch();
+    }
+};
+
+function closeAllDropdowns() {
+    window.closeAllModalsAndPanels();
 }
 
 // ── LANGUAGE & TRANSLATIONS ──

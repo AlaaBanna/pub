@@ -33,6 +33,9 @@ window.closeAllModalsAndPanels = function() {
     const aiModalOverlay = document.getElementById('aiModalOverlay');
     if (aiModalOverlay) aiModalOverlay.style.display = 'none';
 
+    const aboutModal = document.getElementById('aboutModal');
+    if (aboutModal) aboutModal.style.display = 'none';
+
     if (typeof state !== 'undefined' && state) state.isHelpOpen = false;
 
     // 2. Close Dropdowns & Popovers
@@ -532,6 +535,75 @@ document.querySelectorAll('.ai-chip').forEach(chip => {
         }
     });
 });
+
+// ── ABOUT MODAL HANDLERS ──
+function openAboutModal() {
+    closeAllDropdowns();
+    const aboutModal = document.getElementById('aboutModal');
+    if (aboutModal) aboutModal.style.display = 'flex';
+}
+
+function closeAboutModal() {
+    const aboutModal = document.getElementById('aboutModal');
+    if (aboutModal) aboutModal.style.display = 'none';
+}
+
+const aboutTriggerBtn = document.getElementById('aboutTriggerBtn');
+if (aboutTriggerBtn) {
+    aboutTriggerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openAboutModal();
+    });
+}
+
+const aboutModal = document.getElementById('aboutModal');
+if (aboutModal) {
+    aboutModal.addEventListener('click', (e) => {
+        if (e.target === aboutModal) closeAboutModal();
+    });
+}
+
+let aboutCurrentLang = 'ar';
+const aboutLangBtn = document.getElementById('aboutLangBtn');
+if (aboutLangBtn) {
+    aboutLangBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        aboutCurrentLang = aboutCurrentLang === 'ar' ? 'en' : 'ar';
+        const wrapper = document.getElementById('aboutContentWrapper');
+        if (wrapper) wrapper.className = `content-wrapper ${aboutCurrentLang === 'ar' ? 'rtl' : 'ltr'}`;
+        
+        const d = {
+            ar: {
+                langBtn: 'EN',
+                nodeLabel: 'الفكرة',
+                aboutTitle: 'تركيز مطلق على المحتوى',
+                aboutDesc: 'صُمم ميتاـفكرة ليتيح لك تنظيم وتوسيع أفكارك بسلاسة ناطقة. نركز على سرعة التفكير وعمق المحتوى بدون خيارات مشتتة أو كثرة نقرات الماوس.',
+                c1Text: 'الفكرة والهندسة المعمارية: <strong>علاء البنا (Alaa Banna)</strong>',
+                c2Text: 'التطوير البرمجي: <strong>Google Gemini</strong>',
+                githubText: 'مشروع مفتوح المصدر (MIT) على GitHub'
+            },
+            en: {
+                langBtn: 'AR',
+                nodeLabel: 'Concept',
+                aboutTitle: 'Pure Focus on Content',
+                aboutDesc: 'Meta-Fikra is designed for seamless, distraction-free mind mapping. We prioritize clarity, deep articles, and fast thinking over bloated options and unnecessary clicks.',
+                c1Text: 'Design & Architecture: <strong>Alaa Banna</strong>',
+                c2Text: 'Code Engineering: <strong>Google Gemini</strong>',
+                githubText: 'Open Source (MIT) on GitHub'
+            }
+        }[aboutCurrentLang];
+
+        if (d) {
+            aboutLangBtn.textContent = d.langBtn;
+            const nl = document.getElementById('aboutNodeLabel'); if (nl) nl.textContent = d.nodeLabel;
+            const at = document.getElementById('aboutTitleText'); if (at) at.textContent = d.aboutTitle;
+            const ad = document.getElementById('aboutDescText'); if (ad) ad.textContent = d.aboutDesc;
+            const c1 = document.getElementById('aboutC1Text'); if (c1) c1.innerHTML = d.c1Text;
+            const c2 = document.getElementById('aboutC2Text'); if (c2) c2.innerHTML = d.c2Text;
+            const gh = document.getElementById('aboutGithubText'); if (gh) gh.textContent = d.githubText;
+        }
+    });
+}
 
 // File and Settings Dropdown Toggles
 const cbFileBtn = document.getElementById('cbFileBtn');

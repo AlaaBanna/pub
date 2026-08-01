@@ -28,7 +28,7 @@
     <div class="mf-brand-group">
       <a href="./" class="mf-logo">ميتاـفكرة<span class="mf-dot">.</span></a>
       <div class="mf-divider-v"></div>
-      <span class="mf-title-sub">الخريطة الذهنية</span>
+      <span id="aboutTriggerBtn" class="mf-title-sub" title="عن المشروع | About">الخريطة الذهنية</span>
     </div>
 
     <!-- Left Side Integrated Tools -->
@@ -271,20 +271,46 @@
     </div>
   </div>
 
+  <!-- Integrated About Project Glassmorphic Modal -->
+  <div id="aboutModal" class="ai-modal-overlay" style="display: none;">
+    <div class="about-card">
+      <div class="card-top">
+        <a href="./" class="brand-logo">ميتاـفكرة<span class="dot">.</span></a>
+        <button id="aboutLangBtn" class="lang-btn">EN</button>
+      </div>
+      <div class="node-preview-wrapper">
+        <div class="breathing-node" id="aboutNodeLabel">الفكرة</div>
+        <div class="eye-badge"><i class="fa-regular fa-eye"></i></div>
+      </div>
+      <div id="aboutContentWrapper" class="content-wrapper rtl">
+        <h2 class="title" id="aboutTitleText">تركيز مطلق على المحتوى</h2>
+        <p class="description" id="aboutDescText">صُمم ميتاـفكرة ليتيح لك تنظيم وتوسيع أفكارك بسلاسة ناطقة. نركز على سرعة التفكير وعمق المحتوى بدون خيارات مشتتة أو كثرة نقرات الماوس.</p>
+        <div class="divider"></div>
+        <div class="credits">
+          <p id="aboutC1Text">الفكرة والهندسة المعمارية: <strong>علاء البنا (Alaa Banna)</strong></p>
+          <p id="aboutC2Text">التطوير البرمجي: <strong>Google Gemini</strong></p>
+        </div>
+        <a href="https://github.com/AlaaBanna/pub/tree/main/mindmap" target="_blank" rel="noopener" class="source-link">
+          <i class="fa-brands fa-github"></i> <span id="aboutGithubText">مشروع مفتوح المصدر (MIT) على GitHub</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- App Toast Notification -->
   <div id="appToast" class="app-toast" style="display: none;">
     <i id="toastIcon" class="fa-solid fa-circle-check"></i>
     <span id="toastMsg"></span>
   </div>
 
-  <script src="meta.js?v=9.0.0" data-project="خريطة الأفكار" data-home="./" data-help="اختصارات لوحة المفاتيح" data-help-id="metaHelpBtn"></script>
-  <script src="js/config.js?v=9.0.0"></script>
-  <script src="js/data.js?v=9.0.0"></script>
-  <script src="js/layout.js?v=9.0.0"></script>
-  <script src="js/renderer.js?v=9.0.0"></script>
-  <script src="js/actions.js?v=9.0.0"></script>
-  <script src="js/input.js?v=9.0.0"></script>
-  <script src="js/auth.js?v=9.0.0"></script>
-  <script src="js/main.js?v=9.0.0"></script>
+  <script src="meta.js?v=9.1.0" data-project="خريطة الأفكار" data-home="./" data-help="اختصارات لوحة المفاتيح" data-help-id="metaHelpBtn"></script>
+  <script src="js/config.js?v=9.1.0"></script>
+  <script src="js/data.js?v=9.1.0"></script>
+  <script src="js/layout.js?v=9.1.0"></script>
+  <script src="js/renderer.js?v=9.1.0"></script>
+  <script src="js/actions.js?v=9.1.0"></script>
+  <script src="js/input.js?v=9.1.0"></script>
+  <script src="js/auth.js?v=9.1.0"></script>
+  <script src="js/main.js?v=9.1.0"></script>
 </body>
 </html>

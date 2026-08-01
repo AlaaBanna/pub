@@ -63,6 +63,12 @@ body.light .mf-divider-v { background: #e2e2ec; }
   font-weight: 700;
   color: var(--mf-text, #e2e2ec);
   letter-spacing: 0.02em;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 0.2s ease;
+}
+.mf-title-sub:hover {
+  color: var(--mf-logo-color, #e2b714);
 }
 body.light .mf-title-sub { color: #1a1a26; }
 

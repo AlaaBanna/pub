@@ -15,8 +15,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="design.css">
   <link rel="stylesheet" href="meta.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 </head>
 <body class="dark-mode">
 
@@ -205,7 +207,7 @@
     <div class="ai-modal-card article-card">
       <div class="article-modal-header">
         <div class="article-header-left">
-          <button id="articleCloseBtn" class="article-close-btn" title="تصغير للعودة"><i class="fa-solid fa-compress"></i> تصغير</button>
+          <button id="articleCloseBtn" class="article-close-btn" title="إغلاق"><i class="fa-solid fa-xmark"></i> إغلاق</button>
           <button id="articleReadStatusBtn" class="read-status-pill unread"><i class="fa-regular fa-circle"></i> غير مقروء</button>
         </div>
         <div class="article-header-right">
@@ -224,31 +226,9 @@
           </div>
         </div>
 
-        <!-- Article Split Editor Pane (Left Markdown / Right Live Preview) -->
+        <!-- Article Single-Box EasyMDE Editor Pane -->
         <div id="articleEditorPane" class="article-editor-pane" style="display: none;">
-          <div class="editor-formatting-toolbar">
-            <button type="button" class="fmt-btn" data-fmt="bold" title="عريض (Bold)"><i class="fa-solid fa-bold"></i></button>
-            <button type="button" class="fmt-btn" data-fmt="italic" title="مائل (Italic)"><i class="fa-solid fa-italic"></i></button>
-            <button type="button" class="fmt-btn" data-fmt="h1" title="عنوان رئيسي (H1)"><i class="fa-solid fa-heading"></i>1</button>
-            <button type="button" class="fmt-btn" data-fmt="h2" title="عنوان فرعي (H2)"><i class="fa-solid fa-heading"></i>2</button>
-            <button type="button" class="fmt-btn" data-fmt="quote" title="اقتباس (Quote)"><i class="fa-solid fa-quote-right"></i></button>
-            <button type="button" class="fmt-btn" data-fmt="code" title="كود برمجي (Code)"><i class="fa-solid fa-code"></i></button>
-            <button type="button" class="fmt-btn" data-fmt="list" title="قائمة نقطية (List)"><i class="fa-solid fa-list-ul"></i></button>
-            <button type="button" class="fmt-btn" data-fmt="table" title="جدول (Table)"><i class="fa-solid fa-table"></i></button>
-            <button type="button" class="fmt-btn" data-fmt="image" title="صورة (Image)"><i class="fa-solid fa-image"></i></button>
-            <button type="button" class="fmt-btn" data-fmt="link" title="رابط (Link)"><i class="fa-solid fa-link"></i></button>
-          </div>
-
-          <div class="split-editor-container">
-            <div class="editor-column">
-              <div class="editor-col-header"><i class="fa-solid fa-file-pen"></i> كتابة المحتوى (Markdown)</div>
-              <textarea id="articleMarkdownInput" class="editor-textarea" dir="auto" placeholder="اكتب المقال والتفاصيل هنا... يدعم تنسيقات Markdown والشفرات البرمجية والصور والجداول"></textarea>
-            </div>
-            <div class="editor-column">
-              <div class="editor-col-header"><i class="fa-solid fa-eye"></i> المعاينة المباشرة (Live Preview)</div>
-              <div id="articleLivePreview" class="article-body-content preview-box"></div>
-            </div>
-          </div>
+          <textarea id="articleEasyMDEInput"></textarea>
           <div class="editor-actions-bar">
             <button id="saveArticleBtn" class="ai-submit-btn"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
             <button id="deleteArticleBtn" class="ai-submit-btn danger-btn"><i class="fa-solid fa-trash"></i> حذف المقال</button>
@@ -259,7 +239,7 @@
 
       <div class="article-modal-footer">
         <hr class="article-footer-divider">
-        <p class="article-footer-hint">انقر في الخلفية أو على زر "تصغير" للعودة للخريطة ورؤية التفرعات</p>
+        <p class="article-footer-hint">انقر في الخلفية أو على زر "إغلاق" للعودة للخريطة ورؤية التفرعات</p>
         <p class="article-footer-shortcut">اضغط <kbd>Enter</kbd> لتحديد المقال كمقروء/غير مقروء <span id="authorEditHint" style="margin-right:12px; cursor:pointer; color:#e2b714;"><i class="fa-solid fa-pen-to-square"></i> تعديل المقال</span></p>
       </div>
     </div>
@@ -291,14 +271,14 @@
     <span id="toastMsg"></span>
   </div>
 
-  <script src="meta.js?v=8.2.0" data-project="خريطة الأفكار" data-home="./" data-help="اختصارات لوحة المفاتيح" data-help-id="metaHelpBtn"></script>
-  <script src="js/config.js?v=8.2.0"></script>
-  <script src="js/data.js?v=8.2.0"></script>
-  <script src="js/layout.js?v=8.2.0"></script>
-  <script src="js/renderer.js?v=8.2.0"></script>
-  <script src="js/actions.js?v=8.2.0"></script>
-  <script src="js/input.js?v=8.2.0"></script>
-  <script src="js/auth.js?v=8.2.0"></script>
-  <script src="js/main.js?v=8.2.0"></script>
+  <script src="meta.js?v=8.3.0" data-project="خريطة الأفكار" data-home="./" data-help="اختصارات لوحة المفاتيح" data-help-id="metaHelpBtn"></script>
+  <script src="js/config.js?v=8.3.0"></script>
+  <script src="js/data.js?v=8.3.0"></script>
+  <script src="js/layout.js?v=8.3.0"></script>
+  <script src="js/renderer.js?v=8.3.0"></script>
+  <script src="js/actions.js?v=8.3.0"></script>
+  <script src="js/input.js?v=8.3.0"></script>
+  <script src="js/auth.js?v=8.3.0"></script>
+  <script src="js/main.js?v=8.3.0"></script>
 </body>
 </html>

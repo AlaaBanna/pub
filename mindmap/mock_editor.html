@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>معاينة محرر المقالات الجديد | Meta Fikra</title>
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- EasyMDE CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: rgba(18, 20, 24, 0.96);
+      --accent-gold: #e2b714;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background-color: var(--bg-dark);
+      font-family: 'Cairo', sans-serif;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .mock-container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .mock-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .mock-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .mock-subtitle {
+      font-size: 14px;
+      color: var(--accent-gold);
+      margin-top: 4px;
+    }
+
+    /* Customizing EasyMDE for Dark Theme & Arabic RTL */
+    .EasyMDEContainer {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .editor-toolbar {
+      background: rgba(15, 23, 42, 0.8) !important;
+      border-color: var(--border-color) !important;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      padding: 8px;
+    }
+
+    .editor-toolbar button {
+      color: var(--text-main) !important;
+      border: 1px solid transparent !important;
+      border-radius: 6px !important;
+      margin: 0 2px !important;
+      transition: all 0.2s ease;
+    }
+
+    .editor-toolbar button:hover, .editor-toolbar button.active {
+      background: rgba(226, 183, 20, 0.2) !important;
+      border-color: var(--accent-gold) !important;
+      color: var(--accent-gold) !important;
+    }
+
+    .editor-toolbar i.separator {
+      border-left: 1px solid var(--border-color) !important;
+      border-right: none !important;
+      margin: 0 6px !important;
+    }
+
+    .CodeMirror {
+      background: rgba(0, 0, 0, 0.3) !important;
+      color: #e2e8f0 !important;
+      border-color: var(--border-color) !important;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      font-family: 'Cairo', monospace !important;
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 320px;
+      direction: rtl;
+    }
+
+    .editor-preview {
+      background: rgba(15, 23, 42, 0.98) !important;
+      color: #e2e8f0 !important;
+      direction: rtl;
+      text-align: right;
+    }
+
+    .mock-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      justify-content: flex-end;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #e2b714, #c99e0e);
+      border: none;
+      color: #0f172a;
+      padding: 10px 24px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      transition: transform 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mock-container">
+    <div class="mock-header">
+      <div>
+        <div class="mock-subtitle">نموذج محرر مقال العقدة الموحد (Single-Box Editor)</div>
+        <h2 class="mock-title">الفلسفة الطبيعية والتفكير النقدي</h2>
+      </div>
+      <span style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid #10b981; padding: 6px 14px; border-radius: 20px; font-size: 13px;">
+        <i class="fa-solid fa-check"></i> نموذج محرر موحد
+      </span>
+    </div>
+
+    <!-- EasyMDE Single-Box Editor -->
+    <textarea id="mockEditorTextarea">
+# الفلسفة الطبيعية
+
+تعتبر **الفلسفة الطبيعية** أصل العلوم الحديثة، حيث ركزت على دراسة الطبيعة والكون المادي قبل انفصال العلوم الفيزيائية والتطبيقية.
+
+### أهم المحاور الرئيسية:
+1. **الأنطولوجيا**: البحث في ماهية الوجود والخلق.
+2. **النسبية والزمان**: دراسة المفاهيم العلاقية للزمان والمكان.
+
+> "التفكير النقدي هو المفتاح الأساسي لفهم الظواهر الطبيعية."
+
+```javascript
+// مثال كود رمزي للتوضيح
+function analyzePhilosophy(topic) {
+    return `تحليل تفصيلي لـ: ${topic}`;
+}
+```
+
+| المفهوم | الوصف |
+| --- | --- |
+| المادية | الاعتقاد بأن المادة هي الأساس |
+| المثالية | الاعتقاد بأن العقل هو الجوهر |
+    </textarea>
+
+    <div class="mock-actions">
+      <button class="btn-secondary">إلغاء</button>
+      <button class="btn-primary" onclick="alert('هذا نموذج تجريبي للمحرر الموحد')"><i class="fa-solid fa-floppy-disk"></i> حفظ المقال</button>
+    </div>
+  </div>
+
+  <script>
+    const easymde = new EasyMDE({
+      element: document.getElementById('mockEditorTextarea'),
+      spellChecker: false,
+      autosave: { enabled: false },
+      status: false,
+      direction: 'rtl',
+      placeholder: 'اكتب المقال والتفاصيل هنا بصندوق واحد موحد...',
+      toolbar: [
+        'bold', 'italic', 'heading', '|', 
+        'quote', 'code', 'unordered-list', 'ordered-list', '|', 
+        'link', 'image', 'table', '|', 
+        'preview', 'side-by-side', 'fullscreen', '|', 
+        'undo', 'redo'
+      ]
+    });
+  </script>
+</body>
+</html>

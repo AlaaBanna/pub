@@ -51,12 +51,13 @@ document.addEventListener('keydown', (e) => {
             closeArticleModal();
             return;
         }
-        if (e.key === 'Enter' && activeEl !== document.getElementById('articleMarkdownInput')) {
+        const isEditingMarkdown = activeEl && (activeEl.tagName === 'TEXTAREA' || activeEl.classList.contains('CodeMirror-code') || activeEl.closest('.CodeMirror'));
+        if (e.key === 'Enter' && !isEditingMarkdown) {
             e.preventDefault();
             toggleCurrentArticleRead();
             return;
         }
-        if (activeEl === document.getElementById('articleMarkdownInput')) return;
+        if (isEditingMarkdown) return;
     }
 
     if (e.key === 'Escape') {

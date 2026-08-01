@@ -724,7 +724,33 @@ if (tbToggleComplete) {
     });
 }
 
-// ── RICH NODE ARTICLE CONTROLLER ──
+// ── RICH NODE ARTICLE CONTROLLER (EASYMDE SINGLE-BOX EDITOR) ──
+let easyMDEInstance = null;
+
+function getEasyMDE() {
+    if (!easyMDEInstance && typeof EasyMDE !== 'undefined') {
+        const textarea = document.getElementById('articleEasyMDEInput');
+        if (textarea) {
+            easyMDEInstance = new EasyMDE({
+                element: textarea,
+                spellChecker: false,
+                autosave: { enabled: false },
+                status: false,
+                direction: 'rtl',
+                placeholder: 'اكتب المقال والتفاصيل هنا باستخدام المنسق الموحد...',
+                toolbar: [
+                    'bold', 'italic', 'heading', '|',
+                    'quote', 'code', 'unordered-list', 'ordered-list', '|',
+                    'link', 'image', 'table', '|',
+                    'preview', 'side-by-side', 'fullscreen', '|',
+                    'undo', 'redo'
+                ]
+            });
+        }
+    }
+    return easyMDEInstance;
+}
+
 const tbArticle = document.getElementById('tbArticle');
 if (tbArticle) {
     tbArticle.addEventListener('click', (e) => {
@@ -752,6 +778,8 @@ window.openArticleModal = function() {
     const emptyNotice = document.getElementById('articleEmptyNotice');
     const readerPane = document.getElementById('articleReaderPane');
     const editorPane = document.getElementById('articleEditorPane');
+    const authorEditHint = document.getElementById('authorEditHint');
+    const createArticleBtn = document.getElementById('createArticleBtn');
 
     const parentNode = findParent(state.tree, state.focusedId, null);
     if (breadcrumb) breadcrumb.textContent = parentNode ? parentNode.text : (state.tree.text || 'الخريطة الرئيسية');
@@ -761,6 +789,15 @@ window.openArticleModal = function() {
 
     if (editorPane) editorPane.style.display = 'none';
     if (readerPane) readerPane.style.display = 'block';
+
+    // Hide edit controls in read-only mode for non-logged-in visitors
+    if (state.isReadOnly) {
+        if (authorEditHint) authorEditHint.style.display = 'none';
+        if (createArticleBtn) createArticleBtn.style.display = 'none';
+    } else {
+        if (authorEditHint) authorEditHint.style.display = 'inline-block';
+        if (createArticleBtn) createArticleBtn.style.display = 'inline-block';
+    }
 
     const articleContent = (node.article && node.article.content) ? node.article.content.trim() : '';
     if (articleContent) {
@@ -802,13 +839,15 @@ window.toggleCurrentArticleRead = function() {
 const articleReadStatusBtn = document.getElementById('articleReadStatusBtn');
 if (articleReadStatusBtn) articleReadStatusBtn.addEventListener('click', toggleCurrentArticleRead);
 
-const articleCloseBtn = document.getElementById('articleCloseBtn');
-if (articleCloseBtn) articleCloseBtn.addEventListener('click', () => {
+window.closeArticleModal = function() {
     const modal = document.getElementById('articleModal');
     if (modal) modal.style.display = 'none';
-});
+};
 
-function openSplitEditor() {
+const articleCloseBtn = document.getElementById('articleCloseBtn');
+if (articleCloseBtn) articleCloseBtn.addEventListener('click', closeArticleModal);
+
+function openSingleBoxEditor() {
     if (state.isReadOnly) {
         showToast('لا يمكنك تعديل الخريطة في وضع القراءة فقط', 'info');
         return;
@@ -818,93 +857,29 @@ function openSplitEditor() {
 
     const readerPane = document.getElementById('articleReaderPane');
     const editorPane = document.getElementById('articleEditorPane');
-    const mdInput = document.getElementById('articleMarkdownInput');
-    const preview = document.getElementById('articleLivePreview');
-
-    const content = (node.article && node.article.content) ? node.article.content : '';
-    if (mdInput) mdInput.value = content;
-    if (preview) preview.innerHTML = renderMarkdownText(content);
 
     if (readerPane) readerPane.style.display = 'none';
-    if (editorPane) editorPane.style.display = 'flex';
+    if (editorPane) editorPane.style.display = 'block';
+
+    const content = (node.article && node.article.content) ? node.article.content : '';
+    const mde = getEasyMDE();
+    if (mde) {
+        mde.value(content);
+        setTimeout(() => mde.codemirror.refresh(), 50);
+    }
 }
 
 const createArticleBtn = document.getElementById('createArticleBtn');
 const authorEditHint = document.getElementById('authorEditHint');
-if (createArticleBtn) createArticleBtn.addEventListener('click', openSplitEditor);
-if (authorEditHint) authorEditHint.addEventListener('click', openSplitEditor);
-
-function insertMarkdownFormatting(fmtType) {
-    const textarea = document.getElementById('articleMarkdownInput');
-    if (!textarea) return;
-
-    const start = textarea.selectionStart || 0;
-    const end = textarea.selectionEnd || 0;
-    const selectedText = textarea.value.substring(start, end);
-    let replacement = '';
-
-    switch (fmtType) {
-        case 'bold':
-            replacement = `**${selectedText || 'نص عريض'}**`;
-            break;
-        case 'italic':
-            replacement = `*${selectedText || 'نص مائل'}*`;
-            break;
-        case 'h1':
-            replacement = `\n# ${selectedText || 'عنوان رئيسي'}\n`;
-            break;
-        case 'h2':
-            replacement = `\n## ${selectedText || 'عنوان فرعي'}\n`;
-            break;
-        case 'quote':
-            replacement = `\n> ${selectedText || 'نص اقتباس'}\n`;
-            break;
-        case 'code':
-            replacement = selectedText.includes('\n') 
-                ? `\n\`\`\`javascript\n${selectedText || '// الشفرة البرمجية'}\n\`\`\`\n`
-                : `\`${selectedText || 'كود'}\``;
-            break;
-        case 'list':
-            replacement = `\n- ${selectedText || 'عنصر قائمة'}\n`;
-            break;
-        case 'table':
-            replacement = `\n| العمود 1 | العمود 2 |\n| --- | --- |\n| بيانات 1 | بيانات 2 |\n`;
-            break;
-        case 'image':
-            replacement = `![وصف الصورة](https://via.placeholder.com/600x300)`;
-            break;
-        case 'link':
-            replacement = `[${selectedText || 'عنوان الرابط'}](https://example.com)`;
-            break;
-    }
-
-    textarea.setRangeText(replacement, start, end, 'select');
-    textarea.focus();
-    const preview = document.getElementById('articleLivePreview');
-    if (preview) preview.innerHTML = renderMarkdownText(textarea.value);
-}
-
-document.querySelectorAll('.fmt-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const fmt = btn.getAttribute('data-fmt');
-        if (fmt) insertMarkdownFormatting(fmt);
-    });
-});
-
-const mdInputEl = document.getElementById('articleMarkdownInput');
-if (mdInputEl) {
-    mdInputEl.addEventListener('input', () => {
-        const preview = document.getElementById('articleLivePreview');
-        if (preview) preview.innerHTML = renderMarkdownText(mdInputEl.value);
-    });
-}
+if (createArticleBtn) createArticleBtn.addEventListener('click', openSingleBoxEditor);
+if (authorEditHint) authorEditHint.addEventListener('click', openSingleBoxEditor);
 
 const saveArticleBtn = document.getElementById('saveArticleBtn');
 if (saveArticleBtn) {
     saveArticleBtn.addEventListener('click', () => {
         if (!state.focusedId) return;
-        const content = mdInputEl ? mdInputEl.value : '';
+        const mde = getEasyMDE();
+        const content = mde ? mde.value() : '';
         setNodeArticle(state.tree, state.focusedId, content);
         state.treeVersion++;
         saveToStorage();

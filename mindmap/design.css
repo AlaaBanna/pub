@@ -1516,38 +1516,61 @@ body.lang-en #aiPromptInput {
     transform: translateY(-1px);
 }
 
-.split-editor-container {
-    display: flex;
-    gap: 16px;
-    height: 380px;
-}
-
-.editor-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.editor-col-header {
-    font-size: 13px;
-    font-weight: 600;
-    color: #e2b714;
-}
-
-.editor-textarea {
-    flex: 1;
-    width: 100%;
-    padding: 14px;
-    background: rgba(0, 0, 0, 0.35);
+/* EasyMDE Dark Mode Customizations */
+.EasyMDEContainer {
+    border-radius: 12px;
+    overflow: hidden;
     border: 1px solid var(--border-subtle);
-    border-radius: 10px;
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.6;
-    resize: none;
-    outline: none;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.EasyMDEContainer .editor-toolbar {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border-color: var(--border-subtle) !important;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 8px;
+}
+
+.EasyMDEContainer .editor-toolbar button {
+    color: var(--text-primary) !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important;
+    margin: 0 2px !important;
+    transition: all 0.2s ease;
+}
+
+.EasyMDEContainer .editor-toolbar button:hover, 
+.EasyMDEContainer .editor-toolbar button.active {
+    background: rgba(226, 183, 20, 0.2) !important;
+    border-color: #e2b714 !important;
+    color: #e2b714 !important;
+}
+
+.EasyMDEContainer .editor-toolbar i.separator {
+    border-left: 1px solid var(--border-subtle) !important;
+    border-right: none !important;
+    margin: 0 6px !important;
+}
+
+.EasyMDEContainer .CodeMirror {
+    background: rgba(0, 0, 0, 0.35) !important;
+    color: #e2e8f0 !important;
+    border-color: var(--border-subtle) !important;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    font-family: inherit !important;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 320px;
+    direction: rtl;
+}
+
+.EasyMDEContainer .editor-preview {
+    background: rgba(15, 23, 42, 0.98) !important;
+    color: #e2e8f0 !important;
+    direction: rtl;
+    text-align: right;
 }
 
 .editor-textarea:focus {

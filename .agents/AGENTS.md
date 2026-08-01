@@ -1,11 +1,13 @@
 # Agent Rules for `pub/mindmap` (Meta-Fikra)
 
-## Production Infrastructure & URLs
+## Production Infrastructure & Technical Reference
 - **Primary Production Domain**: `https://metafikra.com`
 - **Cloudflare Pages Host**: `https://metafikra.pages.dev`
 - **GitHub Pages Target**: `https://alaabanna.github.io/pub/mindmap/`
 - **Cloudflare Worker API**: `https://metafikra-mindmap-ai.alaabanna.workers.dev`
 - **Cloudflare D1 Database**: `metafikra-db` (`e20b926a-b69a-4e9e-94e7-5d5f4e5d78d2`)
+- **Technical Architecture Docs**: [mindmap/docs/ARCHITECTURE.md](file:///Users/alaabanna/meta-fikra/pub/mindmap/docs/ARCHITECTURE.md)
+- **Functional Features Guide**: [mindmap/docs/FUNCTIONALITIES.md](file:///Users/alaabanna/meta-fikra/pub/mindmap/docs/FUNCTIONALITIES.md)
 
 ## Automated Deployment Shortcut Command
 Whenever the user says "deploy", "deployyy", "publish", or asks to deploy the mindmap project, automatically follow the exact 5-step workflow defined in `mindmap/mind-map-deployer.md`:

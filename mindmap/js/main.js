@@ -472,13 +472,19 @@ document.querySelectorAll('.sample-item-btn').forEach(btn => {
 
 // AI Modal triggers
 const cbAiBtn = document.getElementById('cbAiBtn');
-if (cbAiBtn) cbAiBtn.addEventListener('click', () => {
-    closeAllDropdowns();
-    openAiModal();
-});
+if (cbAiBtn) {
+    cbAiBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeAllDropdowns();
+        openAiModal();
+    });
+}
 
 const aiModalClose = document.getElementById('aiModalClose');
-if (aiModalClose) aiModalClose.addEventListener('click', closeAiModal);
+if (aiModalClose) aiModalClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeAiModal();
+});
 
 const aiModalOverlay = document.getElementById('aiModalOverlay');
 if (aiModalOverlay) {
@@ -506,20 +512,23 @@ if (aiPromptInput) {
 
 const aiGenerateSubmit = document.getElementById('aiGenerateSubmit');
 if (aiGenerateSubmit) {
-    aiGenerateSubmit.addEventListener('click', () => {
+    aiGenerateSubmit.addEventListener('click', (e) => {
+        e.stopPropagation();
         const prompt = document.getElementById('aiPromptInput').value;
         if (prompt && prompt.trim()) generateAiMindMap(prompt.trim());
     });
 }
 
-// AI prompt suggestion chips
+// AI prompt suggestion chips (Click populates input and triggers AI generation)
 document.querySelectorAll('.ai-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
-        const text = e.target.dataset.prompt;
+        e.stopPropagation();
+        const chipEl = e.currentTarget || e.target.closest('.ai-chip');
+        const text = chipEl ? chipEl.getAttribute('data-prompt') || chipEl.dataset.prompt : '';
         const input = document.getElementById('aiPromptInput');
-        if (input && text) {
-            input.value = text;
-            input.focus();
+        if (text && text.trim()) {
+            if (input) input.value = text;
+            generateAiMindMap(text.trim());
         }
     });
 });

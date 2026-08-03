@@ -15,7 +15,7 @@ Whenever the user says "deploy", "deployyy", "publish", or asks to deploy the mi
 1. **Run Testing Script**:
    Run syntax verification on all JS files (`node -c mindmap/js/...`) and test the live Cloudflare Worker API.
 2. **Tag Version Headers**:
-   If version bump or timestamp updates are needed, update script query strings (`?v=X.Y.Z`) in `index.html`.
+   If version bump or timestamp updates are needed, update stylesheet & script query strings (`?v=X.Y.Z`) in `index.html`.
 3. **Deploy Cloudflare Worker (If Worker Modified)**:
    Run `npx wrangler deploy --config mindmap/worker/wrangler.toml` from repo root if `mindmap/worker/` files changed.
 4. **Deploy Cloudflare Pages**:

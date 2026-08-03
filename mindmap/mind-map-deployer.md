@@ -46,13 +46,15 @@ curl -X POST https://metafikra-mindmap-ai.alaabanna.workers.dev/api/generate \
 
 ---
 
-## 2. Version Tagging & Script Query Strings
+## 2. Version Tagging & Asset Query Strings
 
-Every modified entrypoint file must contain a standardized version tag to invalidate browser caches.
+Every modified entrypoint file must contain a standardized version tag to invalidate browser and Cloudflare caches.
 
 ### Tagging Format Rules
-Update script query strings in `mindmap/index.html`:
+Update stylesheet link tags and script query strings in `mindmap/index.html`:
 ```html
+<link rel="stylesheet" href="design.css?v=X.Y.Z">
+<link rel="stylesheet" href="meta.css?v=X.Y.Z">
 <script src="js/main.js?v=X.Y.Z"></script>
 ```
 

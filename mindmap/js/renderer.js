@@ -264,7 +264,7 @@ function drawDeleteConfirmation() {
 function drawHelpOverlay() {
     ctx.save();
     ctx.fillStyle = 'rgba(5, 10, 8, 0.8)'; ctx.fillRect(0, 0, cw, ch);
-    const boxW = Math.min(cw - 24, 660), boxH = Math.min(ch - 24, 380);
+    const boxW = Math.min(cw - 24, 660), boxH = Math.min(ch - 24, 315);
     const px = (cw - boxW) / 2, py = (ch - boxH) / 2;
     ctx.beginPath(); ctx.roundRect(px, py, boxW, boxH, 12);
     ctx.fillStyle = CONFIG.colors.helpBg; ctx.fill();
@@ -272,11 +272,11 @@ function drawHelpOverlay() {
     ctx.font = `600 16px ${CONFIG.font}`;
     ctx.fillStyle = CONFIG.colors.text; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     const isEn = window.currentLang === 'en';
-    ctx.fillText(isEn ? 'Keyboard Shortcuts' : 'اختصارات لوحة المفاتيح', cw / 2, py + 18);
-    ctx.beginPath(); ctx.moveTo(px + 40, py + 40);
-    ctx.lineTo(px + boxW - 40, py + 40);
+    ctx.fillText(isEn ? 'Keyboard Shortcuts' : 'اختصارات لوحة المفاتيح', cw / 2, py + 16);
+    ctx.beginPath(); ctx.moveTo(px + 30, py + 38);
+    ctx.lineTo(px + boxW - 30, py + 38);
     ctx.strokeStyle = CONFIG.colors.helpBorder; ctx.lineWidth = 1; ctx.stroke();
-    const cols = 2, rowH = 28, startY = py + 52, colW = boxW / cols;
+    const cols = 2, rowH = 26, startY = py + 48, colW = boxW / cols;
     const shortcutsAr = [
         ['Tab', 'إضافة عقدة فرعية'],
         ['Shift+Tab', 'إضافة عقدة شقيقة'],
@@ -335,7 +335,7 @@ function drawHelpOverlay() {
     }
     ctx.font = `400 11px ${CONFIG.font}`;
     ctx.fillStyle = CONFIG.colors.textDim; ctx.textAlign = 'center';
-    ctx.fillText(isEn ? '* ↑/↓ matches visual layout. Mobile: Tap to select, Swipe to navigate, Pinch to zoom.' : '* ↑/↓ يطابق التنسيق البصري. الجوال: انقر للتحديد، اسحب للتنقل، قرص للتقريب.', cw / 2, py + boxH - 18);
+    ctx.fillText(isEn ? '* ↑/↓ matches visual layout. Mobile: Tap to select, Swipe to navigate, Pinch to zoom.' : '* ↑/↓ يطابق التنسيق البصري. الجوال: انقر للتحديد، اسحب للتنقل، قرص للتقريب.', cw / 2, py + boxH - 14);
     const closeR = 12, closeX = isEn ? (px + boxW - 24) : (px + 24), closeY = py + 20;
     ctx.beginPath(); ctx.arc(closeX, closeY, closeR, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(80, 120, 100, 0.2)'; ctx.fill();

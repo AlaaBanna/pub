@@ -1721,7 +1721,7 @@ body.lang-en #aiPromptInput {
 .about-card .card-top-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .about-card .brand-logo {
@@ -1742,9 +1742,9 @@ body.lang-en #aiPromptInput {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: var(--text-dim);
-  font-size: 20px;
-  width: 32px;
-  height: 32px;
+  font-size: 16px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -1753,6 +1753,7 @@ body.lang-en #aiPromptInput {
   line-height: 1;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .about-card .about-close-btn:hover {
@@ -1769,34 +1770,33 @@ body.lang-en #aiPromptInput {
   font-family: 'DM Sans', monospace, sans-serif;
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 12px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
   letter-spacing: 0.03em;
-}
-
-.about-card .about-version-text {
-  margin-top: 6px;
-  font-size: 12.5px;
-  color: var(--text-dim);
-}
-
-.about-card .about-ver-val {
-  color: #e2b714;
-  font-family: 'DM Sans', monospace, sans-serif;
-  font-weight: 700;
-  margin-right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .about-card .lang-btn {
   background: rgba(226, 183, 20, 0.1);
   border: 1px solid rgba(226, 183, 20, 0.3);
   color: #e2b714;
-  padding: 4px 12px;
-  border-radius: 20px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 13px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-sizing: border-box;
   transition: all 0.2s ease;
 }
 
@@ -1805,7 +1805,7 @@ body.lang-en #aiPromptInput {
 }
 
 .about-card .node-preview-wrapper {
-  margin: 6px 0 16px;
+  margin: 4px 0 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1861,33 +1861,39 @@ body.lang-en #aiPromptInput {
 }
 
 .about-card .title {
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .about-card .description {
-  font-size: 14.5px;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--text-dim);
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .about-card .divider {
   width: 100%;
   height: 1px;
   background: var(--border-subtle);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .about-card .credits {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  font-size: 13px;
+  gap: 3px;
+  font-size: 12.5px;
+  line-height: 1.35;
   color: var(--text-dim);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.about-card .credits p {
+  margin: 0;
+  padding: 0;
 }
 
 .about-card .credits strong {

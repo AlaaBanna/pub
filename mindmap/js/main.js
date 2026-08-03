@@ -571,6 +571,46 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// ── TRIPLE-CLICK / SHIFT-CLICK CACHE PURGE GESTURE ──
+let brandClickCount = 0;
+let brandClickTimer = null;
+document.addEventListener('click', (e) => {
+    const logoEl = e.target && e.target.closest('.mf-logo, .brand-logo, .about-version-badge, .mf-version-tag');
+    if (logoEl) {
+        if (e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            flushAppCacheAndReload();
+            return;
+        }
+        brandClickCount++;
+        clearTimeout(brandClickTimer);
+        brandClickTimer = setTimeout(() => { brandClickCount = 0; }, 800);
+        if (brandClickCount >= 3) {
+            brandClickCount = 0;
+            e.preventDefault();
+            e.stopPropagation();
+            flushAppCacheAndReload();
+        }
+    }
+});
+
+function flushAppCacheAndReload() {
+    if (window.showToast) window.showToast('جاري تفريغ التخزين المؤقت وإعادة التحميل...', 'info');
+    try {
+        sessionStorage.clear();
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(reg => reg.unregister());
+            });
+        }
+    } catch (err) { console.error('Cache Flush error:', err); }
+    setTimeout(() => {
+        const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?v=' + Date.now();
+        window.location.href = cleanUrl;
+    }, 400);
+}
+
 const aboutModal = document.getElementById('aboutModal');
 if (aboutModal) {
     aboutModal.addEventListener('click', (e) => {
@@ -595,7 +635,6 @@ if (aboutLangBtn) {
                 aboutDesc: 'صُمم ميتاـفكرة ليتيح لك تنظيم وتوسيع أفكارك بسلاسة ناطقة. نركز على سرعة التفكير وعمق المحتوى بدون خيارات مشتتة أو كثرة نقرات الماوس.',
                 c1Text: 'الفكرة والهندسة المعمارية: <strong>علاء البنا (Alaa Banna)</strong>',
                 c2Text: 'التطوير البرمجي: <strong>Google Gemini</strong>',
-                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-left: 5px;"></i>الإصدار المعتمد: <strong class="about-ver-val">v9.5.0</strong>',
                 githubText: 'مشروع مفتوح المصدر (MIT) على GitHub'
             },
             en: {
@@ -605,7 +644,6 @@ if (aboutLangBtn) {
                 aboutDesc: 'Meta-Fikra is designed for seamless, distraction-free mind mapping. We prioritize clarity, deep articles, and fast thinking over bloated options and unnecessary clicks.',
                 c1Text: 'Design & Architecture: <strong>Alaa Banna</strong>',
                 c2Text: 'Code Engineering: <strong>Google Gemini</strong>',
-                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-right: 5px;"></i>Deployed Version: <strong class="about-ver-val">v9.5.0</strong>',
                 githubText: 'Open Source (MIT) on GitHub'
             }
         }[aboutCurrentLang];
@@ -617,7 +655,6 @@ if (aboutLangBtn) {
             const ad = document.getElementById('aboutDescText'); if (ad) ad.textContent = d.aboutDesc;
             const c1 = document.getElementById('aboutC1Text'); if (c1) c1.innerHTML = d.c1Text;
             const c2 = document.getElementById('aboutC2Text'); if (c2) c2.innerHTML = d.c2Text;
-            const vt = document.getElementById('aboutVersionText'); if (vt) vt.innerHTML = d.verText;
             const gh = document.getElementById('aboutGithubText'); if (gh) gh.textContent = d.githubText;
         }
     });

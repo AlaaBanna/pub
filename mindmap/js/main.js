@@ -595,7 +595,7 @@ if (aboutLangBtn) {
                 aboutDesc: 'صُمم ميتاـفكرة ليتيح لك تنظيم وتوسيع أفكارك بسلاسة ناطقة. نركز على سرعة التفكير وعمق المحتوى بدون خيارات مشتتة أو كثرة نقرات الماوس.',
                 c1Text: 'الفكرة والهندسة المعمارية: <strong>علاء البنا (Alaa Banna)</strong>',
                 c2Text: 'التطوير البرمجي: <strong>Google Gemini</strong>',
-                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-left: 5px;"></i>الإصدار المعتمد: <strong class="about-ver-val">v9.4.0</strong>',
+                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-left: 5px;"></i>الإصدار المعتمد: <strong class="about-ver-val">v9.5.0</strong>',
                 githubText: 'مشروع مفتوح المصدر (MIT) على GitHub'
             },
             en: {
@@ -605,7 +605,7 @@ if (aboutLangBtn) {
                 aboutDesc: 'Meta-Fikra is designed for seamless, distraction-free mind mapping. We prioritize clarity, deep articles, and fast thinking over bloated options and unnecessary clicks.',
                 c1Text: 'Design & Architecture: <strong>Alaa Banna</strong>',
                 c2Text: 'Code Engineering: <strong>Google Gemini</strong>',
-                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-right: 5px;"></i>Deployed Version: <strong class="about-ver-val">v9.4.0</strong>',
+                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-right: 5px;"></i>Deployed Version: <strong class="about-ver-val">v9.5.0</strong>',
                 githubText: 'Open Source (MIT) on GitHub'
             }
         }[aboutCurrentLang];

@@ -1718,6 +1718,12 @@ body.lang-en #aiPromptInput {
   direction: rtl;
 }
 
+.about-card .card-top-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .about-card .brand-logo {
   font-size: 20px;
   font-weight: 700;
@@ -1733,28 +1739,25 @@ body.lang-en #aiPromptInput {
 }
 
 .about-card .about-close-btn {
-  position: absolute;
-  top: 16px;
-  left: 18px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: var(--text-dim);
-  font-size: 22px;
+  font-size: 20px;
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   line-height: 1;
   transition: all 0.2s ease;
-  z-index: 10;
+  flex-shrink: 0;
 }
 
 .about-card .about-close-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
   color: #f87171;
   transform: scale(1.05);
 }

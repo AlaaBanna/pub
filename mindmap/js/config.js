@@ -1,4 +1,6 @@
-// Version: v3.1.0 | Updated: 2026-07-31 13:34 | Features: Restored alive intensity (1.0) and drift focus (1.8) settings
+// Version: v3.2.0 | Updated: 2026-08-04 | Features: API_BASE same-origin routing
+const API_BASE = (typeof window !== 'undefined' && window.location) ? window.location.origin : '';
+
 // ── CANVAS THEME PALETTES ──
 const THEMES = {
     dark: {

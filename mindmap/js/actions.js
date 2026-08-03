@@ -782,7 +782,7 @@ function toggleSamplesMenu(show) {
 
 // ── AI MIND MAP GENERATOR SERVER URL ──
 function getAiServerUrl() {
-    return 'https://metafikra-mindmap-ai.alaabanna.workers.dev';
+    return (typeof API_BASE !== 'undefined') ? API_BASE : window.location.origin;
 }
 
 async function generateAiMindMap(promptText) {

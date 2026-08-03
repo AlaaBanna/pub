@@ -2,6 +2,11 @@ name = "metafikra-mindmap-ai"
 main = "worker.js"
 compatibility_date = "2024-09-23"
 
+routes = [
+  { pattern = "metafikra.com/api/*", zone_name = "metafikra.com" },
+  { pattern = "www.metafikra.com/api/*", zone_name = "metafikra.com" }
+]
+
 [vars]
 ENVIRONMENT = "production"
 JWT_SECRET = "metafikra_mindmap_jwt_secret_key_2026"

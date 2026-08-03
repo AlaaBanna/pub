@@ -4,7 +4,7 @@
     window.jwtToken = localStorage.getItem('mf_jwt') || null;
 
     function getApiUrl() {
-        return 'https://metafikra-mindmap-ai.alaabanna.workers.dev';
+        return (typeof API_BASE !== 'undefined') ? API_BASE : window.location.origin;
     }
 
     async function apiRequest(endpoint, method = 'GET', body = null) {

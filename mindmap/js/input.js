@@ -130,6 +130,18 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
+    // Global About Modal Shortcut (Key I / Alt+I / Cmd+Shift+I / هـ)
+    if ((e.code === 'KeyI' || e.key === 'i' || e.key === 'I' || e.key === 'هـ') || (e.altKey && (e.code === 'KeyI' || e.key === 'i' || e.key === 'I')) || (isCtrl && e.shiftKey && (e.code === 'KeyI' || e.key === 'i' || e.key === 'I'))) {
+        e.preventDefault();
+        const abtModal = document.getElementById('aboutModal');
+        if (abtModal && abtModal.style.display !== 'none') {
+            closeAboutModal();
+        } else {
+            openAboutModal();
+        }
+        return;
+    }
+
     // Spacebar or N key opens Article Modal for focused node
     if (e.code === 'Space' || e.key === ' ' || e.code === 'KeyN' || e.key === 'n' || e.key === 'N') {
         e.preventDefault();

@@ -75,6 +75,7 @@ Every node in the mind map can store a full-length Markdown article (`node.artic
 | **Search Mind Map** | `Ctrl + F` / `/` | Header Search Box | Focuses search input to filter titles & articles. |
 | **Toggle Direction** | `G` | Header Direction Icon | Toggles layout branching direction (Right-to-Left / Left-to-Right). |
 | **AI Generator** | `Alt + A` | Header Wand Icon | Opens the AI Mind Map Generator Modal. |
+| **About Project** | `I` / `Alt + I` | Sublabel "خريطة الأفكار" | Opens the Glassmorphic About Project Modal with version info. |
 
 ---
 

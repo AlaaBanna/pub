@@ -1732,6 +1732,58 @@ body.lang-en #aiPromptInput {
   color: var(--text-dim);
 }
 
+.about-card .about-close-btn {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-dim);
+  font-size: 22px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.about-card .about-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  transform: scale(1.05);
+}
+
+.about-card .about-version-badge {
+  background: rgba(226, 183, 20, 0.15);
+  border: 1px solid rgba(226, 183, 20, 0.4);
+  color: #e2b714;
+  font-family: 'DM Sans', monospace, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 12px;
+  letter-spacing: 0.03em;
+}
+
+.about-card .about-version-text {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.about-card .about-ver-val {
+  color: #e2b714;
+  font-family: 'DM Sans', monospace, sans-serif;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
 .about-card .lang-btn {
   background: rgba(226, 183, 20, 0.1);
   border: 1px solid rgba(226, 183, 20, 0.3);

@@ -556,6 +556,21 @@ if (aboutTriggerBtn) {
     });
 }
 
+const aboutModalClose = document.getElementById('aboutModalClose');
+if (aboutModalClose) {
+    aboutModalClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeAboutModal();
+    });
+}
+
+document.addEventListener('click', (e) => {
+    if (e.target && (e.target.closest('.mf-project') || e.target.closest('.mf-title-sub'))) {
+        e.stopPropagation();
+        openAboutModal();
+    }
+});
+
 const aboutModal = document.getElementById('aboutModal');
 if (aboutModal) {
     aboutModal.addEventListener('click', (e) => {
@@ -580,6 +595,7 @@ if (aboutLangBtn) {
                 aboutDesc: 'صُمم ميتاـفكرة ليتيح لك تنظيم وتوسيع أفكارك بسلاسة ناطقة. نركز على سرعة التفكير وعمق المحتوى بدون خيارات مشتتة أو كثرة نقرات الماوس.',
                 c1Text: 'الفكرة والهندسة المعمارية: <strong>علاء البنا (Alaa Banna)</strong>',
                 c2Text: 'التطوير البرمجي: <strong>Google Gemini</strong>',
+                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-left: 5px;"></i>الإصدار المعتمد: <strong class="about-ver-val">v9.4.0</strong>',
                 githubText: 'مشروع مفتوح المصدر (MIT) على GitHub'
             },
             en: {
@@ -589,6 +605,7 @@ if (aboutLangBtn) {
                 aboutDesc: 'Meta-Fikra is designed for seamless, distraction-free mind mapping. We prioritize clarity, deep articles, and fast thinking over bloated options and unnecessary clicks.',
                 c1Text: 'Design & Architecture: <strong>Alaa Banna</strong>',
                 c2Text: 'Code Engineering: <strong>Google Gemini</strong>',
+                verText: '<i class="fa-solid fa-code-branch" style="color: #e2b714; margin-right: 5px;"></i>Deployed Version: <strong class="about-ver-val">v9.4.0</strong>',
                 githubText: 'Open Source (MIT) on GitHub'
             }
         }[aboutCurrentLang];
@@ -600,6 +617,7 @@ if (aboutLangBtn) {
             const ad = document.getElementById('aboutDescText'); if (ad) ad.textContent = d.aboutDesc;
             const c1 = document.getElementById('aboutC1Text'); if (c1) c1.innerHTML = d.c1Text;
             const c2 = document.getElementById('aboutC2Text'); if (c2) c2.innerHTML = d.c2Text;
+            const vt = document.getElementById('aboutVersionText'); if (vt) vt.innerHTML = d.verText;
             const gh = document.getElementById('aboutGithubText'); if (gh) gh.textContent = d.githubText;
         }
     });

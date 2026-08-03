@@ -2,6 +2,11 @@
 (function () {
   var s = document.currentScript;
   var project = s.getAttribute('data-project') || 'خريطة الأفكار';
+  var version = s ? (s.getAttribute('data-version') || '') : '';
+  if (!version && s && s.src) {
+    var m = s.src.match(/[?&]v=([^&]+)/);
+    if (m) version = (m[1].startsWith('v') ? '' : 'v') + m[1];
+  }
   var home = s.getAttribute('data-home') || './';
   var helpTitle = s.getAttribute('data-help') || 'اختصارات لوحة المفاتيح';
   var helpId = s.getAttribute('data-help-id') || 'helpBtn';
@@ -12,11 +17,20 @@
     rightHtml += '<span class="mf-help" id="' + helpId + '" title="' + helpTitle + '">?</span>';
   }
 
+  var projectHtml = '';
+  if (project) {
+    projectHtml = '<span class="mf-project' + (version ? ' has-version' : '') + '"' +
+      (version ? ' title="إصدار التطبيق: ' + version + '" data-version="' + version + '"' : '') + '>' +
+      project +
+      (version ? '<span class="mf-version-tag">' + version + '</span>' : '') +
+      '</span>';
+  }
+
   var el = document.createElement('div');
   el.className = 'mf-bar';
   el.innerHTML =
     '<a href="' + home + '" class="mf-logo">ميتاـفكرة<span class="mf-dot">.</span></a>' +
-    (project ? '<span class="mf-project">' + project + '</span>' : '') +
+    projectHtml +
     '<div class="mf-right">' + rightHtml + '</div>';
 
   document.body.insertBefore(el, document.body.firstChild);

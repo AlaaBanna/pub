@@ -45,13 +45,17 @@ The client application is built using modular Vanilla JavaScript ($ES6+$) design
 | Module | File | Primary Responsibility |
 | :--- | :--- | :--- |
 | **Config** | [js/config.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/config.js) | Global design system tokens, color palettes, physics radii, and font declarations. |
+| **Toast** | [js/toast.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/toast.js) | Toast notification system (`showToast`) and UI alerts. |
+| **I18n** | [js/i18n.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/i18n.js) | Translations dictionary (`TRANSLATIONS`), language switcher (`applyLanguage`), and theme toggler (`mfToggleTheme`). |
 | **Data** | [js/data.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/data.js) | Mind Map tree data structures, `$O(1)$` `nodeIndexMap`, `.mt` parser/serializer, and sample datasets. |
 | **Layout** | [js/layout.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/layout.js) | Radial layout algorithms, coordinate calculations, and node spacing calculations. |
 | **Renderer** | [js/renderer.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/renderer.js) | HTML5 Canvas rendering loop, organic node morphing waves, vector eye badges, and text layout caching. |
 | **Actions** | [js/actions.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/actions.js) | Node CRUD operations, undo/redo stack (`pushSnapshot`), Cloud Sync API requests, and AI map generator. |
 | **Input** | [js/input.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/input.js) | Keyboard shortcut dispatcher, canvas pan/zoom gesture listeners, and node text input handler. |
 | **Auth** | [js/auth.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/auth.js) | Session storage (`mf_jwt`, `mf_user`), UTF-8 Base64 JWT payload decoder, and Google OAuth 2.0 integration. |
-| **Main** | [js/main.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/main.js) | UI initialization, header dropdown listeners, language switcher, and universal modal manager (`closeAllModalsAndPanels`). |
+| **Article** | [js/article.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/article.js) | Rich Markdown reader modal, EasyMDE single-box editor, and per-visitor read status persistence. |
+| **Cloud UI** | [js/cloud-ui.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/cloud-ui.js) | Auth Modal UI interaction handlers and Cloud Maps drawer UI list rendering and actions. |
+| **Main** | [js/main.js](file:///Users/alaabanna/meta-fikra/pub/mindmap/js/main.js) | Canvas gestures (pan/zoom/touch), 60 FPS animation loop, search bar handlers, about modal, and app bootstrap (`init`). |
 
 ---
 

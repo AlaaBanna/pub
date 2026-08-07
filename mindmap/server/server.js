@@ -1,4 +1,4 @@
-// Version: v4.1.0 | Updated: 2026-07-31 18:49 | Features: Enriched Groq systemInstruction with inline node notes (:: syntax)
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Standalone Local Express Dev Server Proxy
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';

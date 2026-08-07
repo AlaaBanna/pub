@@ -1,4 +1,4 @@
-// Version: v8.1.0 | Updated: 2026-08-01 02:27 | Features: Unified storage persistence and clean article data helpers
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Mind Map Data Layer & Node Indexing
 // ── UTILITIES ──
 const uid = () => Math.random().toString(36).slice(2, 11);
 const clone = o => JSON.parse(JSON.stringify(o));

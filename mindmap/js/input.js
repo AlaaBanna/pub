@@ -1,4 +1,4 @@
-// Version: v2.7.2 | Updated: 2026-07-31 13:11 | Features: Explicit Arabic key ى/آ mapping for N post-it note shortcut
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Keyboard Navigation & Event Listeners Module
 document.addEventListener('keydown', (e) => {
     const activeEl = document.activeElement;
     const isEditingInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');

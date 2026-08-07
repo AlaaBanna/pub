@@ -1,4 +1,4 @@
-// Version: v2.0.0 | Updated: 2026-08-01 | Features: Groq AI Proxy + Cloudflare D1 Auth, Saved Maps & Sharing API
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Groq AI Proxy + Cloudflare D1 Auth, Saved Maps & Sharing API
 export default {
   async fetch(request, env, ctx) {
     const corsHeaders = {

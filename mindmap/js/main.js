@@ -1,4 +1,4 @@
-// Version: v8.0.0 | Updated: 2026-08-01 02:22 | Features: Rich Node Articles, Split Markdown Editor with Live Preview, Canvas Eye Indicator Badge, and Reader Modal
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: App Bootstrap & Main Canvas Logic Module
 // ── GLOBALS ──
 let cw, ch, lastTime = 0, prevVersion = -1;
 const canvas = document.getElementById('canvas');

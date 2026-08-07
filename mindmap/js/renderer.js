@@ -1,4 +1,4 @@
-// Version: v3.1.0 | Updated: 2026-07-31 13:34 | Features: Increased organic bacterial morphing wave distortion multipliers (w1: 0.070, w2: 0.042, w3: 0.025)
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Canvas Animation & Visual Node Renderer Engine
 function drawOrbits() {
     const focusedAnim = state.animNodes[state.focusedId];
     if (!focusedAnim) return;

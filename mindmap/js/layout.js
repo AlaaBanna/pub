@@ -1,4 +1,4 @@
-// Version: v2.3.1 | Updated: 2026-07-29 01:02 | Features: Balanced node spread width and comfortable 260px page edge margins
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Radial Tree Layout Calculation Engine
 function recalculateLayout() {
     const oldAnimNodes = state.animNodes || {};
     state.animNodes = {};

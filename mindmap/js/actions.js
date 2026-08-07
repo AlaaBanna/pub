@@ -1,4 +1,4 @@
-// Version: v3.2.2 | Updated: 2026-07-31 17:09 | Features: Detailed error message propagation from backend server
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Mind Map Actions, Node Editing & AI Integration Module
 let editingId = null;
 
 // ── UNDO / REDO ──

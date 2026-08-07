@@ -1,4 +1,4 @@
-// Version: v3.2.0 | Updated: 2026-08-04 | Features: API_BASE same-origin routing
+// Version: v1.0.0 | Updated: 2026-08-07 | Features: Mind Map Configuration & API Base
 const API_BASE = (typeof window !== 'undefined' && window.location) ? window.location.origin : '';
 
 // ── CANVAS THEME PALETTES ──
